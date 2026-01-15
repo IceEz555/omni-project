@@ -2,7 +2,7 @@ import mqtt from "mqtt";
 import { loadProfile } from "./profileLoader.js";
 import { validateTelemetry } from "./validator.js";
 
-const BROKER_URL = "mqtt://localhost:1883";
+const BROKER_URL = process.env.MQTT_BROKER;
 const TOPIC = "iot/+/+/telemetry"; // + คือ Wildcard (แทนอะไรก็ได้) เช่น iot/device1/room1/telemetry
 
 export function startMqtt() {

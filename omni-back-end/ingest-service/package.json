@@ -11,6 +11,8 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.35.0",
+    "dotenv": "^17.2.3",
     "mqtt": "^5.14.1"
   }
 }
