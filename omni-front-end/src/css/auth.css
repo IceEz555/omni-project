@@ -6,6 +6,11 @@
   justify-content: center;
 }
 
+.auth-logo {
+  display: block;
+  margin: 0 auto 24px auto;
+  width: 120px;
+}
 .auth-card {
   background: white;
   padding: 40px;

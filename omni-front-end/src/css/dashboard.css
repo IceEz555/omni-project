@@ -28,7 +28,7 @@
 }
 
 .stats-box {
-  margin-top: 32px;
+  margin-bottom: 32px;
   background: var(--seafoam-main);
   color: white;
   padding: 24px;
@@ -36,4 +36,11 @@
   display: flex;
   justify-content: space-around;
   text-align: center;
+}
+
+.box {
+  flex: 1;
+}
+.box:not(:last-child) {
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
 }

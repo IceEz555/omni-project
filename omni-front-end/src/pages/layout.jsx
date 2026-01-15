@@ -1,10 +1,11 @@
 import React from "react";
+import logo from "../assets/logo.png";
 import "../css/layout.css";
 
 export const Layout = ({ children, title, currentPage, setPage }) => (
   <div className="layout-container">
     <div className="sidebar">
-      <div className="logo">LOGO</div>
+      <img src={logo} alt="" className="logo"/>
       <nav className="nav-menu">
         {["Dashboard", "Live Monitor", "Sessions"].map((item) => (
           <button

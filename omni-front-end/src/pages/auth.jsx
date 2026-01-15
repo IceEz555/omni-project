@@ -1,10 +1,11 @@
 import React from "react";
+import logo from "../assets/logo.png";
 import "../css/auth.css";
 
 export const AuthPage = ({ setPage }) => (
   <div className="auth-container">
     <div className="auth-card">
-      <h2 style={{ textAlign: "center", color: "var(--seafoam-main)" }}>WELCOME</h2>
+      <img src={logo} alt="Logo" className="auth-logo" />
       <div className="input-group">
         <label>Email</label>
         <input type="text" placeholder="email@domain.com" />
