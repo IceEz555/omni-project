@@ -4,6 +4,30 @@
   gap: 24px;
 }
 
+@media (max-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-box {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .box:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+}
+
 .status-badge {
   font-size: 12px;
   padding: 4px 8px;
@@ -41,6 +65,7 @@
 .box {
   flex: 1;
 }
+
 .box:not(:last-child) {
   border-right: 1px solid rgba(255, 255, 255, 0.3);
 }

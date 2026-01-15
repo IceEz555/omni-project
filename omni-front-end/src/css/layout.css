@@ -6,7 +6,9 @@
   --border-color: #e0e0e0;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -31,7 +33,8 @@ body {
 .logo {
   padding: 24px;
   font-size: 24px;
-  font-weight: bold; /* แก้จาก font-bold เป็น font-weight */
+  font-weight: bold;
+  /* แก้จาก font-bold เป็น font-weight */
   color: var(--seafoam-main);
   border-bottom: 1px solid #f0f0f0;
 }
@@ -85,7 +88,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 32px;
-  display: flex; 
+  display: flex;
   flex-direction: column;
 }
 
@@ -96,10 +99,48 @@ body {
   border: 1px solid var(--border-color);
 }
 
-.logo{
+.logo {
   display: block;
   margin: 0 auto 24px auto;
   width: 150px;
+}
+
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .nav-menu {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    width: auto;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  .main-area {
+    height: auto;
+    overflow: visible;
+    /* Let body scroll naturally on mobile if needed, or keep overflow hidden if using internal scroll */
+    flex: 1;
+  }
+
+  .content-scroll {
+    overflow-y: visible;
+    /* Allow content to flow naturally on mobile */
+  }
 }
 
 .nav-logout {
@@ -113,6 +154,7 @@ body {
   cursor: pointer;
   transition: 0.2s;
 }
+
 .nav-logout.active {
   background-color: var(--seafoam-light);
   color: #117A65;

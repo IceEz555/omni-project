@@ -11,12 +11,14 @@
   margin: 0 auto 24px auto;
   width: 120px;
 }
+
 .auth-card {
   background: white;
   padding: 40px;
   border-radius: 16px;
-  width: 350px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .input-group {

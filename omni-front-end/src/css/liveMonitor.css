@@ -2,15 +2,17 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  flex: 1; 
+  flex: 1;
   height: 100%;
 }
 
 .heatmap-box {
   background: var(--seafoam-bg);
   border: 2px dashed var(--seafoam-light);
-  min-height: 300px;
-  min-width: 300px;
+  min-height: 150px;
+  min-width: 150px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,10 +20,20 @@
 }
 
 .skeleton-box {
-  flex: 1; 
+  flex: 1;
   background: #eee;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #aaa;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-height: 150px;
+  min-width: 150px;
+}
+
+@media (max-width: 768px) {
+  .monitor-grid {
+    flex-direction: column;
+  }
 }

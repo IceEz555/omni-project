@@ -12,9 +12,9 @@ export const LiveMonitor = () => (
       width: "100%",
     }}
   >
-    <div style={{ display: "flex", gap: "20px", flex: 1 }}>
+    <div className="monitor-grid" style={{ display: "flex", gap: "20px", flex: 1 }}>
       <div
-        style={{ flex: 2, display: "flex", flexDirection: "column" }}
+        style={{ flex: 1, display: "flex", flexDirection: "column" }}
         className="card"
       >
         <p style={{ fontSize: "12px", fontWeight: "bold", color: "#888" }}>
@@ -46,5 +46,5 @@ export const LiveMonitor = () => (
       </p>
       <div style={{ height: "80px", borderBottom: "1px solid #eee" }}></div>
     </div>
-  </div>
+  </div >
 );
