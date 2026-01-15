@@ -1,15 +1,15 @@
 export function validateTelemetry(data, profile) {
-  const errors = [];
-  const schema = profile.telemetry_schema;
+  const errors = []; // สร้างตะกร้าเก็บข้อผิดพลาด
+  const schema = profile.telemetry_schema; // ดึงส่วน schema ออกมาจาก profile
 
-  // 1) check required fields (จาก fields[].required === true)
+  // Loop 1: เช็ค Field ที่จำเป็น (Required) (จาก fields[].required === true)
   for (const fieldDef of schema.fields) {
     if (fieldDef.required && !(fieldDef.name in data)) {
       errors.push(`Missing required field: ${fieldDef.name}`);
     }
   }
 
-  // 2) check field types (basic)
+  // Loop 2: เช็คประเภทข้อมูล (Type Check)
   for (const fieldDef of schema.fields) {
     const name = fieldDef.name;
     if (!(name in data)) continue;
