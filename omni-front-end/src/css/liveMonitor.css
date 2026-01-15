@@ -1,0 +1,26 @@
+.live-monitor-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1; /* ยืดให้เต็ม content-scroll */
+  height: 100%;
+}
+
+.heatmap-box {
+  background: var(--seafoam-bg);
+  border: 2px dashed var(--seafoam-light);
+  flex: 1; /* ยืดให้เต็มพื้นที่การ์ดแนวตั้ง */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--seafoam-main);
+}
+
+.skeleton-box {
+  flex: 1; /* ยืดให้เต็มพื้นที่การ์ดแนวตั้ง */
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+}
