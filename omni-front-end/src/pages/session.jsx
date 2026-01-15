@@ -1,7 +1,8 @@
 import React from "react";
 import "../css/session.css";
 
-export const Sessions = ({ setPage }) => (
+export const Sessions = ({ setPage }) => {
+  return (
   <table>
     <thead>
       <tr><th>Date</th><th>Duration</th><th>Summary</th><th>Action</th></tr>
@@ -17,6 +18,7 @@ export const Sessions = ({ setPage }) => (
       ))}
     </tbody>
   </table>
-);
+  )
+};
 
 

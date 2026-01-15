@@ -2,7 +2,8 @@ import React from "react";
 import logo from "../assets/logo.png";
 import "../css/layout.css";
 
-export const Layout = ({ children, title, currentPage, setPage }) => (
+export const Layout = ({ children, title, currentPage, setPage }) => {
+  return (
   <div className="layout-container">
     <div className="sidebar">
       <img src={logo} alt="" className="logo"/>
@@ -31,4 +32,5 @@ export const Layout = ({ children, title, currentPage, setPage }) => (
       </main>
     </div>
   </div>
-);
+)
+};

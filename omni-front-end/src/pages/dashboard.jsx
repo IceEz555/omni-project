@@ -1,7 +1,8 @@
 import React from "react";
 import "../css/dashboard.css";
 
-export const Dashboard = ({ setPage }) => (
+export const Dashboard = ({ setPage }) => {
+  return (
   <div>
     <div className="stats-box">
       <div className="box"><h3>12</h3><p>Active Sessions</p></div>
@@ -23,4 +24,5 @@ export const Dashboard = ({ setPage }) => (
       ))}
     </div>
   </div>
-);
+)
+};

@@ -2,7 +2,9 @@ import React from "react";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 
-export const AuthPage = ({ setPage }) => (
+export const AuthPage = ({ setPage }) => {
+
+  return ( 
   <div className="auth-container">
     <div className="auth-card">
       <img src={logo} alt="Logo" className="auth-logo" />
@@ -23,4 +25,5 @@ export const AuthPage = ({ setPage }) => (
       </button>
     </div>
   </div>
-);
+)
+};
