@@ -1,4 +1,18 @@
 import { startMqtt } from "./mqttClient.js";
+import { writeApi } from "./influxWriter.js";
 
+// -------------------------------------------------------------------------
+// ✅ Start MQTT
+// -------------------------------------------------------------------------
 console.log("🚀 Ingest Service starting...");
 startMqtt();
+
+// -------------------------------------------------------------------------
+// ✅ Graceful Shutdown (ปิดโปรแกรมอย่างสวยงาม)
+// -------------------------------------------------------------------------
+process.on("SIGINT", async () => {
+  console.log("Closing InfluxDB writer...");
+  await writeApi.close();
+  process.exit(0);
+});
+

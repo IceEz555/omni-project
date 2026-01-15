@@ -1,9 +1,10 @@
 import mqtt from "mqtt";
 import { loadProfile } from "./profileLoader.js";
 import { validateTelemetry } from "./validator.js";
+import { writeYogaMat } from "./influxWriter.js";
 
 const BROKER_URL = "mqtt://localhost:1883";
-const TOPIC = "iot/+/+/telemetry"; // + คือ Wildcard (แทนอะไรก็ได้) เช่น iot/device1/room1/telemetry
+const TOPIC = "iot/+/telemetry"; // + คือ Wildcard (แทนอะไรก็ได้) เช่น iot/device1/telemetry
 
 export function startMqtt() {
   const client = mqtt.connect(BROKER_URL);
@@ -35,6 +36,10 @@ export function startMqtt() {
         profile_id: data.profile_id,
         timestamp: data.timestamp
       });
+      // Step D: เขียนลง InfluxDB
+      if (data.profile_id === "yoga_mat_v1") {
+        writeYogaMat(data);
+      }
 
     } catch (err) {
       console.error("❌ Ingest error:", err.message);

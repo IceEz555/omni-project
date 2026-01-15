@@ -4,7 +4,7 @@
   "telemetry_schema": {
     "fields": [
       {
-        "name": "pressure_matrix",
+        "name": "pressure_map",
         "type": "matrix",
         "rows": 32,
         "cols": 32,
