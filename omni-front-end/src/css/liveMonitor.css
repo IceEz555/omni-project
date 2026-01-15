@@ -9,7 +9,8 @@
 .heatmap-box {
   background: var(--seafoam-bg);
   border: 2px dashed var(--seafoam-light);
-  flex: 1; /* ยืดให้เต็มพื้นที่การ์ดแนวตั้ง */
+  min-height: 300px;
+  min-width: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,7 +18,7 @@
 }
 
 .skeleton-box {
-  flex: 1; /* ยืดให้เต็มพื้นที่การ์ดแนวตั้ง */
+  flex: 1; 
   background: #eee;
   display: flex;
   align-items: center;

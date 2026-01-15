@@ -17,13 +17,12 @@ export const Layout = ({ children, title, currentPage, setPage }) => (
           </button>
         ))}
       </nav>
+      <button className="nav-logout" onClick={() => setPage("Login")}>Logout</button>
     </div>
     <div className="main-area">
       <header className="top-nav">
-        <select><option>Project Alpha</option><option>Project Beta</option></select>
         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-          <span>John Doe (Supporter)</span>
-          <button onClick={() => setPage("Login")}>Logout</button>
+          <span>John Doe (user)</span>
         </div>
       </header>
       <main className="content-scroll">

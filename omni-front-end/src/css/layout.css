@@ -77,7 +77,7 @@ body {
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 0 32px;
 }
 
@@ -100,4 +100,25 @@ body {
   display: block;
   margin: 0 auto 24px auto;
   width: 150px;
+}
+
+.nav-logout {
+  width: 100%;
+  text-align: center;
+  color: red;
+  margin-bottom: 20px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.nav-logout.active {
+  background-color: var(--seafoam-light);
+  color: #117A65;
+  font-weight: bold;
+}
+
+.nav-logout:hover:not(.active) {
+  background-color: #f0f0f0;
 }
