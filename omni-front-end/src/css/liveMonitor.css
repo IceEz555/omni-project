@@ -32,8 +32,73 @@
   min-width: 150px;
 }
 
-@media (max-width: 768px) {
-  .monitor-grid {
-    flex-direction: column;
-  }
+/* New Classes for Refactoring */
+.monitor-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  width: 100%;
+}
+
+.monitor-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  font-size: 12px;
+  font-weight: bold;
+  color: #888;
+}
+
+.pose-display {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.pose-title {
+  color: var(--seafoam-main);
+  margin: 0;
+}
+
+.confidence-section {
+  margin-top: 12px;
+}
+
+.confidence-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.confidence-track {
+  width: 100%;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.confidence-fill {
+  height: 100%;
+  background: var(--seafoam-main);
+  border-radius: 4px;
+}
+
+.card-current-pose {
+  flex: 0 0 auto;
+}
+
+.card-signal {
+  flex: 0 0 120px;
+}
+
+.signal-placeholder {
+  height: 80px;
+  border-bottom: 1px solid #eee;
 }
