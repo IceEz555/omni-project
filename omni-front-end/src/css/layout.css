@@ -80,6 +80,7 @@ body {
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
+  gap: 16px;
   justify-content: flex-end;
   padding: 0 32px;
 }

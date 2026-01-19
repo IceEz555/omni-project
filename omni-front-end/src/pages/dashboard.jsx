@@ -5,9 +5,9 @@ export const Dashboard = ({ setPage }) => {
   return (
   <div>
     <div className="stats-box">
-      <div className="box"><h3>12</h3><p>Active Sessions</p></div>
-      <div className="box"><h3>5</h3><p>Devices Online</p></div>
-      <div className="box"><h3>4.2h</h3><p>Usage Today</p></div>
+      <div className="box"><p>Active Devices</p><h3>12</h3></div>
+      <div className="box"><p>Devices Online</p><h3>5</h3></div>
+      <div className="box"><p>Alert</p><h3>0</h3></div>
     </div>
     <div className="card-grid">
       {[1, 2, 3, 4, 5, 6].map((i) => (
