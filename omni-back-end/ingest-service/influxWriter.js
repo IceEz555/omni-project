@@ -11,7 +11,7 @@ const influxDB = new InfluxDB({ url, token });
 export const writeApi = influxDB.getWriteApi(org, bucket);
 
 export function writeYogaMat(data) {
-  console.log("📝 Writing to InfluxDB:", data.device_id, data.timestamp);
+  console.log("📝 Writing to InfluxDB:", data.device_id, "\n","Device Profile:", data.profile_id, "\n", "Timestamp:", data.timestamp);
 
   const ts = typeof data.timestamp === "number"
     ? new Date(data.timestamp)

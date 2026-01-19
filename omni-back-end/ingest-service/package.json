@@ -12,7 +12,10 @@
   "type": "module",
   "dependencies": {
     "@influxdata/influxdb-client": "^1.35.0",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "mqtt": "^5.14.1"
   }
 }

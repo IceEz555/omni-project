@@ -1,12 +1,14 @@
 import "dotenv/config";
 import { writeApi } from "./influxWriter.js";
 import { startMqtt } from "./mqttClient.js";
+import { startApi } from "./api.js";
 
 // -------------------------------------------------------------------------
-// ✅ Start MQTT
+// ✅ Start MQTT & API
 // -------------------------------------------------------------------------
 console.log("🚀 Ingest Service starting...");
 startMqtt();
+startApi();
 
 // -------------------------------------------------------------------------
 // ✅ Graceful Shutdown (ปิดโปรแกรมอย่างสวยงาม)
