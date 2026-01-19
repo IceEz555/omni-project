@@ -10,22 +10,37 @@ const bucket = process.env.INFLUX_BUCKET;
 const influxDB = new InfluxDB({ url, token });
 export const writeApi = influxDB.getWriteApi(org, bucket);
 
-export function writeYogaMat(data) {
-  console.log("📝 Writing to InfluxDB:", data.device_id, "\n","Device Profile:", data.profile_id, "\n", "Timestamp:", data.timestamp);
+export function writeTelemetry(data, profile) {
+  console.log(`📝 Writing to InfluxDB: ${data.device_id} \n Device Type: ${profile.device_type} \n Timestamp: ${data.timestamp}`);
 
-  const ts = typeof data.timestamp === "number"
-    ? new Date(data.timestamp)
-    : new Date(data.timestamp);
+  const ts = new Date(data.timestamp);
 
-  const point = new Point("yoga_mat")
+  // Use device_type as the measurement name (e.g., "yoga_mat", "imu")
+  const point = new Point(profile.device_type)
     .tag("device_id", data.device_id)
     .tag("profile_id", data.profile_id)
-    .intField(
-      "pressure_matrix_size",
-      data.pressure_map.length // หรือ pressure_matrix
-    )
     .timestamp(ts);
 
+  // Dynamic Field Injection
+  for (const field of profile.telemetry_schema.fields) {
+    const value = data[field.name];
+    if (value === undefined) continue;
+
+    if (field.type === 'matrix' || Array.isArray(value)) {
+      // 1. Store Full Data (JSON String)
+      point.stringField(field.name, JSON.stringify(value));
+      // 2. Store Size (Auto-generated generic size field)
+      // e.g. pressure_map -> pressure_map_size
+      point.intField(`${field.name}_size`, value.length);
+    } else if (typeof value === 'boolean') {
+      point.booleanField(field.name, value);
+    } else if (typeof value === 'number') {
+      point.floatField(field.name, value);
+    } else {
+      point.stringField(field.name, String(value));
+    }
+  }
+
   writeApi.writePoint(point);
-   writeApi.flush(); // บังคับส่งทันที
+  writeApi.flush();
 }

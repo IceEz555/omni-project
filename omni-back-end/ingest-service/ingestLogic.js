@@ -1,6 +1,6 @@
 import { loadProfile } from "./profileLoader.js";
 import { validateTelemetry } from "./validator.js";
-import { writeYogaMat } from "./influxWriter.js";
+import { writeTelemetry } from "./influxWriter.js";
 
 export async function processTelemetry(data) {
   // 1. Basic Check
@@ -22,12 +22,9 @@ export async function processTelemetry(data) {
     return { success: false, error: "Validation Failed", type: "VALIDATION_ERROR", details: result.errors };
   }
 
-  // 4. Write to DB (Pending Generic Refactor)
+  // 4. Write to DB (Generic)
   try {
-    if (data.profile_id === "yoga_mat_v1") {
-      writeYogaMat(data);
-    }
-    // Future: writeGeneric(data)
+    writeTelemetry(data, profile);
   } catch (e) {
     return { success: false, error: `DB Write Failed: ${e.message}`, type: "DB_ERROR" };
   }
