@@ -40,7 +40,6 @@ app.post("/device-profiles", (req, res) => {
     if (!profile_id || !device_type || !telemetry_schema) {
       return res.status(400).json({ error: "Missing required fields (profile_id, device_type, telemetry_schema)" });
     }
-
     // 1. Save the profile file
     const fileName = `${profile_id}.json`;
     const filePath = path.join(PROFILE_DIR, fileName);
@@ -52,7 +51,6 @@ app.post("/device-profiles", (req, res) => {
     };
 
     fs.writeFileSync(filePath, JSON.stringify(newProfile, null, 2));
-
     // 2. Update index.json
     const index = readIndex();
     const existingIdx = index.profiles.findIndex(p => p.profile_id === profile_id);
@@ -64,7 +62,6 @@ app.post("/device-profiles", (req, res) => {
       index.profiles.push({ profile_id, device_type, file: fileName });
     }
     writeIndex(index);
-
     console.log(`[INFO] 🆕 Profile updated: ${profile_id}`);
     res.json({ message: "Profile saved successfully", profile: newProfile });
   } catch (err) {

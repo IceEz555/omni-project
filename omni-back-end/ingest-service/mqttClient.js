@@ -20,9 +20,7 @@ export function startMqtt() {
       console.error(`[ERROR] ❌ JSON Parse Failed: ${e.message}`, { raw: message.toString() });
       return;
     }
-
     const result = await processTelemetry(data);
-
     if (result.success) {
       console.log(`[INFO] ✅ Accepted telemetry for ${data.device_id} (${data.profile_id})`);
     } else {
