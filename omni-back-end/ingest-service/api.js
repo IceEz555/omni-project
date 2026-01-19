@@ -73,6 +73,27 @@ app.post("/device-profiles", (req, res) => {
   }
 });
 
+import { processTelemetry } from "./ingestLogic.js";
+
+// POST /telemetry - Ingest data via HTTP
+app.post("/telemetry", async (req, res) => {
+  try {
+    const data = req.body;
+    const result = await processTelemetry(data);
+
+    if (result.success) {
+      console.log(`[INFO] 🌐 HTTP Ingest Success: ${data.device_id}`);
+      res.json({ message: "Telemetry accepted" });
+    } else {
+      console.warn(`[WARN] 🌐 HTTP Ingest Rejected: ${result.error}`);
+      res.status(400).json({ error: result.error, details: result.details });
+    }
+  } catch (err) {
+    console.error(`[ERROR] 💥 HTTP Ingest Error: ${err.message}`);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 export function startApi() {
   app.listen(PORT, () => {
     console.log(`[INFO] 🌍 API Server running on http://localhost:${PORT}`);
