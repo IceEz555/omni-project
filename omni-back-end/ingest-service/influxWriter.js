@@ -55,7 +55,7 @@ export async function readTelemetry(deviceId, start = "-1h") {
     from(bucket: "${bucket}")
       |> range(start: ${start})
       |> filter(fn: (r) => r["device_id"] == "${deviceId}")
-      |> pivot(rowKey:["_time"], colKey:["_field"], valueColumn:"_value")
+      |> pivot(rowKey:["_time"], columnKey:["_field"], valueColumn:"_value")
       |> sort(columns: ["_time"], desc: true)
       |> limit(n: 100)
   `;
