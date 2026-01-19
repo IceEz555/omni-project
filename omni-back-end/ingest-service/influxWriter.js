@@ -44,3 +44,48 @@ export function writeTelemetry(data, profile) {
   writeApi.writePoint(point);
   writeApi.flush();
 }
+
+const queryApi = influxDB.getQueryApi(org);
+
+export async function readTelemetry(deviceId, start = "-1h") {
+  console.log(`🔍 Querying InfluxDB for ${deviceId}, Range: ${start}`);
+
+  // Flux Query: Filter by device_id and get recent data
+  const fluxQuery = `
+    from(bucket: "${bucket}")
+      |> range(start: ${start})
+      |> filter(fn: (r) => r["device_id"] == "${deviceId}")
+      |> pivot(rowKey:["_time"], colKey:["_field"], valueColumn:"_value")
+      |> sort(columns: ["_time"], desc: true)
+      |> limit(n: 100)
+  `;
+
+  return new Promise((resolve, reject) => {
+    const rows = [];
+    queryApi.queryRows(fluxQuery, {
+      next(row, tableMeta) {
+        const o = tableMeta.toObject(row);
+        
+        // Convert JSON strings back to objects (for Matrix/Arrays)
+        for (const key in o) {
+          if (typeof o[key] === 'string' && (o[key].startsWith('[') || o[key].startsWith('{'))) {
+            try {
+              o[key] = JSON.parse(o[key]);
+            } catch (e) {
+              // Keep as string if parsing fails
+            }
+          }
+        }
+        rows.push(o);
+      },
+      error(error) {
+        console.error("❌ Query Failed:", error);
+        reject(error);
+      },
+      complete() {
+        console.log(`✅ Query Complete: Found ${rows.length} records`);
+        resolve(rows);
+      },
+    });
+  });
+}
