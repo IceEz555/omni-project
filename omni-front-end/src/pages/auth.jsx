@@ -39,6 +39,22 @@ export const AuthPage = ({ setPage }) => {
         >
           Login as Admin
         </button>
+        <button
+          className="btn-secondary"
+          style={{
+            marginTop: "12px",
+            background: "transparent",
+            color: "#666",
+            border: "1px solid #ddd",
+            width: "100%",
+            padding: "10px",
+            borderRadius: "6px",
+            cursor: "pointer"
+          }}
+          onClick={() => setPage("Support Dashboard")}
+        >
+          Login as Supporter
+        </button>
       </div>
     </div>
   )

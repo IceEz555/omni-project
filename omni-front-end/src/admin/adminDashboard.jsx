@@ -57,13 +57,15 @@ export const AdminDashboard = () => {
         <h3 style={{ marginBottom: "20px" }}>Project Data Isolation</h3>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
           {["Yoga Research Lab", "Physical Therapy Clinic", "Sports Performance"].map((project, idx) => (
-            <div key={idx} style={{ padding: "16px", borderRadius: "8px", border: "1px solid #eee", background: "#fcfcfc" }}>
+            <div key={idx} style={{ padding: "16px", borderRadius: "8px", border: "1px solid #eee", background: "#fcfcfc", display: "flex", flexDirection: "column" }}>
               <h4 style={{ margin: "0 0 12px 0" }}>{project}</h4>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#666" }}>
-                <span>Users</span><span>{45 + idx * 10}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#666", marginTop: "4px" }}>
-                <span>Devices</span><span>{3 + idx}</span>
+              <div style={{ marginTop: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#666" }}>
+                  <span>Users</span><span style={{ color: "#333", fontWeight: "500" }}>{45 + idx * 10}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#666", marginTop: "4px" }}>
+                  <span>Devices</span><span style={{ color: "#333", fontWeight: "500" }}>{3 + idx}</span>
+                </div>
               </div>
             </div>
           ))}
