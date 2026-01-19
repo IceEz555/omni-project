@@ -71,6 +71,20 @@ app.post("/device-profiles", (req, res) => {
 });
 
 import { processTelemetry } from "./ingestLogic.js";
+import { readTelemetry } from "./influxWriter.js";
+
+// GET /telemetry/:device_id - Retrieve history
+app.get("/telemetry/:device_id", async (req, res) => {
+  try {
+    const { device_id } = req.params;
+    const { start } = req.query; // e.g. "-1h", "-6h"
+
+    const data = await readTelemetry(device_id, start);
+    res.json({ count: data.length, data });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve telemetry", details: err.message });
+  }
+});
 
 // POST /telemetry - Ingest data via HTTP
 app.post("/telemetry", async (req, res) => {
