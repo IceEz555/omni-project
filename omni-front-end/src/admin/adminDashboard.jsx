@@ -44,10 +44,34 @@ export const AdminDashboard = () => {
         {/* ส่วนกลางขวา: Quick Actions */}
         <div className="card" style={{ flex: 1 }}>
           <h3 style={{ marginBottom: "20px" }}>Quick Actions</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <button className="btn-primary" style={{ textAlign: "left", fontSize: "14px" }}>+ Create New Device Profile</button>
-            <button className="btn-primary" style={{ textAlign: "left", fontSize: "14px" }}>+ Add New User</button>
-            <button className="btn-primary" style={{ textAlign: "left", fontSize: "14px", borderColor: "#333", color: "#333" }}>View System Logs</button>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {[
+              { title: "Create New Device Profile", desc: "Define a new device type and data format" },
+              { title: "Add New User", desc: "Create account and assign role" },
+              { title: "View System Logs", desc: "Check API performance and errors" }
+            ].map((action, idx) => (
+              <div key={idx}
+                style={{
+                  border: "1px dashed #ccc",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  cursor: "pointer",
+                  background: "transparent",
+                  transition: "all 0.2s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#f9f9f9";
+                  e.currentTarget.style.borderColor = "#999";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.borderColor = "#ccc";
+                }}
+              >
+                <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", color: "#333" }}>{action.title}</h4>
+                <p style={{ margin: 0, fontSize: "12px", color: "#888" }}>{action.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
