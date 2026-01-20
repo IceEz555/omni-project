@@ -172,18 +172,20 @@
 }
 
 @media (max-width: 1024px) {
-    .metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
     .dashboard-sections-grid {
         grid-template-columns: 1fr;
     }
 }
 
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 480px) {
     .metrics-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -229,7 +231,7 @@
     color: #333;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .datasets-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -237,6 +239,6 @@
 
 @media (max-width: 600px) {
     .datasets-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }

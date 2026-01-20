@@ -9,7 +9,7 @@ export const DeviceProfile = () => {
             <div className="device-profile-header">
                 <p>Manage device types and data parsing configurations</p>
                 <button className="create-profile-btn">
-                    <span>+</span> Create Profile
+                    + Create Profile
                 </button>
             </div>
 

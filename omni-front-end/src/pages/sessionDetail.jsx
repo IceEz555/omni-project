@@ -15,9 +15,9 @@ export const SessionDetail = () => {
               className={`session-list-item ${selectedEvent.id === event.id ? "selected" : ""}`}
               onClick={() => setSelectedEvent(event)}
             >
-              <div style={{ fontWeight: "500" }}>{event.time}</div>
+              <div className="session-time-text">{event.time}</div>
               <div className="session-list-current-pose">
-                Pose: <span style={{ color: "var(--seafoam-main)" }}>{event.pose}</span>
+                Pose: <span className="session-pose-label">{event.pose}</span>
               </div>
             </div>
           ))}
@@ -39,7 +39,7 @@ export const SessionDetail = () => {
           </div>
 
           <div className="pose-breakdown-section">
-            <p className="info-label" style={{ marginBottom: "8px" }}>POSE AI Predict</p>
+            <p className="info-label mb-8">POSE AI Predict</p>
             <div className="pose-breakdown-list">
               <div className="pose-breakdown-item">
                 <span className="pose-name">Tree Pose</span>

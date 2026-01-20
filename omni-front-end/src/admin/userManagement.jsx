@@ -12,7 +12,7 @@ export const UserManagement = () => {
                     <p>Manage user accounts and role-based access</p>
                 </div>
                 <button className="add-user-btn">
-                    <span>+</span> Add User
+                    + Add User
                 </button>
             </div>
 

@@ -10,89 +10,99 @@ export const AdminDashboard = () => {
   ];
 
   return (
-    <div className="admin-container" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+    <div className="admin-container">
       {/* ส่วนบน: Stats Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px" }}>
+      <div className="admin-stats-grid">
         {stats.map((stat, idx) => (
           <div key={idx} className="card" style={{ borderLeft: `4px solid ${stat.color}` }}>
-            <p style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>{stat.label}</p>
-            <h2 style={{ margin: "0" }}>{stat.value}</h2>
-            <p style={{ fontSize: "11px", color: stat.label === "System Alerts" ? "#E74C3C" : "#27AE60", marginTop: "8px" }}>
+            <p className="stat-card-label">{stat.label}</p>
+            <h2 className="stat-card-value">{stat.value}</h2>
+            <p className="stat-change-text" style={{ color: stat.label === "System Alerts" ? "#E74C3C" : "#27AE60" }}>
               {stat.change}
             </p>
           </div>
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: "24px" }}>
-        {/* ส่วนกลางซ้าย: Recent User Activity */}
-        <div className="card" style={{ flex: 2 }}>
-          <h3 style={{ marginBottom: "20px" }}>Recent User Activity</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {["Sarah Chen", "Dr. Martinez", "John Smith"].map((user, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", paddingBottom: "12px", borderBottom: "1px solid #f0f0f0" }}>
-                <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#eee" }}></div>
-                <div>
-                  <p style={{ fontSize: "14px", margin: 0 }}><strong>{user}</strong> started a new session</p>
-                  <p style={{ fontSize: "12px", color: "#888", margin: 0 }}>{i + 2} minutes ago</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ส่วนกลางขวา: Quick Actions */}
-        <div className="card" style={{ flex: 1 }}>
-          <h3 style={{ marginBottom: "20px" }}>Quick Actions</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div className="admin-middle-row">
+        {/* ส่วนกลางขวา: Quick Actions (Swapped to Left) */}
+        <div className="card flex-1">
+          <h3 className="section-title">Quick Actions</h3>
+          <div className="quick-actions-list">
             {[
               { title: "Create New Device Profile", desc: "Define a new device type and data format" },
               { title: "Add New User", desc: "Create account and assign role" },
               { title: "View System Logs", desc: "Check API performance and errors" }
             ].map((action, idx) => (
-              <div key={idx}
-                style={{
-                  border: "1px dashed #ccc",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  cursor: "pointer",
-                  background: "transparent",
-                  transition: "all 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "#f9f9f9";
-                  e.currentTarget.style.borderColor = "#999";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.borderColor = "#ccc";
-                }}
-              >
-                <h4 style={{ margin: "0 0 4px 0", fontSize: "14px", color: "#333" }}>{action.title}</h4>
-                <p style={{ margin: 0, fontSize: "12px", color: "#888" }}>{action.desc}</p>
+              <div key={idx} className="quick-action-item">
+                <h4 className="quick-action-title">{action.title}</h4>
+                <p className="quick-action-desc">{action.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ส่วนกลางซ้าย: Recent User Activity (Swapped to Right) */}
+        <div className="card flex-1">
+          <h3 className="section-title">Recent User Activity</h3>
+          <div className="user-activity-list">
+            {["Sarah Chen", "Dr. Martinez", "John Smith"].map((user, i) => (
+              <div key={i} className="user-activity-item">
+                <div className="user-avatar">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21C20 18.2386 17.7614 16 15 16H9C6.23858 16 4 18.2386 4 21" stroke="#95A5A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="12" cy="7" r="4" stroke="#95A5A6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="activity-text"><strong>{user}</strong> started a new session</p>
+                  <p className="activity-time">{i + 2} minutes ago</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ส่วนล่าง: Project Data Isolation */}
-      <div className="card">
-        <h3 style={{ marginBottom: "20px" }}>Project Data Isolation</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
-          {["Yoga Research Lab", "Physical Therapy Clinic", "Sports Performance"].map((project, idx) => (
-            <div key={idx} style={{ padding: "16px", borderRadius: "8px", border: "1px solid #eee", background: "#fcfcfc", display: "flex", flexDirection: "column" }}>
-              <h4 style={{ margin: "0 0 12px 0" }}>{project}</h4>
-              <div style={{ marginTop: "auto" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#666" }}>
-                  <span>Users</span><span style={{ color: "#333", fontWeight: "500" }}>{45 + idx * 10}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#666", marginTop: "4px" }}>
-                  <span>Devices</span><span style={{ color: "#333", fontWeight: "500" }}>{3 + idx}</span>
+      {/* ส่วนล่าง: Project Data Isolation & System Status */}
+      <div className="admin-bottom-row">
+        <div className="card flex-3">
+          <h3 className="section-title">Project Data Isolation</h3>
+          <div className="project-grid">
+            {["Yoga Research Lab", "Physical Therapy Clinic", "Sports Performance"].map((project, idx) => (
+              <div key={idx} className="project-card">
+                <h4 className="project-title">{project}</h4>
+                <div className="mt-auto">
+                  <div className="project-stat-row">
+                    <span>Users</span><span className="project-stat-val">{45 + idx * 10}</span>
+                  </div>
+                  <div className="project-stat-row">
+                    <span>Devices</span><span className="project-stat-val">{3 + idx}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* System Status (Moves here) */}
+        <div className="card flex-1">
+          <h3 className="section-title">System Status</h3>
+          <div className="system-status-list">
+            {[
+              { label: "API Server", status: "Online" },
+              { label: "Database", status: "Online" },
+              { label: "ML Service", status: "Online" },
+              { label: "Storage", status: "78% Used" }
+            ].map((item, idx) => (
+              <div key={idx} className="system-status-item">
+                <span className="status-label">{item.label}</span>
+                <div className="status-badge-outline">
+                  {item.status}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
