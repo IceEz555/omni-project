@@ -1,0 +1,39 @@
+.auth-container {
+  height: 100vh;
+  background: var(--seafoam-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-logo {
+  display: block;
+  margin: 0 auto 24px auto;
+  width: 120px;
+}
+
+.auth-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
