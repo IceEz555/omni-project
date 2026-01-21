@@ -3,7 +3,6 @@ import { deviceProfiles } from "../mock/data.jsx";
 import "../css/deviceProfile.css";
 
 export const DeviceProfile = () => {
-<<<<<<< HEAD
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({
@@ -44,7 +43,6 @@ export const DeviceProfile = () => {
                 )}
             </div>
 
-<<<<<<< HEAD
             {showCreateForm && (
                 <div className="create-profile-form">
                     <h3 className="form-title">Create New Device Profile</h3>
@@ -88,7 +86,6 @@ export const DeviceProfile = () => {
                             Create Profile
                         </button>
                         <button
-<<<<<<< HEAD
                             className="btn-cancel"
                             onClick={() => setShowCreateForm(false)}
                         >

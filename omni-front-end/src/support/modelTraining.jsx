@@ -1,9 +1,4 @@
 import React, { useState } from "react";
-<<<<<<< HEAD
-import React from "react";
-=======
-import React, { useState } from "react";
->>>>>>> dev-backend
 import "../css/modelTraining.css";
 
 
@@ -60,7 +55,7 @@ export const ModelTraining = () => {
             </div>
 
             {/* Configure New Training Job Form */}
-            {showForm && (
+            {showForm && (<>
                 <div className="training-form-container">
                     <h2 className="training-form-title">Configure New Training Job</h2>
 
@@ -249,7 +244,7 @@ export const ModelTraining = () => {
                     <span className="metric-title">Confusion</span>
                     <span className="metric-subtitle">Matrix</span>
                 </div>
-            </div>
+            </>)}
         </div>
     );
 };
