@@ -75,3 +75,36 @@ export const deleteUser = async (req, res) => {
        res.status(500).json({ error: error.message });
     }
 }
+
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany(
+            {
+                include: {
+                    role: true
+                }
+            }
+        );
+        res.json(users);
+    } catch (error) {
+       res.status(500).json({ error: error.message });
+    }
+}
+
+export const getUserById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await prisma.user.findUnique({
+            where: {
+                id: id
+            },
+            include: {
+                role: true
+            }
+        });
+        res.json(user);
+    } catch (error) {
+       res.status(500).json({ error: error.message });
+    }
+}
+
