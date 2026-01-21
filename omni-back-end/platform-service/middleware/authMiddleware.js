@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
+import 'dotenv/config';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+console.log("DEBUG: Middleware Secret loaded:", JWT_SECRET === 'your-secret-key' ? 'DEFAULT' : 'FROM ENV');
 
 // 1. Verify Token (Authentication)
 export const authenticateToken = (req, res, next) => {

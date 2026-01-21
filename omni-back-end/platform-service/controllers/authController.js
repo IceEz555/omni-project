@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import 'dotenv/config';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // Add to .env later
+console.log("DEBUG: AuthController Secret loaded:", JWT_SECRET === 'your-secret-key' ? 'DEFAULT' : 'FROM ENV');
 
 export const register = async (req, res) => {
   try {
