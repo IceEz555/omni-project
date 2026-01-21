@@ -135,7 +135,18 @@
 
 .admin-stats-grid {
   display: flex;
+  display: flex;
   gap: 20px;
+  justify-content: space-between;
+  align-items: stretch;
+  /* No horizontal scrolling — cards will shrink to fit a single row */
+}
+
+.admin-stats-grid .card {
+  flex: 1 1 0;
+  min-width: 0;
+  /* allow content to shrink below intrinsic width */
+  /* content inside card may wrap as needed */
   justify-content: space-between;
   align-items: stretch;
   /* No horizontal scrolling — cards will shrink to fit a single row */
@@ -169,9 +180,6 @@
 /* Responsive Admin Layout */
 <<<<<<< HEAD
 @media (max-width: 768px) {
-=======
-@media (max-width: 1200px) {
->>>>>>> dev-backend
   .admin-stats-grid {
     gap: 16px;
   }
