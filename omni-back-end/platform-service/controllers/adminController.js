@@ -5,15 +5,21 @@ const prisma = new PrismaClient();
 
 // Create User
 export const createUser = async (req, res) => {
- try {
+  try {
     const {username, email, password, role_name} = req.body;
+
+    // 0. Validate input
+    if (!username || !email || !password || !role_name) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
     
+    // 1. Check if role exists
     const role = await prisma.role.findUnique({
         where: {
             name: role_name
         }
     })
-     // 1. หา role_id จากชื่อ role
+
     if (!role) {
         return res.status(404).json({ message: "Role not found" });
     }
@@ -25,40 +31,55 @@ export const createUser = async (req, res) => {
         data: {
             username,
             email,
-            password: hashedPassword,
+            password_hash: hashedPassword,
             role_id: role.id
         }
     });
     return res.status(201).json({ message: "User created successfully", user: newUser });
  } catch (error) {
-    if (!username || !email || !password || !role_name) {
-        return res.status(400).json({ message: "All fields are required" });
-    }
-   res.status(500).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ error: error.message });
  }   
 };
 
 // Update User
 export const updateUser = async (req, res) => {
     try {
-        const { id } = req.params;  // รับ id จาก url
-        const {username, email, role_name} = req.body; // password อาจจะแยก api เผื่อความปลอดภัย
-        let updateData = {email, username};
+        const { id } = req.params;
+        const {username, email, role_name, password} = req.body;
+        
+        // Prepare data to update
+        let updateData = {};
+        if (username) updateData.username = username;
+        if (email) updateData.email = email;
+
+        // 1. If role_name is provided, find and update role_id
         if (role_name) {
             const role = await prisma.role.findUnique({
-                where: {
-                    name: role_name
-                }
+                where: { name: role_name }
             });
-            if (role) updateData.role_id = role.id;
+            if (role) {
+                updateData.role_id = role.id;
+            } else {
+                return res.status(400).json({ message: "Role not found" });
+            }
         }
+
+        // 2. If password is provided, hash it and update
+        if (password) {
+            const salt = await bcrypt.genSalt(10);
+            updateData.password_hash = await bcrypt.hash(password, salt);
+        }
+
         const updatedUser = await prisma.user.update({
-            where: {
-                id: id
-            },
-            data: updateData
+            where: { id: id },
+            data: updateData,
+            include: { role: true } // Return role info too
         });
-       res.json(updatedUser);
+
+        // Don't send password hash back
+        const { password_hash, ...userWithoutPassword } = updatedUser;
+        res.json(userWithoutPassword);
     } catch (error) {
        res.status(500).json({ error: error.message });
     }
