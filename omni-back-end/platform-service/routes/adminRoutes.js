@@ -1,2 +1,8 @@
 import express from "express";
-import { createUser } from "../controllers/adminController.js";
+import * as adminController from "../controllers/adminController.js";
+
+const router = express.Router();
+
+router.post("/users", adminController.createUser);
+router.put("/users/:id", adminController.updateUser);
+export default router;
