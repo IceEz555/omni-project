@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
+// Create User
 export const createUser = async (req, res) => {
  try {
     const {username, email, password, role_name} = req.body;
@@ -37,6 +38,7 @@ export const createUser = async (req, res) => {
  }   
 };
 
+// Update User
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;  // รับ id จาก url
@@ -62,6 +64,7 @@ export const updateUser = async (req, res) => {
     }
 }
 
+// Delete User
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -76,6 +79,7 @@ export const deleteUser = async (req, res) => {
     }
 }
 
+// Get All Users
 export const getAllUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany(
@@ -91,6 +95,7 @@ export const getAllUsers = async (req, res) => {
     }
 }
 
+// Get User By Id
 export const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
