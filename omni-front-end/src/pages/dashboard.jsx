@@ -1,10 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import "../css/dashboard.css";
 
 export const Dashboard = ({ setPage }) => {
+  const [showProjectForm, setShowProjectForm] = useState(false);
+  const [formData, setFormData] = useState({
+    projectName: "",
+    projectType: "Yoga",
+    description: "",
+    startDate: ""
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = () => {
+    console.log("Creating project:", formData);
+    setShowProjectForm(false);
+  };
+
   return (
     <div>
-
       <div className="dashboard-stats-grid">
         {[
           { label: "Active Devices", value: "12", color: "#48C9B0" },
@@ -17,12 +37,96 @@ export const Dashboard = ({ setPage }) => {
           </div>
         ))}
       </div>
+
       <div className="projects-header">
         <h2 className="projects-title">All Projects</h2>
-        <button className="new-project-btn">
-          + New Project
-        </button>
+        {!showProjectForm && (
+          <button
+            className="new-project-btn"
+            onClick={() => setShowProjectForm(true)}
+          >
+            + New Project
+          </button>
+        )}
       </div>
+
+      {showProjectForm && (
+        <div className="new-project-form-container">
+          <h2 className="new-project-form-title">Create New Project</h2>
+
+          <div className="new-project-form-grid">
+            {/* Project Name */}
+            <div className="form-group">
+              <label className="form-label">Project Name</label>
+              <input
+                type="text"
+                name="projectName"
+                placeholder="e.g., Summer Yoga Research"
+                value={formData.projectName}
+                onChange={handleInputChange}
+                className="form-input-text"
+              />
+            </div>
+
+            {/* Project Type */}
+            <div className="form-group">
+              <label className="form-label">Project Type</label>
+              <select
+                name="projectType"
+                value={formData.projectType}
+                onChange={handleInputChange}
+                className="form-select-box"
+              >
+                <option>Yoga</option>
+                <option>Rehab</option>
+                <option>Sports</option>
+                <option>General</option>
+              </select>
+            </div>
+
+            {/* Start Date */}
+            <div className="form-group">
+              <label className="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleInputChange}
+                className="form-input-text"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="form-group" style={{ marginBottom: "24px" }}>
+            <label className="form-label">Description</label>
+            <textarea
+              name="description"
+              placeholder="Describe the project goals..."
+              value={formData.description}
+              onChange={handleInputChange}
+              rows="4"
+              className="form-textarea"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="form-actions-row">
+            <button
+              onClick={handleSubmit}
+              className="submit-btn"
+            >
+              Create Project
+            </button>
+            <button
+              onClick={() => setShowProjectForm(false)}
+              className="cancel-btn"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
       <div className="card-grid">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="card">
@@ -47,6 +151,7 @@ export const Dashboard = ({ setPage }) => {
           </div>
         ))}
       </div>
+
     </div >
   )
 };

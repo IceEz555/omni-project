@@ -1,20 +1,138 @@
-import React from "react";
+import React, { useState } from "react";
 import "../css/userManagement.css";
 import { users } from "../mock/data.jsx";
 
 export const UserManagement = () => {
+    const [showForm, setShowForm] = useState(false);
+    const [formData, setFormData] = useState({
+        fullName: "",
+        email: "",
+        role: "Operator",
+        project: "Yoga Research Lab"
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = () => {
+        console.log("Creating user:", formData);
+        setShowForm(false);
+    };
 
     return (
         <div>
-            <div className="user-management-header">
+            <div className="user-management-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
                 <div>
-                    <h2>User Management</h2>
-                    <p>Manage user accounts and role-based access</p>
+                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "bold" }}>User Management</h2>
+                    <p style={{ margin: "4px 0 0 0", color: "#666" }}>Manage user accounts and role-based access</p>
                 </div>
-                <button className="add-user-btn">
-                    + Add User
-                </button>
+                {!showForm && (
+                    <button
+                        className="add-user-btn"
+                        onClick={() => setShowForm(true)}
+                        style={{
+                            backgroundColor: "#0f172a",
+                            color: "white",
+                            padding: "10px 20px",
+                            borderRadius: "6px",
+                            border: "none",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            fontSize: "14px",
+                            fontWeight: "500"
+                        }}
+                    >
+                        + Add User
+                    </button>
+                )}
             </div>
+
+            {showForm && (
+                <div className="add-user-form-container">
+                    <h2 className="add-user-form-title">Create New User Account</h2>
+
+                    <div className="add-user-form-grid">
+                        {/* Full Name */}
+                        <div>
+                            <label className="form-group-label">Full Name</label>
+                            <input
+                                type="text"
+                                name="fullName"
+                                placeholder="e.g., Jane Doe"
+                                value={formData.fullName}
+                                onChange={handleInputChange}
+                                className="form-input"
+                            />
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                            <label className="form-group-label">Email</label>
+                            <input
+                                type="text"
+                                name="email"
+                                placeholder="jane.doe@example.com"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                className="form-input"
+                            />
+                        </div>
+
+                        {/* Role */}
+                        <div>
+                            <label className="form-group-label">Role</label>
+                            <select
+                                name="role"
+                                value={formData.role}
+                                onChange={handleInputChange}
+                                className="form-select-box"
+                            >
+                                <option>Operator</option>
+                                <option>Admin</option>
+                                <option>Viewer</option>
+                            </select>
+                        </div>
+
+                        {/* Assign to Project */}
+                        <div>
+                            <label className="form-group-label">Assign to Project</label>
+                            <select
+                                name="project"
+                                value={formData.project}
+                                onChange={handleInputChange}
+                                className="form-select-box"
+                            >
+                                <option>Yoga Research Lab</option>
+                                <option>Physical Therapy Clinic</option>
+                                <option>Sports Performance</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="form-actions">
+                        <button
+                            onClick={handleSubmit}
+                            className="submit-btn"
+                        >
+                            Create User
+                        </button>
+                        <button
+                            onClick={() => setShowForm(false)}
+                            className="cancel-btn"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="filters-bar">
                 <div className="filter-group">
@@ -81,7 +199,6 @@ export const UserManagement = () => {
                                 <td>
                                     <div className="last-active">
                                         <span className="last-active-time">{user.lastActive.split(" ago")[0] + " ago"}</span>
-                                        {/* Simplified splitting for demo, normally would use actual dates */}
                                     </div>
                                 </td>
                                 <td>{user.sessions}</td>
