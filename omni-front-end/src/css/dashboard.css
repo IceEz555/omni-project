@@ -158,7 +158,7 @@
 }
 
 /* Responsive Admin Layout */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .admin-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }

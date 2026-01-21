@@ -1,17 +1,77 @@
-import React from "react";
+import React, { useState } from "react";
 import { deviceProfiles } from "../mock/data.jsx";
 import "../css/deviceProfile.css";
 
 export const DeviceProfile = () => {
-    
+    const [showCreateForm, setShowCreateForm] = useState(false);
     return (
         <div>
             <div className="device-profile-header">
-                <p>Manage device types and data parsing configurations</p>
-                <button className="create-profile-btn">
-                    + Create Profile
-                </button>
+                <div>
+                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "bold" }}>Device Profiles</h2>
+                    <p>Manage device types and data parsing configurations</p>
+                </div>
+                {!showCreateForm && (
+                    <button
+                        className="create-profile-btn"
+                        onClick={() => setShowCreateForm(true)}
+                    >
+                        + Create Profile
+                    </button>
+                )}
             </div>
+
+            {showCreateForm && (
+                <div className="create-profile-form">
+                    <h3 className="form-title">Create New Device Profile</h3>
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>Device Name</label>
+                            <input type="text" placeholder="e.g., Smart Insole" />
+                        </div>
+                        <div className="form-group">
+                            <label>Device Type</label>
+                            <select>
+                                <option>32x32 Grid</option>
+                                <option>16x16 Grid</option>
+                                <option>Pressure Mat</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label>Data Format</label>
+                            <input type="text" placeholder="e.g., JSON, Binary, CSV" />
+                        </div>
+                        <div className="form-group">
+                            <label>Sample Rate</label>
+                            <input type="text" placeholder="e.g., 60 Hz" />
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Description</label>
+                        <textarea placeholder="Describe the device and its purpose..." rows="3"></textarea>
+                    </div>
+
+                    <div className="form-actions">
+                        <button
+                            className="btn-create"
+                            onClick={() => setShowCreateForm(false)}
+                        >
+                            Create Profile
+                        </button>
+                        <button
+                            className="btn-cancel"
+                            onClick={() => setShowCreateForm(false)}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="device-profile-list">
                 {deviceProfiles.map((profile) => (
