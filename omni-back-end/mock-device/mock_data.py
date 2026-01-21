@@ -14,8 +14,9 @@ client.connect(BROKER, PORT)
 
 while True:
     data = {
-        "device_id": "mat_001",       # Unique Serial Number (Who am I?)
-        "profile_id": "yoga_mat_v1",  # Model specification (What am I?)
+        "device_id": "yoga_mat_001",
+        "profile_id": "yoga_mat_v1",
+        "device_id": "mat_001",
         "timestamp": int(time.time() * 1000),
         "pressure_map": [[random.randint(0, 100) for _ in range(32)] for _ in range(32)],
         "movement_status": random.choice([True, False])
