@@ -82,14 +82,54 @@ export const deleteUser = async (req, res) => {
 // Get All Users
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await prisma.user.findMany(
-            {
-                include: {
-                    role: true
+        const users = await prisma.user.findMany({
+            include: {
+                role: true, // Role info
+                project_memberships: {
+                    include: {
+                        project: true // Project names
+                    }
+                },
+                sessions: {
+                    orderBy: {
+                        start_time: 'desc'
+                    },
+                    take: 1, // Get latest session for "Last Active"
+                    select: {
+                        start_time: true
+                    }
+                },
+                _count: {
+                    select: { sessions: true } // Count total sessions
                 }
             }
-        );
-        res.json(users);
+        });
+
+        // Format data for Frontend
+        const formattedUsers = users.map(user => {
+            // 1. Get Project Name (List all if multiple)
+            const projects = user.project_memberships.map(pm => pm.project.name).join(", ") || "No Project";
+
+            // 2. Last Active (Latest session start_time or created_at)
+            const lastSession = user.sessions[0];
+            const lastActive = lastSession ? lastSession.start_time : user.created_at;
+
+            // 3. Status (Logic: Active if login < 30 days? Or just hardcode 'active' for now)
+            const status = "active"; 
+
+            return {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role.name,
+                project: projects,
+                status: status,
+                lastActive: lastActive,
+                sessionCount: user._count.sessions
+            };
+        });
+
+        res.json(formattedUsers);
     } catch (error) {
        res.status(500).json({ error: error.message });
     }
