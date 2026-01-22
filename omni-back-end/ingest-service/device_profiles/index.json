@@ -1,0 +1,19 @@
+{
+  "profiles": [
+    {
+      "profile_id": "yoga_mat_v1",
+      "device_type": "yoga_mat",
+      "file": "yoga_mat_v1.json"
+    },
+    {
+      "profile_id": "accel_3axis_v1",
+      "device_type": "imu",
+      "file": "accel_3axis_v1.json"
+    },
+    {
+      "profile_id": "smart_watch_v1",
+      "device_type": "wearable",
+      "file": "smart_watch_v1.json"
+    }
+  ]
+}

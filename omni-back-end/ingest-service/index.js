@@ -1,0 +1,21 @@
+import "dotenv/config";
+import { writeApi } from "./influxWriter.js";
+import { startMqtt } from "./mqttClient.js";
+import { startApi } from "./api.js";
+
+// -------------------------------------------------------------------------
+// ✅ Start MQTT & API
+// -------------------------------------------------------------------------
+console.log("🚀 Ingest Service starting...");
+startMqtt();
+startApi();
+
+// -------------------------------------------------------------------------
+// ✅ Graceful Shutdown (ปิดโปรแกรมอย่างสวยงาม)
+// -------------------------------------------------------------------------
+process.on("SIGINT", async () => {
+  console.log("Closing InfluxDB writer...");
+  await writeApi.close();
+  process.exit(0);
+});
+

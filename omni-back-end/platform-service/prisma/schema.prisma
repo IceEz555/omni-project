@@ -1,0 +1,205 @@
+// This is your Prisma schema file.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Enums ---
+
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+}
+
+enum LogType {
+  INFO
+  WARN
+  ERROR
+}
+
+enum ProjectRole {
+  ADMIN
+  SUPPORTER
+  USER
+}
+
+// --- Core Models ---
+
+model Role {
+  id          String  @id @default(uuid())
+  name        String  @unique // e.g., "ADMIN", "OPERATOR", "SUPPORTER"
+  description String?
+  users       User[]
+
+  @@map("roles")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  username      String    @unique
+  password_hash String
+  role_id       String
+  role          Role      @relation(fields: [role_id], references: [id])
+  created_at    DateTime  @default(now())
+
+  owned_projects      Project[]      @relation("ProjectOwner")
+  project_memberships ProjectUser[]
+  sessions            Session[]
+  std_labels          SessionLabel[] @relation("LabelCreator")
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  owner_id    String
+  owner       User     @relation("ProjectOwner", fields: [owner_id], references: [id])
+  created_at  DateTime @default(now())
+
+  members       ProjectUser[]
+  devices       Device[]
+  system_logs   SystemLog[]
+  training_jobs TrainingJob[]
+  sessions      Session[]
+
+  @@map("projects")
+}
+
+// Many-to-Many Relationship (User <-> Project)
+model ProjectUser {
+  project_id      String
+  user_id         String
+  role_in_project ProjectRole @default(USER)
+
+  project Project @relation(fields: [project_id], references: [id])
+  user    User    @relation(fields: [user_id], references: [id])
+
+  @@id([project_id, user_id])
+  @@map("project_users")
+}
+
+// --- Device IoT Models ---
+
+model DeviceProfile {
+  id                String   @id @default(uuid())
+  profile_id        String   @unique // Matches ingest-service (e.g., "yoga_mat_v1")
+  name              String? // Friendly name
+  data_type         String // e.g., "matrix", "timeseries"
+  schema_definition Json // Store JSON Schema here
+  devices           Device[]
+
+  @@map("device_profiles")
+}
+
+model Device {
+  id                String       @id @default(uuid())
+  project_id        String? // Device might not be assigned to a project yet
+  device_profile_id String
+  device_name       String
+  status            DeviceStatus @default(OFFLINE)
+  created_at        DateTime     @default(now())
+
+  project     Project?      @relation(fields: [project_id], references: [id])
+  profile     DeviceProfile @relation(fields: [device_profile_id], references: [id])
+  system_logs SystemLog[]
+  sessions    Session[]
+
+  @@unique([project_id, device_name]) // Unique name per project
+  @@map("devices")
+}
+
+// --- Logs & Operations ---
+
+model SystemLog {
+  id         String   @id @default(uuid())
+  project_id String?
+  device_id  String?
+  type       LogType
+  message    String
+  created_at DateTime @default(now())
+
+  project Project? @relation(fields: [project_id], references: [id])
+  device  Device?  @relation(fields: [device_id], references: [id])
+
+  @@index([project_id, created_at])
+  @@map("system_logs")
+}
+
+// --- Training (Expanded from ERD) ---
+
+model TrainingJob {
+  id          String    @id @default(uuid())
+  project_id  String
+  model_type  String
+  status      String // "PENDING", "RUNNING", "COMPLETED"
+  started_at  DateTime?
+  finished_at DateTime?
+
+  project Project          @relation(fields: [project_id], references: [id])
+  metrics TrainingMetric[]
+
+  @@map("training_jobs")
+}
+
+model TrainingMetric {
+  id              String @id @default(uuid())
+  training_job_id String
+  metric_name     String
+  value           Float
+  epoch           Int?
+
+  job TrainingJob @relation(fields: [training_job_id], references: [id])
+
+  @@map("training_metrics")
+}
+
+// --- Sessions (Data Collection) ---
+
+model Session {
+  id         String    @id @default(uuid())
+  project_id String
+  device_id  String
+  user_id    String? // User who performed the session
+  start_time DateTime  @default(now())
+  end_time   DateTime?
+
+  project Project         @relation(fields: [project_id], references: [id])
+  device  Device          @relation(fields: [device_id], references: [id])
+  user    User?           @relation(fields: [user_id], references: [id])
+  labels  SessionLabel[]
+
+  @@index([project_id, start_time])
+  @@map("sessions")
+}
+
+model Label {
+  id          String         @id @default(uuid())
+  name        String         @unique // e.g. "YogaPose_Warrior"
+  description String?
+  sessions    SessionLabel[]
+
+  @@map("labels")
+}
+
+model SessionLabel {
+  session_id String
+  label_id   String
+  start_time DateTime @default(now())
+  end_time   DateTime?
+  created_by String?
+
+  session Session @relation(fields: [session_id], references: [id])
+  label   Label   @relation(fields: [label_id], references: [id])
+  creator User?   @relation("LabelCreator", fields: [created_by], references: [id])
+
+  @@id([session_id, label_id, start_time])
+  @@map("session_labels")
+}
