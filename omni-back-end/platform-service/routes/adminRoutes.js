@@ -13,5 +13,6 @@ router.put("/update-user/:id", requireRole('ADMIN'), adminController.updateUser)
 router.delete("/delete-user/:id", requireRole('ADMIN'), adminController.deleteUser);
 router.get("/get-users", adminController.getAllUsers); // Maybe Operators can view too?
 router.get("/get-user/:id", adminController.getUserById);
+router.get("/get-projects", adminController.getAllProjects);
 
 export default router;

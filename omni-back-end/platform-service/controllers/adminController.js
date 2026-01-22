@@ -5,27 +5,26 @@ const prisma = new PrismaClient();
 
 // Create User
 export const createUser = async (req, res) => {
-  try {
-    const {username, email, password, role_name} = req.body;
-
+ try {
+    const {username, email, password, role_name, project_name} = req.body;
+    
     // 0. Validate input
     if (!username || !email || !password || !role_name) {
         return res.status(400).json({ message: "All fields are required" });
     }
-    
-    // 1. Check if role exists
-    const role = await prisma.role.findUnique({
-        where: {
-            name: role_name
-        }
-    })
 
+    // 1. Role Validation
+    const role = await prisma.role.findUnique({
+        where: { name: role_name }
+    })
     if (!role) {
         return res.status(404).json({ message: "Role not found" });
     }
-    /// 2. Hash password
+
+    // 2. Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
     // 3. Create user
     const newUser = await prisma.user.create({
         data: {
@@ -35,10 +34,28 @@ export const createUser = async (req, res) => {
             role_id: role.id
         }
     });
+
+    // 4. Assign to Project (if provided)
+    if (project_name) {
+        const project = await prisma.project.findFirst({
+            where: { name: project_name }
+        });
+        
+        if (project) {
+            await prisma.projectUser.create({
+                data: {
+                    user_id: newUser.id,
+                    project_id: project.id,
+                    role_in_project: 'USER' // Default role in project
+                }
+            });
+        }
+    }
+
     return res.status(201).json({ message: "User created successfully", user: newUser });
  } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+   res.status(500).json({ error: error.message });
  }   
 };
 
@@ -89,10 +106,9 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
+        await prisma.projectUser.deleteMany({ where: { user_id: id }}); // Clean up memberships first
         const deletedUser = await prisma.user.delete({
-            where: {
-                id: id
-            }
+            where: { id: id }
         });
        res.json(deletedUser);
     } catch (error) {
@@ -105,38 +121,27 @@ export const getAllUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany({
             include: {
-                role: true, // Role info
+                role: true,
                 project_memberships: {
                     include: {
                         project: true // Project names
                     }
                 },
                 sessions: {
-                    orderBy: {
-                        start_time: 'desc'
-                    },
-                    take: 1, // Get latest session for "Last Active"
-                    select: {
-                        start_time: true
-                    }
+                    orderBy: { start_time: 'desc' },
+                    take: 1,
+                    select: { start_time: true }
                 },
                 _count: {
-                    select: { sessions: true } // Count total sessions
+                    select: { sessions: true }
                 }
             }
         });
 
-        // Format data for Frontend
         const formattedUsers = users.map(user => {
-            // 1. Get Project Name (List all if multiple)
-            const projects = user.project_memberships.map(pm => pm.project.name).join(", ") || "No Project";
-
-            // 2. Last Active (Latest session start_time or created_at)
+            const projects = user.project_memberships.map(pm => pm.project.name).join(", ") || "-";
             const lastSession = user.sessions[0];
             const lastActive = lastSession ? lastSession.start_time : user.created_at;
-
-            // 3. Status (Logic: Active if login < 30 days? Or just hardcode 'active' for now)
-            const status = "active"; 
 
             return {
                 id: user.id,
@@ -144,7 +149,7 @@ export const getAllUsers = async (req, res) => {
                 email: user.email,
                 role: user.role.name,
                 project: projects,
-                status: status,
+                status: "active",
                 lastActive: lastActive,
                 sessionCount: user._count.sessions
             };
@@ -161,12 +166,8 @@ export const getUserById = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await prisma.user.findUnique({
-            where: {
-                id: id
-            },
-            include: {
-                role: true
-            }
+            where: { id: id },
+            include: { role: true }
         });
         res.json(user);
     } catch (error) {
@@ -174,3 +175,14 @@ export const getUserById = async (req, res) => {
     }
 }
 
+// Get All Projects (For Dropdown)
+export const getAllProjects = async (req, res) => {
+    try {
+        const projects = await prisma.project.findMany({
+            select: { id: true, name: true }
+        });
+        res.json(projects);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
