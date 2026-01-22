@@ -83,18 +83,6 @@ export const Dashboard = ({ setPage }) => {
                 <option>General</option>
               </select>
             </div>
-
-            {/* Start Date */}
-            <div className="form-group">
-              <label className="form-label">Start Date</label>
-              <input
-                type="date"
-                name="startDate"
-                value={formData.startDate}
-                onChange={handleInputChange}
-                className="form-input-text"
-              />
-            </div>
           </div>
 
           {/* Description */}

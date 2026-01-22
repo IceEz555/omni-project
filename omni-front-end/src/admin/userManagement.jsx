@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import "../css/userManagement.css";
+import "../css/modal.css";
 import { users } from "../mock/data.jsx";
 
 export const UserManagement = () => {
+    const [userList, setUserList] = useState(users);
     const [showForm, setShowForm] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        fullName: "",
+        Username: "", // Matches user request form field name
         email: "",
         role: "Operator",
         project: "Yoga Research Lab"
@@ -19,10 +22,64 @@ export const UserManagement = () => {
         }));
     };
 
-    const handleSubmit = () => {
-        console.log("Creating user:", formData);
-        setShowForm(false);
+    const handleEdit = (user) => {
+        setFormData({
+            Username: user.name, // Mapping 'name' from mock to 'Username' field
+            email: user.email,
+            role: user.role,
+            project: user.project
+        });
+        setEditingId(user.id);
+        setShowForm(true);
     };
+
+    const handleDelete = (id) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            setUserList(userList.filter(u => u.id !== id));
+        }
+    };
+
+    const handleSubmit = () => {
+        if (editingId) {
+            // Update
+            setUserList(userList.map(u => u.id === editingId ? {
+                ...u,
+                name: formData.Username,
+                email: formData.email,
+                role: formData.role,
+                project: formData.project
+            } : u));
+        } else {
+            // Create
+            const newUser = {
+                id: Date.now(),
+                name: formData.Username,
+                email: formData.email,
+                role: formData.role,
+                project: formData.project,
+                status: "Active",
+                lastActive: "Just now",
+                sessions: 0
+            };
+            setUserList([...userList, newUser]);
+        }
+        resetForm();
+    };
+
+    const resetForm = () => {
+        setShowForm(false);
+        setEditingId(null);
+        setFormData({
+            Username: "",
+            email: "",
+            role: "Operator",
+            project: "Yoga Research Lab"
+        });
+    };
+
+    // Filter logic needs to use userList. 
+    // The original code had static filters in UI but didn't implement logic. 
+    // I will just render userList. If filters need implementation, that's extra scope but I'll stick to displaying userList which includes edits.
 
     return (
         <div>
@@ -34,7 +91,10 @@ export const UserManagement = () => {
                 {!showForm && (
                     <button
                         className="add-user-btn"
-                        onClick={() => setShowForm(true)}
+                        onClick={() => {
+                            resetForm();
+                            setShowForm(true);
+                        }}
                         style={{
                             backgroundColor: "#0f172a",
                             color: "white",
@@ -55,81 +115,83 @@ export const UserManagement = () => {
             </div>
 
             {showForm && (
-                <div className="add-user-form-container">
-                    <h2 className="add-user-form-title">Create New User Account</h2>
+                <div className="modal-overlay" onClick={() => setShowForm(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <h2 className="add-user-form-title">{editingId ? "Edit User Account" : "Create New User Account"}</h2>
 
-                    <div className="add-user-form-grid">
-                        {/* Full Name */}
-                        <div>
-                            <label className="form-group-label">Full Name</label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                placeholder="e.g., Jane Doe"
-                                value={formData.fullName}
-                                onChange={handleInputChange}
-                                className="form-input"
-                            />
+                        <div className="add-user-form-grid">
+                            {/* Full Name */}
+                            <div>
+                                <label className="form-group-label">Username</label>
+                                <input
+                                    type="text"
+                                    name="Username"
+                                    placeholder="e.g., Jane Doe"
+                                    value={formData.Username}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                                <label className="form-group-label">Email</label>
+                                <input
+                                    type="text"
+                                    name="email"
+                                    placeholder="jane.doe@example.com"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            {/* Role */}
+                            <div>
+                                <label className="form-group-label">Role</label>
+                                <select
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleInputChange}
+                                    className="form-select-box"
+                                >
+                                    <option>User</option>
+                                    <option>Admin</option>
+                                    <option>Supporter</option>
+                                </select>
+                            </div>
+
+                            {/* Assign to Project */}
+                            <div>
+                                <label className="form-group-label">Assign to Project</label>
+                                <select
+                                    name="project"
+                                    value={formData.project}
+                                    onChange={handleInputChange}
+                                    className="form-select-box"
+                                >
+                                    <option>Yoga Research Lab</option>
+                                    <option>Physical Therapy Clinic</option>
+                                    <option>Sports Performance</option>
+                                </select>
+                            </div>
                         </div>
 
-                        {/* Email */}
-                        <div>
-                            <label className="form-group-label">Email</label>
-                            <input
-                                type="text"
-                                name="email"
-                                placeholder="jane.doe@example.com"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className="form-input"
-                            />
-                        </div>
-
-                        {/* Role */}
-                        <div>
-                            <label className="form-group-label">Role</label>
-                            <select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleInputChange}
-                                className="form-select-box"
+                        {/* Buttons */}
+                        <div className="form-actions">
+                            <button
+                                onClick={handleSubmit}
+                                className="submit-btn"
                             >
-                                <option>Operator</option>
-                                <option>Admin</option>
-                                <option>Viewer</option>
-                            </select>
-                        </div>
-
-                        {/* Assign to Project */}
-                        <div>
-                            <label className="form-group-label">Assign to Project</label>
-                            <select
-                                name="project"
-                                value={formData.project}
-                                onChange={handleInputChange}
-                                className="form-select-box"
+                                {editingId ? "Update User" : "Create User"}
+                            </button>
+                            <button
+                                onClick={resetForm}
+                                className="cancel-btn"
                             >
-                                <option>Yoga Research Lab</option>
-                                <option>Physical Therapy Clinic</option>
-                                <option>Sports Performance</option>
-                            </select>
+                                Cancel
+                            </button>
                         </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="form-actions">
-                        <button
-                            onClick={handleSubmit}
-                            className="submit-btn"
-                        >
-                            Create User
-                        </button>
-                        <button
-                            onClick={() => setShowForm(false)}
-                            className="cancel-btn"
-                        >
-                            Cancel
-                        </button>
                     </div>
                 </div>
             )}
@@ -152,7 +214,7 @@ export const UserManagement = () => {
                         <option>Sports Performance</option>
                     </select>
                 </div>
-                <span className="showing-text">Showing {users.length} of {users.length} users</span>
+                <span className="showing-text">Showing {userList.length} of {userList.length} users</span>
             </div>
 
             <div className="user-table-container">
@@ -169,7 +231,7 @@ export const UserManagement = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {userList.map((user) => (
                             <tr key={user.id}>
                                 <td>
                                     <div className="user-cell">
@@ -204,13 +266,21 @@ export const UserManagement = () => {
                                 <td>{user.sessions}</td>
                                 <td>
                                     <div className="action-buttons">
-                                        <button className="table-action-btn" aria-label="Edit">
+                                        <button
+                                            className="table-action-btn"
+                                            aria-label="Edit"
+                                            onClick={() => handleEdit(user)}
+                                        >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                             </svg>
                                         </button>
-                                        <button className="table-action-btn" aria-label="Delete">
+                                        <button
+                                            className="table-action-btn"
+                                            aria-label="Delete"
+                                            onClick={() => handleDelete(user.id)}
+                                        >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <polyline points="3 6 5 6 21 6"></polyline>
                                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
