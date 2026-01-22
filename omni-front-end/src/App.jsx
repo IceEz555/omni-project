@@ -4,6 +4,7 @@ import { LayoutUser } from "./layout/layoutUser";
 import { LayoutSupport } from "./layout/layoutSupport";
 import { AdminLayout } from "./layout/layoutAdmin";
 import { AuthPage } from "./pages/auth";
+import { RegisterPage } from "./pages/register";
 import { Dashboard } from "./pages/dashboard";
 import { LiveMonitor } from "./pages/liveMonitor";
 import { Sessions } from "./pages/session";
@@ -20,6 +21,7 @@ export default function App() {
   const [page, setPage] = useState("Login");
 
   if (page === "Login") return <AuthPage setPage={setPage} />;
+  if (page === "Register") return <RegisterPage setPage={setPage} />;
 
   const adminPages = ["AdminDashboard", "Device Profile", "User Management"];
   const isAdminPage = adminPages.includes(page);

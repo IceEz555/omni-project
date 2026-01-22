@@ -24,6 +24,21 @@ export const AuthPage = ({ setPage }) => {
           Sign In
         </button>
         <button
+          className="btn-link"
+          style={{
+            marginTop: "16px",
+            background: "transparent",
+            color: "var(--seafoam-main)",
+            border: "none",
+            width: "100%",
+            cursor: "pointer",
+            textDecoration: "underline"
+          }}
+          onClick={() => setPage("Register")}
+        >
+          Create an Account
+        </button>
+        <button
           className="btn-secondary"
           style={{
             marginTop: "12px",
