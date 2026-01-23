@@ -1,11 +1,11 @@
-import React from "react";
+import { useState } from "react";
 import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 
 export const AuthPage = ({ setPage }) => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
