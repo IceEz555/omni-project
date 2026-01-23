@@ -86,7 +86,7 @@ export const Dashboard = ({ setPage }) => {
           </div>
 
           {/* Description */}
-          <div className="form-group" style={{ marginBottom: "24px" }}>
+          <div className="form-group description-group">
             <label className="form-label">Description</label>
             <textarea
               name="description"

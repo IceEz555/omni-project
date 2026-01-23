@@ -5,6 +5,17 @@
     margin-bottom: 24px;
 }
 
+.device-profile-title {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.device-profile-subtitle {
+    margin: 0;
+    color: #666;
+}
+
 .create-profile-btn {
     background-color: var(--seafoam-main, #20B2AA);
     color: white;

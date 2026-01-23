@@ -83,31 +83,14 @@ export const UserManagement = () => {
 
     return (
         <div>
-            <div className="user-management-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <div className="user-management-header">
                 <div>
-                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "bold" }}>User Management</h2>
-                    <p style={{ margin: "4px 0 0 0", color: "#666" }}>Manage user accounts and role-based access</p>
+                    <h2 className="user-management-title">User Management</h2>
+                    <p className="user-management-subtitle">Manage user accounts and role-based access</p>
                 </div>
                 {!showForm && (
                     <button
                         className="add-user-btn"
-                        onClick={() => {
-                            resetForm();
-                            setShowForm(true);
-                        }}
-                        style={{
-                            backgroundColor: "#0f172a",
-                            color: "white",
-                            padding: "10px 20px",
-                            borderRadius: "6px",
-                            border: "none",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            fontSize: "14px",
-                            fontWeight: "500"
-                        }}
                     >
                         + Add User
                     </button>

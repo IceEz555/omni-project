@@ -287,6 +287,10 @@
     background-color: white;
 }
 
+.advanced-options-wrapper {
+    margin-bottom: 24px;
+}
+
 .advanced-options-toggle {
     background: none;
     border: none;
