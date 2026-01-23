@@ -1,28 +1,74 @@
 import React from "react";
+import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 
 export const AuthPage = ({ setPage }) => {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/auth/login", {
+        email: email,
+        password: password,
+      });
+      console.log("Login Success:", response.data);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      
+      alert("Login Successful! 🚀");
+
+      // Role-based redirection
+      const role = response.data.user.role?.toLowerCase();
+
+      if (role === "admin") {
+        setPage("AdminDashboard");
+      } else if (role === "supporter") {
+        setPage("Support Dashboard");
+      } else {
+        setPage("Dashboard"); 
+      }
+
+    } catch (error) {
+      console.error("Login Failed:", error.response?.data || error.message);
+      alert(error.response?.data?.error || "Login Failed");
+    }
+  };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
         <img src={logo} alt="Logo" className="auth-logo" />
-        <div className="input-group">
-          <label>Email</label>
-          <input type="text" placeholder="email@domain.com" />
-        </div>
-        <div className="input-group">
-          <label>Password</label>
-          <input type="password" placeholder="••••••••" />
-        </div>
-        <button
-          className="btn-primary"
-          style={{ background: "var(--seafoam-main)", color: "white", border: "none" }}
-          onClick={() => setPage("Dashboard")}
-        >
-          Sign In
-        </button>
+        <form onSubmit={handleLogin}>
+          <div className="input-group">
+            <label>Email</label>
+            <input 
+              type="text" 
+              placeholder="email@domain.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="input-group">
+            <label>Password</label>
+            <input 
+              type="password" 
+              placeholder="••••••••" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button
+            className="btn-primary"
+            style={{ background: "var(--seafoam-main)", color: "white", border: "none" }}
+            type="submit"
+          >
+            Sign In
+          </button>
+        </form>
+
         <button
           className="btn-link"
           style={{
@@ -72,5 +118,5 @@ export const AuthPage = ({ setPage }) => {
         </button>
       </div>
     </div>
-  )
+  );
 };
