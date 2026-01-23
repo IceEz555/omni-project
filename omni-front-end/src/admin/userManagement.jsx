@@ -6,6 +6,7 @@ import "../css/modal.css";
 
 export const UserManagement = () => {
     const [userList, setUserList] = useState([]);
+    const [projectList, setProjectList] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
@@ -17,11 +18,6 @@ export const UserManagement = () => {
         status: "Active"
     });
 
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/immutability
-        fetchUsers();
-    }, []);
-
     const fetchUsers = async () => {
         try {
             const response = await api.get("/admin/get-users");
@@ -30,6 +26,21 @@ export const UserManagement = () => {
             console.error("Failed to fetch users:", error);
         }
     };
+
+    const fetchProjects = async () => {
+        try {
+            const response = await api.get("/admin/get-projects");
+            setProjectList(response.data);
+        } catch (error) {
+            console.error("Failed to fetch projects:", error);
+        }
+    };
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchUsers();
+        fetchProjects();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -205,9 +216,12 @@ export const UserManagement = () => {
                                     onChange={handleInputChange}
                                     className="form-select-box"
                                 >
-                                    <option>Yoga Research Lab</option>
-                                    <option>Physical Therapy Clinic</option>
-                                    <option>Sports Performance</option>
+                                    <option value="">Select Project</option>
+                                    {projectList.map((project) => (
+                                        <option key={project.id} value={project.name}>
+                                            {project.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
 

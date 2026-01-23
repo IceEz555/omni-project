@@ -6,7 +6,7 @@ import "../css/modal.css";
 export const DeviceProfile = () => {
     const [profiles, setProfiles] = useState(deviceProfiles);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [showForm, setShowForm] = useState(false); // Keeps existing state var if used elsewhere, but mainly using showCreateForm
+
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         name: "", // Changed from deviceName to match mock data structure usually, or need mapping
