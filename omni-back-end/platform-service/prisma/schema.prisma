@@ -47,6 +47,7 @@ model User {
   role_id       String
   role          Role      @relation(fields: [role_id], references: [id])
   created_at    DateTime  @default(now())
+  status        String    @default("Active")
 
   owned_projects      Project[]      @relation("ProjectOwner")
   project_memberships ProjectUser[]

@@ -3,29 +3,30 @@ import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import "../css/userManagement.css";
 import "../css/modal.css";
-import { users } from "../mock/data.jsx";
+
 
 export const UserManagement = () => {
-    const [userList, setUserList] = useState(users);
+    const [userList, setUserList] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         Username: "", // Matches user request form field name
         email: "",
-        role: "Operator",
-        project: "Yoga Research Lab"
+        password: "",
+        role: "User",
+        project: "Yoga Research Lab",
+        status: "Active"
     });
 
-    const [users, setUsers] = useState([]);
-    // Add useEffect to fetch data
     useEffect(() => {
         // eslint-disable-next-line react-hooks/immutability
         fetchUsers();
     }, []);
+
     const fetchUsers = async () => {
         try {
             const response = await api.get("/admin/get-users");
-            setUsers(response.data); 
+            setUserList(response.data); 
         } catch (error) {
             console.error("Failed to fetch users:", error);
         }
@@ -39,69 +40,64 @@ export const UserManagement = () => {
         }));
     };
 
-    const handleSubmit = async () => {
-        if (!formData.fullName || !formData.email || !formData.password) {
-            alert("Please fill in all fields");
-            return;
-        }
+    const handleEdit = (user) => {
+        setEditingId(user.id);
+        // Convert role to Title Case to match select options (e.g., "SUPPORTER" -> "Supporter")
+        const titleCaseRole = user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase();
+        
+        setFormData({
+            Username: user.name,
+            email: user.email,
+            password: "", // Don't show existing password
+            role: titleCaseRole,
+            project: user.project,
+            status: user.status
+        });
+        setShowForm(true);
+    };
 
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            try {
+                await api.delete(`/admin/delete-user/${id}`);
+                fetchUsers();
+            } catch (error) {
+                console.error("Failed to delete user:", error);
+                alert("Failed to delete user");
+            }
+        }
+    };
+
+    const handleSubmit = async () => {
         try {
             const payload = {
-                username: formData.fullName,
+                username: formData.Username,
                 email: formData.email,
-                password: formData.password,
+                password: formData.password || "default123", // basic fallback if editing
                 role_name: formData.role,
-                project_name: formData.project
+                project_name: formData.project,
+                status: formData.status
             };
 
-            await api.post("/admin/create-user", payload);
-            alert("User created successfully!");
-            setShowForm(false);
-            setFormData({
-                fullName: "",
-                email: "",
-                password: "",
-                role: "user",
-                project: "Yoga Research Lab"
-            });
-            fetchUsers(); // Refresh list
+            if (editingId) {
+                // Update
+                await api.put(`/admin/update-user/${editingId}`, payload);
+                alert("User updated successfully!");
+            } else {
+                // Create
+                if (!formData.Username || !formData.email || !formData.password) {
+                     alert("Please fill in all required fields (Username, Email, Password)");
+                     return;
+                }
+                await api.post("/admin/create-user", payload);
+                alert("User created successfully!");
+            }
+            resetForm();
+            fetchUsers();
         } catch (error) {
-            console.error("Failed to create user:", error);
-            alert("Failed to create user: " + (error.response?.data?.message || error.message));
+            console.error("Failed to save user:", error);
+            alert("Failed to save user: " + (error.response?.data?.message || error.message));
         }
-    };
-
-    const handleDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this user?")) {
-            setUserList(userList.filter(u => u.id !== id));
-        }
-    };
-
-    const handleSubmit = () => {
-        if (editingId) {
-            // Update
-            setUserList(userList.map(u => u.id === editingId ? {
-                ...u,
-                name: formData.Username,
-                email: formData.email,
-                role: formData.role,
-                project: formData.project
-            } : u));
-        } else {
-            // Create
-            const newUser = {
-                id: Date.now(),
-                name: formData.Username,
-                email: formData.email,
-                role: formData.role,
-                project: formData.project,
-                status: "Active",
-                lastActive: "Just now",
-                sessions: 0
-            };
-            setUserList([...userList, newUser]);
-        }
-        resetForm();
     };
 
     const resetForm = () => {
@@ -110,8 +106,10 @@ export const UserManagement = () => {
         setFormData({
             Username: "",
             email: "",
-            role: "Operator",
-            project: "Yoga Research Lab"
+            password: "",
+            role: "User",
+            project: "Yoga Research Lab",
+            status: "Active"
         });
     };
 
@@ -213,23 +211,25 @@ export const UserManagement = () => {
                                     <option>Sports Performance</option>
                                 </select>
                             </div>
-                        </div>
 
-                        {/* Email */}
-                        <div>
-                            <label className="form-group-label">Email</label>
-                            <input
-                                type="text"
-                                name="email"
-                                placeholder="jane.doe@example.com"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className="form-input"
-                            />
+                             {/* Status */}
+                             <div>
+                                <label className="form-group-label">Status</label>
+                                <select
+                                    name="status"
+                                    value={formData.status}
+                                    onChange={handleInputChange}
+                                    className="form-select-box"
+                                >
+                                    <option>Active</option>
+                                    <option>Inactive</option>
+                                    <option>Banned</option>
+                                </select>
+                            </div>
                         </div>
 
                         {/* Password */}
-                        <div>
+                        <div style={{ marginTop: "16px" }}>
                             <label className="form-group-label">Password</label>
                             <input
                                 type="password"
@@ -241,14 +241,11 @@ export const UserManagement = () => {
                             />
                         </div>
 
-                        {/* Role */}
-                        <div>
-                            <label className="form-group-label">Role</label>
-                            <select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleInputChange}
-                                className="form-select-box"
+                        {/* Buttons */}
+                        <div className="form-actions" style={{ marginTop: "24px" }}>
+                            <button
+                                onClick={handleSubmit}
+                                className="submit-btn"
                             >
                                 {editingId ? "Update User" : "Create User"}
                             </button>
@@ -268,7 +265,7 @@ export const UserManagement = () => {
                     <label>Filter by Role</label>
                     <select className="filter-select">
                         <option>All Roles</option>
-                        <option>Operator</option>
+                        <option>User</option>
                         <option>Supporter</option>
                     </select>
                 </div>
