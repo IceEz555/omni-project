@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+/* eslint-disable no-undef */
+import React, { useState, useEffect } from "react";
+import api from "../api/axios";
 import "../css/userManagement.css";
-import { users } from "../mock/data.jsx";
+
 
 export const UserManagement = () => {
     const [showForm, setShowForm] = useState(false);
@@ -11,6 +13,21 @@ export const UserManagement = () => {
         project: "Yoga Research Lab"
     });
 
+    const [users, setUsers] = useState([]);
+    // Add useEffect to fetch data
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/immutability
+        fetchUsers();
+    }, []);
+    const fetchUsers = async () => {
+        try {
+            const response = await api.get("/admin/get-users");
+            setUsers(response.data); 
+        } catch (error) {
+            console.error("Failed to fetch users:", error);
+        }
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -19,9 +36,36 @@ export const UserManagement = () => {
         }));
     };
 
-    const handleSubmit = () => {
-        console.log("Creating user:", formData);
-        setShowForm(false);
+    const handleSubmit = async () => {
+        if (!formData.fullName || !formData.email || !formData.password) {
+            alert("Please fill in all fields");
+            return;
+        }
+
+        try {
+            const payload = {
+                username: formData.fullName,
+                email: formData.email,
+                password: formData.password,
+                role_name: formData.role,
+                project_name: formData.project
+            };
+
+            await api.post("/admin/create-user", payload);
+            alert("User created successfully!");
+            setShowForm(false);
+            setFormData({
+                fullName: "",
+                email: "",
+                password: "",
+                role: "user",
+                project: "Yoga Research Lab"
+            });
+            fetchUsers(); // Refresh list
+        } catch (error) {
+            console.error("Failed to create user:", error);
+            alert("Failed to create user: " + (error.response?.data?.message || error.message));
+        }
     };
 
     return (
@@ -80,6 +124,19 @@ export const UserManagement = () => {
                                 name="email"
                                 placeholder="jane.doe@example.com"
                                 value={formData.email}
+                                onChange={handleInputChange}
+                                className="form-input"
+                            />
+                        </div>
+
+                        {/* Password */}
+                        <div>
+                            <label className="form-group-label">Password</label>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Enter password"
+                                value={formData.password}
                                 onChange={handleInputChange}
                                 className="form-input"
                             />
@@ -198,7 +255,7 @@ export const UserManagement = () => {
                                 </td>
                                 <td>
                                     <div className="last-active">
-                                        <span className="last-active-time">{user.lastActive.split(" ago")[0] + " ago"}</span>
+                                        <span className="last-active-time">{user.lastActive}</span>
                                     </div>
                                 </td>
                                 <td>{user.sessions}</td>

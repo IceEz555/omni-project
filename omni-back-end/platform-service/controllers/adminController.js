@@ -14,11 +14,20 @@ export const createUser = async (req, res) => {
     }
 
     // 1. Role Validation
-    const role = await prisma.role.findUnique({
-        where: { name: role_name }
-    })
+    // 1. Role Validation
+    const normalizedRoleName = role_name ? role_name.toUpperCase() : 'OPERATOR';
+    
+    let role = await prisma.role.findFirst({
+        where: { name: normalizedRoleName }
+    });
+
     if (!role) {
-        return res.status(404).json({ message: "Role not found" });
+        // Fallback: try finding 'USER' or just fail if strict
+        role = await prisma.role.findFirst({ where: { name: 'USER' }});
+    }
+
+    if (!role) {
+        return res.status(404).json({ message: `Role '${role_name}' not found and no default role available` });
     }
 
     // 2. Hash password
@@ -145,13 +154,13 @@ export const getAllUsers = async (req, res) => {
 
             return {
                 id: user.id,
-                username: user.username,
+                name: user.username, // Frontend expects 'name'
                 email: user.email,
                 role: user.role.name,
                 project: projects,
                 status: "active",
-                lastActive: lastActive,
-                sessionCount: user._count.sessions
+                lastActive: lastActive ? new Date(lastActive).toLocaleString() : "Never",
+                sessions: user._count.sessions // Frontend expects 'sessions'
             };
         });
 
