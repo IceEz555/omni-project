@@ -41,30 +41,6 @@ export const DeviceProfile = () => {
         }));
     };
 
-    const handleEdit = (profile) => {
-        setFormData({
-            profile_id: profile.profile_id,
-            name: profile.name,
-            type: profile.type,
-            dataFormat: profile.dataFormat,
-            description: profile.description || ""
-        });
-        setEditingId(profile.id);
-        setShowCreateForm(true);
-    };
-
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this profile?")) {
-            try {
-                await api.delete(`/admin/delete-profile/${id}`);
-                fetchProfiles();
-            } catch (error) {
-                console.error("Failed to delete profile:", error);
-                alert("Failed to delete profile");
-            }
-        }
-    };
-
     const handleSubmit = async () => {
         try {
             if (!formData.profile_id || !formData.name) {
@@ -73,7 +49,7 @@ export const DeviceProfile = () => {
             }
 
             // Note: Update logic (PUT) is not implemented in backend yet, so currently edit = assume create or error
-            // For now, only Create is fully supported by the controller I wrote
+            // For now, only Create is fully supported by the controller
             if (editingId) {
                 alert("Update Profile feature coming soon. Currently supporting Create/Delete.");
                 // In future: await api.put...
@@ -87,6 +63,18 @@ export const DeviceProfile = () => {
         } catch (error) {
             console.error("Failed to save profile:", error);
             alert("Failed to save profile: " + (error.response?.data?.message || error.message));
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this profile?")) {
+            try {
+                await api.delete(`/admin/delete-profile/${id}`);
+                fetchProfiles();
+            } catch (error) {
+                console.error("Failed to delete profile:", error);
+                alert("Failed to delete profile");
+            }
         }
     };
 
@@ -136,7 +124,7 @@ export const DeviceProfile = () => {
                                     placeholder="e.g., ultrasonic_sensor"
                                     value={formData.profile_id}
                                     onChange={handleInputChange}
-                                    disabled={!!editingId}
+                                    disabled={!!editingId} // Disable ID edit
                                 />
                             </div>
                             <div className="form-group">
@@ -221,8 +209,9 @@ export const DeviceProfile = () => {
                                 </div>
                             </div>
                             <div className="card-actions">
+                                {/* Edit button hidden until backend ready */}
                                 {/* <button className="action-btn" onClick={() => handleEdit(profile)}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    <svg ...></svg>
                                 </button> */}
                                 <button className="action-btn" onClick={() => handleDelete(profile.id)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
