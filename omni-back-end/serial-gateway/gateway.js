@@ -4,7 +4,7 @@ import mqtt from 'mqtt';
 
 // --- CONFIGURATION ---
 const MQTT_BROKER = 'mqtt://localhost:1883';
-const SERIAL_PORT = 'COM4'; // <--- CHANGE THIS to your Arduino Port (e.g., COM3, /dev/ttyUSB0)
+const SERIAL_PORT = 'COM3'; // <--- CHANGE THIS to your Arduino Port (e.g., COM3, /dev/ttyUSB0)
 const BAUD_RATE = 115200;
 
 // Connect to MQTT
