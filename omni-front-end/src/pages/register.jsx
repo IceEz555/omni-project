@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 
@@ -17,15 +18,24 @@ export const RegisterPage = ({ setPage }) => {
         });
     };
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if (formData.password !== formData.confirmPassword) {
             alert("Passwords do not match!");
             return;
         }
-        console.log("Registering with:", formData);
-        // Simulate successful registration
-        alert("Registration successful!");
-        setPage("Login");
+
+        try {
+            await api.post("/auth/register", {
+                email: formData.email,
+                username: formData.username,
+                password: formData.password
+            });
+            alert("Registration successful! Please login.");
+            setPage("Login");
+        } catch (error) {
+            console.error("Registration failed:", error);
+            alert("Registration failed: " + (error.response?.data?.error || error.message));
+        }
     };
 
     return (

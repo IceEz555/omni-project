@@ -22,23 +22,44 @@ export function writeTelemetry(data, profile) {
     .timestamp(ts);
 
   // Dynamic Field Injection
-  for (const field of profile.telemetry_schema.fields) {
-    const value = data[field.name];
-    if (value === undefined) continue;
+  const fields = profile.telemetry_schema?.fields;
 
-    if (field.type === 'matrix' || Array.isArray(value)) {
-      // 1. Store Full Data (JSON String)
-      point.stringField(field.name, JSON.stringify(value));
-      // 2. Store Size (Auto-generated generic size field)
-      // e.g. pressure_map -> pressure_map_size
-      point.intField(`${field.name}_size`, value.length);
-    } else if (typeof value === 'boolean') {
-      point.booleanField(field.name, value);
-    } else if (typeof value === 'number') {
-      point.floatField(field.name, value);
-    } else {
-      point.stringField(field.name, String(value));
-    }
+  if (fields && Array.isArray(fields) && fields.length > 0) {
+      // 1. Strict Mode (Schema Defined)
+      for (const field of fields) {
+        const value = data[field.name];
+        if (value === undefined) continue;
+
+        if (field.type === 'matrix' || Array.isArray(value)) {
+          point.stringField(field.name, JSON.stringify(value));
+          point.intField(`${field.name}_size`, value.length);
+        } else if (typeof value === 'boolean') {
+          point.booleanField(field.name, value);
+        } else if (typeof value === 'number') {
+          point.floatField(field.name, value);
+        } else {
+          point.stringField(field.name, String(value));
+        }
+      }
+  } else {
+      // 2. Dynamic Mode (No Schema or Empty) -> Write everything that looks like data
+      console.log('⚠️ No Schema Fields definition found, writing all data fields dynamically.');
+      for (const key in data) {
+          if (['device_id', 'profile_id', 'timestamp', 'raw'].includes(key)) continue; // Skip metadata
+          
+          const value = data[key];
+          if (value === null || value === undefined) continue;
+
+          if (Array.isArray(value)) {
+              point.stringField(key, JSON.stringify(value));
+          } else if (typeof value === 'boolean') {
+              point.booleanField(key, value);
+          } else if (typeof value === 'number') {
+              point.floatField(key, value);
+          } else {
+              point.stringField(key, String(value));
+          }
+      }
   }
 
   writeApi.writePoint(point);

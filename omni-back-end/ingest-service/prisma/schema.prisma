@@ -1,0 +1,20 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Reuse the exact same model name and mapping as platform-service
+model DeviceProfile {
+  id                String   @id @default(uuid())
+  profile_id        String   @unique
+  name              String?
+  data_type         String
+  schema_definition Json
+  // Note: We don't need the 'devices' relation here for ingest-service unless we use it.
+  
+  @@map("device_profiles")
+}

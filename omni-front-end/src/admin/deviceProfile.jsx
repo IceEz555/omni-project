@@ -1,23 +1,37 @@
-import React, { useState } from "react";
-import { deviceProfiles } from "../mock/data.jsx";
+import React, { useState, useEffect } from "react";
+import api from "../api/axios";
 import "../css/deviceProfile.css";
 import "../css/modal.css";
 
 export const DeviceProfile = () => {
-    const [profiles, setProfiles] = useState(deviceProfiles);
+    const [profiles, setProfiles] = useState([]);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [showForm, setShowForm] = useState(false); // Keeps existing state var if used elsewhere, but mainly using showCreateForm
+    const [isLoading, setIsLoading] = useState(false);
+
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        name: "", // Changed from deviceName to match mock data structure usually, or need mapping
+        profile_id: "",
+        name: "", 
         type: "32x32 Grid",
         dataFormat: "",
-        // sampleRate: "", // Mock data might not have this, but I'll keep it in form
         description: ""
     });
 
-    // Check mock data keys. `deviceProfiles` usually has: id, name, description, type, dataFormat, status, icon.
-    // I will align formData with these keys.
+    useEffect(() => {
+        fetchProfiles();
+    }, []);
+
+    const fetchProfiles = async () => {
+        setIsLoading(true);
+        try {
+            const response = await api.get("/admin/get-profiles");
+            setProfiles(response.data);
+        } catch (error) {
+            console.error("Failed to fetch profiles:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -29,50 +43,58 @@ export const DeviceProfile = () => {
 
     const handleEdit = (profile) => {
         setFormData({
+            profile_id: profile.profile_id,
             name: profile.name,
             type: profile.type,
             dataFormat: profile.dataFormat,
-            description: profile.description
+            description: profile.description || ""
         });
         setEditingId(profile.id);
         setShowCreateForm(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this profile?")) {
-            setProfiles(profiles.filter(p => p.id !== id));
+            try {
+                await api.delete(`/admin/delete-profile/${id}`);
+                fetchProfiles();
+            } catch (error) {
+                console.error("Failed to delete profile:", error);
+                alert("Failed to delete profile");
+            }
         }
     };
 
-    const handleSubmit = () => {
-        if (editingId) {
-            // Update
-            setProfiles(profiles.map(p => p.id === editingId ? { ...p, ...formData } : p));
-        } else {
-            // Create
-            const newProfile = {
-                id: Date.now(),
-                ...formData,
-                status: "Active", // Default
-                activeDevices: 0,
-                icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-            };
-            setProfiles([...profiles, newProfile]);
+    const handleSubmit = async () => {
+        try {
+            if (!formData.profile_id || !formData.name) {
+                alert("Profile ID and Name are required");
+                return;
+            }
+
+            // Note: Update logic (PUT) is not implemented in backend yet, so currently edit = assume create or error
+            // For now, only Create is fully supported by the controller I wrote
+            if (editingId) {
+                alert("Update Profile feature coming soon. Currently supporting Create/Delete.");
+                // In future: await api.put...
+            } else {
+                await api.post("/admin/create-profile", formData);
+                alert("Profile created successfully!");
+            }
+
+            fetchProfiles();
+            resetForm();
+        } catch (error) {
+            console.error("Failed to save profile:", error);
+            alert("Failed to save profile: " + (error.response?.data?.message || error.message));
         }
-        setShowCreateForm(false);
-        setEditingId(null);
-        setFormData({
-            name: "",
-            type: "32x32 Grid",
-            dataFormat: "",
-            description: ""
-        });
     };
 
     const resetForm = () => {
         setShowCreateForm(false);
         setEditingId(null);
         setFormData({
+            profile_id: "",
             name: "",
             type: "32x32 Grid",
             dataFormat: "",
@@ -91,8 +113,7 @@ export const DeviceProfile = () => {
                     <button
                         className="create-profile-btn"
                         onClick={() => {
-                            setEditingId(null);
-                            setFormData({ name: "", type: "32x32 Grid", dataFormat: "", description: "" });
+                            resetForm();
                             setShowCreateForm(true);
                         }}
                     >
@@ -108,15 +129,29 @@ export const DeviceProfile = () => {
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Device Name</label>
+                                <label>Profile ID (Unique)</label>
+                                <input
+                                    type="text"
+                                    name="profile_id"
+                                    placeholder="e.g., ultrasonic_sensor"
+                                    value={formData.profile_id}
+                                    onChange={handleInputChange}
+                                    disabled={!!editingId}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Device Name (Display)</label>
                                 <input
                                     type="text"
                                     name="name"
-                                    placeholder="e.g., Smart Insole"
+                                    placeholder="e.g., Ultrasonic Sensor"
                                     value={formData.name}
                                     onChange={handleInputChange}
                                 />
                             </div>
+                        </div>
+
+                        <div className="form-row">
                             <div className="form-group">
                                 <label>Device Type</label>
                                 <select
@@ -124,28 +159,21 @@ export const DeviceProfile = () => {
                                     value={formData.type}
                                     onChange={handleInputChange}
                                 >
-                                    <option>32x32 Grid</option>
-                                    <option>16x16 Grid</option>
-                                    <option>Pressure Mat</option>
+                                    <option value="sensor">Sensor (Timeseries)</option>
+                                    <option value="matrix">Matrix (Grid)</option>
+                                    <option value="32x32 Grid">32x32 Grid</option>
+                                    <option value="unknown">Other</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div className="form-row">
                             <div className="form-group">
                                 <label>Data Format</label>
                                 <input
                                     type="text"
                                     name="dataFormat"
-                                    placeholder="e.g., JSON, Binary, CSV"
+                                    placeholder="e.g., JSON"
                                     value={formData.dataFormat}
                                     onChange={handleInputChange}
                                 />
-                            </div>
-                            {/* Sample Rate was in original form but not mock data, keeping generic or removing if not needed. I'll omit to match mock data for now or keep visual only. */}
-                            <div className="form-group">
-                                <label>Sample Rate</label>
-                                <input type="text" placeholder="e.g., 60 Hz" disabled />
                             </div>
                         </div>
 
@@ -153,7 +181,7 @@ export const DeviceProfile = () => {
                             <label>Description</label>
                             <textarea
                                 name="description"
-                                placeholder="Describe the device and its purpose..."
+                                placeholder="Describe the device..."
                                 rows="3"
                                 value={formData.description}
                                 onChange={handleInputChange}
@@ -179,38 +207,25 @@ export const DeviceProfile = () => {
             )}
 
             <div className="device-profile-list">
-                {profiles.map((profile) => (
+                {isLoading && <p>Loading profiles...</p>}
+                {!isLoading && profiles.map((profile) => (
                     <div key={profile.id} className="device-card">
                         <div className="card-header">
                             <div className="card-title-group">
                                 <div className="device-icon">
-                                    {profile.icon}
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line></svg>
                                 </div>
                                 <div className="device-info">
-                                    <h3>{profile.name}</h3>
-                                    <p>{profile.description}</p>
+                                    <h3>{profile.name} <span style={{fontSize: '12px', color: '#888'}}>({profile.profile_id})</span></h3>
+                                    <p>{profile.description || "No description"}</p>
                                 </div>
                             </div>
                             <div className="card-actions">
-                                <button
-                                    className="action-btn"
-                                    aria-label="Edit"
-                                    onClick={() => handleEdit(profile)}
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                </button>
-                                <button
-                                    className="action-btn"
-                                    aria-label="Delete"
-                                    onClick={() => handleDelete(profile.id)}
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
+                                {/* <button className="action-btn" onClick={() => handleEdit(profile)}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button> */}
+                                <button className="action-btn" onClick={() => handleDelete(profile.id)}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                 </button>
                             </div>
                         </div>
@@ -226,15 +241,7 @@ export const DeviceProfile = () => {
                             </div>
                             <div className="stat-item">
                                 <span className="stat-label">Active Devices</span>
-                                <span className="stat-value">{profile.activeDevices}</span>
-                            </div>
-                            <div className="stat-item">
-                                <span className="stat-label">Status</span>
-                                <div>
-                                    <span className={`status-badge ${profile.status}`}>
-                                        {profile.status}
-                                    </span>
-                                </div>
+                                <span className="stat-value">{profile.activeDevices || 0}</span>
                             </div>
                         </div>
                     </div>

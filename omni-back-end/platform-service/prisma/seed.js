@@ -99,6 +99,7 @@ async function createSession(userId, projectName) {
         update: {},
         create: { 
             device_name: 'Mat 1', 
+            serial_number: 'MAT_001', // Added default serial number
             project_id: project.id, 
             device_profile_id: profile.id 
         }
