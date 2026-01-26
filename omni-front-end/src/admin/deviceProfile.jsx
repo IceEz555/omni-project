@@ -4,7 +4,6 @@ import "../css/deviceProfile.css";
 
 export const DeviceProfile = () => {
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({
         deviceName: "",
         deviceType: "32x32 Grid",
@@ -23,7 +22,8 @@ export const DeviceProfile = () => {
 
     const handleSubmit = () => {
         console.log("Creating profile:", formData);
-        setShowForm(false);
+        // Here you would typically call an API
+        setShowCreateForm(false);
     };
 
     return (
@@ -33,7 +33,7 @@ export const DeviceProfile = () => {
                     <h1 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: "bold" }}>Device Profiles</h1>
                     <p style={{ margin: 0, color: "#666" }}>Manage device types and data parsing configurations</p>
                 </div>
-                {!showForm && (
+                {!showCreateForm && (
                     <button
                         className="create-profile-btn"
                         onClick={() => setShowCreateForm(true)}
@@ -50,11 +50,21 @@ export const DeviceProfile = () => {
                     <div className="form-row">
                         <div className="form-group">
                             <label>Device Name</label>
-                            <input type="text" placeholder="e.g., Smart Insole" />
+                            <input 
+                                type="text" 
+                                name="deviceName"
+                                value={formData.deviceName}
+                                onChange={handleInputChange}
+                                placeholder="e.g., Smart Insole" 
+                            />
                         </div>
                         <div className="form-group">
                             <label>Device Type</label>
-                            <select>
+                            <select 
+                                name="deviceType"
+                                value={formData.deviceType}
+                                onChange={handleInputChange}
+                            >
                                 <option>32x32 Grid</option>
                                 <option>16x16 Grid</option>
                                 <option>Pressure Mat</option>
@@ -65,23 +75,41 @@ export const DeviceProfile = () => {
                     <div className="form-row">
                         <div className="form-group">
                             <label>Data Format</label>
-                            <input type="text" placeholder="e.g., JSON, Binary, CSV" />
+                            <input 
+                                type="text" 
+                                name="dataFormat"
+                                value={formData.dataFormat}
+                                onChange={handleInputChange}
+                                placeholder="e.g., JSON, Binary, CSV" 
+                            />
                         </div>
                         <div className="form-group">
                             <label>Sample Rate</label>
-                            <input type="text" placeholder="e.g., 60 Hz" />
+                            <input 
+                                type="text" 
+                                name="sampleRate"
+                                value={formData.sampleRate}
+                                onChange={handleInputChange}
+                                placeholder="e.g., 60 Hz" 
+                            />
                         </div>
                     </div>
 
                     <div className="form-group">
                         <label>Description</label>
-                        <textarea placeholder="Describe the device and its purpose..." rows="3"></textarea>
+                        <textarea 
+                            name="description"
+                            value={formData.description}
+                            onChange={handleInputChange}
+                            placeholder="Describe the device and its purpose..." 
+                            rows="3"
+                        ></textarea>
                     </div>
 
                     <div className="form-actions">
                         <button
                             className="btn-create"
-                            onClick={() => setShowCreateForm(false)}
+                            onClick={handleSubmit}
                         >
                             Create Profile
                         </button>
