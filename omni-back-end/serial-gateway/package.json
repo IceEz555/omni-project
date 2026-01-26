@@ -1,0 +1,14 @@
+{
+  "name": "serial-gateway",
+  "version": "1.0.0",
+  "description": "Reads data from Serial Port (Arduino) and publishes to MQTT",
+  "main": "gateway.js",
+  "type": "module",
+  "scripts": {
+    "start": "node gateway.js"
+  },
+  "dependencies": {
+    "mqtt": "^5.3.4",
+    "serialport": "^12.0.0"
+  }
+}

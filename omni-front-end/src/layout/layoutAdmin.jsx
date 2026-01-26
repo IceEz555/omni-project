@@ -8,7 +8,7 @@ export const AdminLayout = ({ children, title, currentPage, setPage }) => {
             <div className="sidebar">
                 <img src={logo} alt="" className="logo" />
                 <nav className="nav-menu">
-                    {["AdminDashboard", "Device Profile", "User Management"].map((item) => (
+                    {["AdminDashboard", "Device Profile", "Device Inventory", "User Management"].map((item) => (
                         <button
                             key={item}
                             onClick={() => setPage(item)}

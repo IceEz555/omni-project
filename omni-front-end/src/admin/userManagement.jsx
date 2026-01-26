@@ -1,32 +1,46 @@
-/* eslint-disable no-undef */
 import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import "../css/userManagement.css";
+import "../css/modal.css";
 
 
 export const UserManagement = () => {
+    const [userList, setUserList] = useState([]);
+    const [projectList, setProjectList] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
-        fullName: "",
+        Username: "", // Matches user request form field name
         email: "",
-        role: "Operator",
-        project: "Yoga Research Lab"
+        password: "",
+        role: "User",
+        project: "Yoga Research Lab",
+        status: "Active"
     });
 
-    const [users, setUsers] = useState([]);
-    // Add useEffect to fetch data
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/immutability
-        fetchUsers();
-    }, []);
     const fetchUsers = async () => {
         try {
             const response = await api.get("/admin/get-users");
-            setUsers(response.data); 
+            setUserList(response.data); 
         } catch (error) {
             console.error("Failed to fetch users:", error);
         }
     };
+
+    const fetchProjects = async () => {
+        try {
+            const response = await api.get("/admin/get-projects");
+            setProjectList(response.data);
+        } catch (error) {
+            console.error("Failed to fetch projects:", error);
+        }
+    };
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchUsers();
+        fetchProjects();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -36,37 +50,82 @@ export const UserManagement = () => {
         }));
     };
 
-    const handleSubmit = async () => {
-        if (!formData.fullName || !formData.email || !formData.password) {
-            alert("Please fill in all fields");
-            return;
-        }
+    const handleEdit = (user) => {
+        setEditingId(user.id);
+        // Convert role to Title Case to match select options (e.g., "SUPPORTER" -> "Supporter")
+        const titleCaseRole = user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase();
+        
+        setFormData({
+            Username: user.name,
+            email: user.email,
+            password: "", // Don't show existing password
+            role: titleCaseRole,
+            project: user.project,
+            status: user.status
+        });
+        setShowForm(true);
+    };
 
-        try {
-            const payload = {
-                username: formData.fullName,
-                email: formData.email,
-                password: formData.password,
-                role_name: formData.role,
-                project_name: formData.project
-            };
-
-            await api.post("/admin/create-user", payload);
-            alert("User created successfully!");
-            setShowForm(false);
-            setFormData({
-                fullName: "",
-                email: "",
-                password: "",
-                role: "user",
-                project: "Yoga Research Lab"
-            });
-            fetchUsers(); // Refresh list
-        } catch (error) {
-            console.error("Failed to create user:", error);
-            alert("Failed to create user: " + (error.response?.data?.message || error.message));
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            try {
+                await api.delete(`/admin/delete-user/${id}`);
+                fetchUsers();
+            } catch (error) {
+                console.error("Failed to delete user:", error);
+                alert("Failed to delete user");
+            }
         }
     };
+
+    const handleSubmit = async () => {
+        try {
+            const payload = {
+                username: formData.Username,
+                email: formData.email,
+                password: formData.password || "default123", // basic fallback if editing
+                role_name: formData.role,
+                project_name: formData.project,
+                status: formData.status
+            };
+
+            if (editingId) {
+                // Update
+                await api.put(`/admin/update-user/${editingId}`, payload);
+                alert("User updated successfully!");
+            } else {
+                // Create
+                if (!formData.Username || !formData.email || !formData.password) {
+                     alert("Please fill in all required fields (Username, Email, Password)");
+                     return;
+                }
+                await api.post("/admin/create-user", payload);
+                alert("User created successfully!");
+            }
+            resetForm();
+            fetchUsers();
+        } catch (error) {
+            console.error("Failed to save user:", error);
+            alert("Failed to save user: " + (error.response?.data?.message || error.message));
+        }
+    };
+
+    const resetForm = () => {
+        setShowForm(false);
+        setEditingId(null);
+        setFormData({
+            Username: "",
+            email: "",
+            password: "",
+            role: "User",
+            project: "Yoga Research Lab",
+            status: "Active"
+        });
+    };
+
+    // Filter logic needs to use userList. 
+    // The original code had static filters in UI but didn't implement logic. 
+    // I will just render userList. If filters need implementation, that's extra scope but I'll stick to displaying userList which includes edits.
 
     return (
         <div>
@@ -78,7 +137,10 @@ export const UserManagement = () => {
                 {!showForm && (
                     <button
                         className="add-user-btn"
-                        onClick={() => setShowForm(true)}
+                        onClick={() => {
+                            resetForm();
+                            setShowForm(true);
+                        }}
                         style={{
                             backgroundColor: "#0f172a",
                             color: "white",
@@ -99,38 +161,88 @@ export const UserManagement = () => {
             </div>
 
             {showForm && (
-                <div className="add-user-form-container">
-                    <h2 className="add-user-form-title">Create New User Account</h2>
+                <div className="modal-overlay" onClick={() => setShowForm(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <h2 className="add-user-form-title">{editingId ? "Edit User Account" : "Create New User Account"}</h2>
 
-                    <div className="add-user-form-grid">
-                        {/* Full Name */}
-                        <div>
-                            <label className="form-group-label">Full Name</label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                placeholder="e.g., Jane Doe"
-                                value={formData.fullName}
-                                onChange={handleInputChange}
-                                className="form-input"
-                            />
-                        </div>
+                        <div className="add-user-form-grid">
+                            {/* Full Name */}
+                            <div>
+                                <label className="form-group-label">Username</label>
+                                <input
+                                    type="text"
+                                    name="Username"
+                                    placeholder="e.g., Jane Doe"
+                                    value={formData.Username}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                />
+                            </div>
 
-                        {/* Email */}
-                        <div>
-                            <label className="form-group-label">Email</label>
-                            <input
-                                type="text"
-                                name="email"
-                                placeholder="jane.doe@example.com"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                className="form-input"
-                            />
+                            {/* Email */}
+                            <div>
+                                <label className="form-group-label">Email</label>
+                                <input
+                                    type="text"
+                                    name="email"
+                                    placeholder="jane.doe@example.com"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                />
+                            </div>
+
+                            {/* Role */}
+                            <div>
+                                <label className="form-group-label">Role</label>
+                                <select
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleInputChange}
+                                    className="form-select-box"
+                                >
+                                    <option>User</option>
+                                    <option>Admin</option>
+                                    <option>Supporter</option>
+                                </select>
+                            </div>
+
+                            {/* Assign to Project */}
+                            <div>
+                                <label className="form-group-label">Assign to Project</label>
+                                <select
+                                    name="project"
+                                    value={formData.project}
+                                    onChange={handleInputChange}
+                                    className="form-select-box"
+                                >
+                                    <option value="">Select Project</option>
+                                    {projectList.map((project) => (
+                                        <option key={project.id} value={project.name}>
+                                            {project.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                             {/* Status */}
+                             <div>
+                                <label className="form-group-label">Status</label>
+                                <select
+                                    name="status"
+                                    value={formData.status}
+                                    onChange={handleInputChange}
+                                    className="form-select-box"
+                                >
+                                    <option>Active</option>
+                                    <option>Inactive</option>
+                                    <option>Banned</option>
+                                </select>
+                            </div>
                         </div>
 
                         {/* Password */}
-                        <div>
+                        <div style={{ marginTop: "16px" }}>
                             <label className="form-group-label">Password</label>
                             <input
                                 type="password"
@@ -142,51 +254,21 @@ export const UserManagement = () => {
                             />
                         </div>
 
-                        {/* Role */}
-                        <div>
-                            <label className="form-group-label">Role</label>
-                            <select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleInputChange}
-                                className="form-select-box"
+                        {/* Buttons */}
+                        <div className="form-actions" style={{ marginTop: "24px" }}>
+                            <button
+                                onClick={handleSubmit}
+                                className="submit-btn"
                             >
-                                <option>Operator</option>
-                                <option>Admin</option>
-                                <option>Viewer</option>
-                            </select>
-                        </div>
-
-                        {/* Assign to Project */}
-                        <div>
-                            <label className="form-group-label">Assign to Project</label>
-                            <select
-                                name="project"
-                                value={formData.project}
-                                onChange={handleInputChange}
-                                className="form-select-box"
+                                {editingId ? "Update User" : "Create User"}
+                            </button>
+                            <button
+                                onClick={resetForm}
+                                className="cancel-btn"
                             >
-                                <option>Yoga Research Lab</option>
-                                <option>Physical Therapy Clinic</option>
-                                <option>Sports Performance</option>
-                            </select>
+                                Cancel
+                            </button>
                         </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="form-actions">
-                        <button
-                            onClick={handleSubmit}
-                            className="submit-btn"
-                        >
-                            Create User
-                        </button>
-                        <button
-                            onClick={() => setShowForm(false)}
-                            className="cancel-btn"
-                        >
-                            Cancel
-                        </button>
                     </div>
                 </div>
             )}
@@ -196,7 +278,7 @@ export const UserManagement = () => {
                     <label>Filter by Role</label>
                     <select className="filter-select">
                         <option>All Roles</option>
-                        <option>Operator</option>
+                        <option>User</option>
                         <option>Supporter</option>
                     </select>
                 </div>
@@ -209,7 +291,7 @@ export const UserManagement = () => {
                         <option>Sports Performance</option>
                     </select>
                 </div>
-                <span className="showing-text">Showing {users.length} of {users.length} users</span>
+                <span className="showing-text">Showing {userList.length} of {userList.length} users</span>
             </div>
 
             <div className="user-table-container">
@@ -226,7 +308,7 @@ export const UserManagement = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {userList.map((user) => (
                             <tr key={user.id}>
                                 <td>
                                     <div className="user-cell">
@@ -261,13 +343,21 @@ export const UserManagement = () => {
                                 <td>{user.sessions}</td>
                                 <td>
                                     <div className="action-buttons">
-                                        <button className="table-action-btn" aria-label="Edit">
+                                        <button
+                                            className="table-action-btn"
+                                            aria-label="Edit"
+                                            onClick={() => handleEdit(user)}
+                                        >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                             </svg>
                                         </button>
-                                        <button className="table-action-btn" aria-label="Delete">
+                                        <button
+                                            className="table-action-btn"
+                                            aria-label="Delete"
+                                            onClick={() => handleDelete(user.id)}
+                                        >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <polyline points="3 6 5 6 21 6"></polyline>
                                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>

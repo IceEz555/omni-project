@@ -1,11 +1,11 @@
-import React from "react";
+import { useState } from "react";
 import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 
 export const AuthPage = ({ setPage }) => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -69,6 +69,21 @@ export const AuthPage = ({ setPage }) => {
           </button>
         </form>
 
+        <button
+          className="btn-link"
+          style={{
+            marginTop: "16px",
+            background: "transparent",
+            color: "var(--seafoam-main)",
+            border: "none",
+            width: "100%",
+            cursor: "pointer",
+            textDecoration: "underline"
+          }}
+          onClick={() => setPage("Register")}
+        >
+          Create an Account
+        </button>
         <button
           className="btn-secondary"
           style={{
