@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../api/axios";
 import "../css/liveMonitor.css";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -23,6 +23,10 @@ export const LiveMonitor = () => {
 
   const [packetCount, setPacketCount] = useState(0);
   const [lastRxTime, setLastRxTime] = useState(null);
+
+  // Buffer and Stats for 5-second Interval
+  const dataBufferRef = useRef([]);
+  const [intervalStats, setIntervalStats] = useState({ min: 0, max: 0, avg: 0 });
 
   // Socket Connection for Matrix
   useEffect(() => {
@@ -85,7 +89,7 @@ export const LiveMonitor = () => {
     init();
   }, []);
 
-  // Polling Telemetry
+  // Polling Telemetry (Faster: 1000ms)
   useEffect(() => {
     if (!selectedDevice) return;
 
@@ -93,25 +97,62 @@ export const LiveMonitor = () => {
       try {
         // Fetch by Device Serial Number (Hardware ID)
         const lookupId = selectedDevice.serialNumber || selectedDevice.name;
-        // If serialNumber is missing in state, we might need to refetch it? 
-        // But setSelectedDevice sets the whole object from get-devices which SHOULD have serialNumber now.
+
         const res = await api.get(`/admin/get-telemetry/${lookupId}`);
         const data = res.data.data;
-        setTelemetryData(data);
+
+        if (data && data.length > 0) {
+          const latestPoint = data[data.length - 1]; // Get the very latest point
+
+          // 1. Real-time Display Update
+          setTelemetryData(data); // Update graph/latest value immediately
+
+          // 2. Add to Buffer (The "Bag")
+          // We push the LATEST value received into our buffer
+          if (latestPoint && typeof latestPoint.value === 'number') {
+            dataBufferRef.current.push(latestPoint.value);
+          }
+        }
       } catch (error) {
         console.warn("Failed to fetch live telemetry", error);
       }
     };
 
     fetchData(); // Immediate fetch
-    const interval = setInterval(fetchData, 5000); // Poll every 5s
+    const interval = setInterval(fetchData, 1000); // Poll every 1s (Real-time-ish)
 
     return () => clearInterval(interval);
   }, [selectedDevice]);
 
 
 
+  // Interval Calculation Logic (Every 5 seconds)
+  useEffect(() => {
+    const calcInterval = setInterval(() => {
+      const buffer = dataBufferRef.current;
+
+      if (buffer.length > 0) {
+        console.log("Calculating Stats from Buffer:", buffer);
+
+        // Calculate Stats
+        const min = Math.min(...buffer);
+        const max = Math.max(...buffer);
+        const sum = buffer.reduce((a, b) => a + b, 0);
+        const avg = sum / buffer.length;
+
+        // Update UI State
+        setIntervalStats({ min, max, avg });
+
+        // Clear Buffer (Empty the bag)
+        dataBufferRef.current = [];
+      }
+    }, 5000); // Run every 5 seconds
+
+    return () => clearInterval(calcInterval);
+  }, []); // Run once on mount
+
   // ... existing socket & polling effects ...
+
 
   // Helper to get color from value (0-1023)
   const getCellColor = (value, rIndex, cIndex) => {
@@ -257,28 +298,27 @@ export const LiveMonitor = () => {
 
         {/* Signal Statistics */}
         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
-          <div style={{ fontSize: '12px', color: '#95A5A6', marginBottom: '8px' }}>SIGNAL STATISTICS</div>
+          <div style={{ fontSize: '12px', color: '#95A5A6', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+            <span>SIGNAL STATISTICS (5s Window)</span>
+            <span style={{ fontSize: '10px', color: '#BDC3C7' }}>Updates every 5s</span>
+          </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
             {/* Logic for Stats */}
             {(() => {
-              const values = telemetryData.map(d => d.value);
-              const min = values.length ? Math.min(...values) : 0;
-              const max = values.length ? Math.max(...values) : 0;
-              const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-
+              // Use 5s Interval Stats found in state
               return (
                 <>
                   <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
                     <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>MIN</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{min.toFixed(1)}</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{intervalStats.min.toFixed(2)}</div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
                     <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>AVG</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{avg.toFixed(1)}</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{intervalStats.avg.toFixed(2)}</div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
                     <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>MAX</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{max.toFixed(1)}</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{intervalStats.max.toFixed(2)}</div>
                   </div>
                 </>
               )
