@@ -1,6 +1,6 @@
 export function validateTelemetry(data, profile) {
   const errors = [];
-  const schema = profile.telemetry_schema;
+  const schema = profile.telemetry_schema || {};
 
   // 1. Common Field Validation (e.g., timestamp)
   if (!data.timestamp) {
@@ -13,6 +13,11 @@ export function validateTelemetry(data, profile) {
   }
 
   // 2. Schema Field Validation
+  if (!schema.fields || !Array.isArray(schema.fields)) {
+      // If no fields defined, we assume it's dynamic or valid
+      return { valid: true, errors: [] };
+  }
+
   for (const fieldDef of schema.fields) {
     const name = fieldDef.name;
     const value = data[name];

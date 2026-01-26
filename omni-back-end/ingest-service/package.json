@@ -17,6 +17,11 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "mqtt": "^5.14.1"
+    "mqtt": "^5.14.1",
+    "@prisma/client": "^5.10.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.2",
+    "nodemon": "^3.1.0"
   }
 }

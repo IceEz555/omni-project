@@ -11,7 +11,7 @@ export async function processTelemetry(data) {
   // 2. Load Profile
   let profile;
   try {
-    profile = loadProfile(data.profile_id);
+    profile = await loadProfile(data.profile_id);
   } catch (e) {
     return { success: false, error: `Profile not found: ${data.profile_id}`, type: "PROFILE_NOT_FOUND" };
   }

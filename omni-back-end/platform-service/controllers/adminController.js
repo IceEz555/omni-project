@@ -220,3 +220,15 @@ export const getAllProjects = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+
+// Get All Device Profiles (For Dropdown)
+export const getAllDeviceProfiles = async (req, res) => {
+    try {
+        const profiles = await prisma.deviceProfile.findMany({
+            select: { id: true, name: true, profile_id: true }
+        });
+        res.json(profiles);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

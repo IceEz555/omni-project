@@ -1,145 +1,138 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import api from "../api/axios";
 import "../css/dashboard.css";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
-export const Dashboard = ({ setPage }) => {
-  const [showProjectForm, setShowProjectForm] = useState(false);
-  const [formData, setFormData] = useState({
-    projectName: "",
-    projectType: "Yoga",
-    description: "",
-    startDate: ""
-  });
+// Helper for formatting time (HH:mm)
+const formatTime = (isoString) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+export const Dashboard = () => {
+    const [devices, setDevices] = useState([]);
+    const [activeDevicesParams, setActiveDevicesParams] = useState({ total: 0, online: 0 });
 
-  const handleSubmit = () => {
-    console.log("Creating project:", formData);
-    setShowProjectForm(false);
-  };
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/immutability
+        fetchDevicesWithTelemetry();
+    }, []);
 
-  return (
-    <div>
-      <div className="dashboard-stats-grid">
-        {[
-          { label: "Active Devices", value: "12", color: "#48C9B0" },
-          { label: "Devices Online", value: "5", color: "#3498DB" },
-          { label: "Alert", value: "0", color: "#E74C3C" },
-        ].map((stat, idx) => (
-          <div key={idx} className="card" style={{ borderLeft: `4px solid ${stat.color}` }}>
-            <p className="stat-card-label">{stat.label}</p>
-            <h2 className="stat-card-value">{stat.value}</h2>
-          </div>
-        ))}
-      </div>
+    const fetchDevicesWithTelemetry = async () => {
+        try {
+            // 1. Get Devices
+            const deviceRes = await api.get("/admin/get-devices");
+            const allDevices = deviceRes.data;
 
-      <div className="projects-header">
-        <h2 className="projects-title">All Projects</h2>
-        {!showProjectForm && (
-          <button
-            className="new-project-btn"
-            onClick={() => setShowProjectForm(true)}
-          >
-            + New Project
-          </button>
-        )}
-      </div>
+            // 2. Fetch Telemetry for each device (Parallel)
+            // Note: In production, use websocket or a single aggregate API. Here we brute force for MVP.
+            const devicesWithData = await Promise.all(allDevices.map(async (device) => {
+                try {
+                    // Use Serial Number (Hardware ID) for telemetry lookup
+                    // If no serial number, fallback to name for legacy support or skip
+                    const lookupId = device.serialNumber || device.name;
+                    
+                    if (!lookupId) return { ...device, history: [], latestValue: null, isOnline: false };
 
-      {showProjectForm && (
-        <div className="new-project-form-container">
-          <h2 className="new-project-form-title">Create New Project</h2>
+                    const telRes = await api.get(`/admin/get-telemetry/${lookupId}`); 
+                    
+                    const telemetry = telRes.data.data; // Array of points
+                    
+                    // Calc Latest Value
+                    const latest = telemetry.length > 0 ? telemetry[telemetry.length - 1].value : null;
 
-          <div className="new-project-form-grid">
-            {/* Project Name */}
-            <div className="form-group">
-              <label className="form-label">Project Name</label>
-              <input
-                type="text"
-                name="projectName"
-                placeholder="e.g., Summer Yoga Research"
-                value={formData.projectName}
-                onChange={handleInputChange}
-                className="form-input-text"
-              />
+                    return {
+                        ...device,
+                        history: telemetry, // Full history for graph
+                        latestValue: latest,
+                        isOnline: telemetry.length > 0 && (new Date() - new Date(telemetry[telemetry.length - 1].time) < 60000) // Online if data < 1 min ago
+                    };
+                } catch (e) {
+                    console.warn(`Failed to fetch telemetry for ${device.name}`, e);
+                    return { ...device, history: [], latestValue: null, isOnline: false };
+                }
+            }));
+
+            setDevices(devicesWithData);
+            
+            // Stats
+            const onlineCount = devicesWithData.filter(d => d.isOnline).length;
+            setActiveDevicesParams({ total: devicesWithData.length, online: onlineCount });
+
+        } catch (error) {
+            console.error("Failed to load dashboard data", error);
+        }
+    };
+
+    return (
+        <div>
+            {/* Stats Row */}
+            <div className="dashboard-stats-grid">
+                {[
+                    { label: "Total Devices", value: activeDevicesParams.total, color: "#48C9B0" },
+                    { label: "Devices Online", value: activeDevicesParams.online, color: "#3498DB" },
+                    { label: "System Alerts", value: "0", color: "#E74C3C" },
+                ].map((stat, idx) => (
+                    <div key={idx} className="card" style={{ borderLeft: `4px solid ${stat.color}` }}>
+                        <p className="stat-card-label">{stat.label}</p>
+                        <h2 className="stat-card-value">{stat.value}</h2>
+                    </div>
+                ))}
             </div>
 
-            {/* Project Type */}
-            <div className="form-group">
-              <label className="form-label">Project Type</label>
-              <select
-                name="projectType"
-                value={formData.projectType}
-                onChange={handleInputChange}
-                className="form-select-box"
-              >
-                <option>Yoga</option>
-                <option>Rehab</option>
-                <option>Sports</option>
-                <option>General</option>
-              </select>
+            <div className="projects-header">
+                <h2 className="projects-title">Live Device Overview</h2>
+                <button className="new-project-btn" onClick={fetchDevicesWithTelemetry}>
+                   ↻ Refresh
+                </button>
             </div>
-          </div>
 
-          {/* Description */}
-          <div className="form-group" style={{ marginBottom: "24px" }}>
-            <label className="form-label">Description</label>
-            <textarea
-              name="description"
-              placeholder="Describe the project goals..."
-              value={formData.description}
-              onChange={handleInputChange}
-              rows="4"
-              className="form-textarea"
-            />
-          </div>
+            {/* Device Cards Grid */}
+            <div className="card-grid">
+                {devices.map((device) => (
+                    <div key={device.id} className="card" style={{minHeight: '200px', display: 'flex', flexDirection: 'column'}}>
+                        <div className="card-header-row">
+                            <span className="card-title">{device.name}</span>
+                            <span className={`status-badge ${device.isOnline ? 'online' : 'offline'}`} 
+                                  style={{backgroundColor: device.isOnline ? '#2ECC71' : '#95A5A6'}}>
+                                {device.isOnline ? 'ONLINE' : 'OFFLINE'}
+                            </span>
+                        </div>
 
-          {/* Buttons */}
-          <div className="form-actions-row">
-            <button
-              onClick={handleSubmit}
-              className="submit-btn"
-            >
-              Create Project
-            </button>
-            <button
-              onClick={() => setShowProjectForm(false)}
-              className="cancel-btn"
-            >
-              Cancel
-            </button>
-          </div>
+                        {/* Telemetry Graph / Value */}
+                        <div style={{ flex: 1, marginTop: '16px' }}>
+                            {device.history.length > 0 ? (
+                                <>
+                                    <div style={{marginBottom: '8px', fontSize: '24px', fontWeight: 'bold', color: '#2C3E50'}}>
+                                        {typeof device.latestValue === 'number' ? device.latestValue.toFixed(2) : device.latestValue}
+                                        <span style={{fontSize: '14px', color: '#7F8C8D', marginLeft: '4px'}}>
+                                            {/* Unit placeholder */}
+                                            {/* We could guess unit from profile or field name */}
+                                        </span>
+                                    </div>
+                                    <div style={{ width: "100%", height: 100 }}>
+                                        <ResponsiveContainer>
+                                            <LineChart data={device.history}>
+                                                <Line type="monotone" dataKey="value" stroke="#3498DB" strokeWidth={2} dot={false} />
+                                                {/* <XAxis dataKey="time" hide /> */}
+                                                <YAxis hide domain={['auto', 'auto']} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <p className="last-update-text">
+                                        Last update: {formatTime(device.history[device.history.length-1].time)}
+                                    </p>
+                                </>
+                            ) : (
+                                <div style={{height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDC3C7'}}>
+                                    No Recent Data
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
-      )}
-      <div className="card-grid">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="card">
-            <div className="card-header-row">
-              <span className="card-title">Yoga Mat #{i}</span>
-              <span className="status-badge">Online</span>
-            </div>
-
-            {/* Image Placeholder Box */}
-            <div className="device-image-placeholder">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="#BDC3C7" strokeWidth="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" fill="#BDC3C7" />
-                <path d="M21 15L16 10L5 21" stroke="#BDC3C7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-
-            <p className="last-update-text">Last update: 2 mins ago</p>
-            <button className="btn-primary" onClick={() => setPage("Live Monitor")}>
-              View Live
-            </button>
-          </div>
-        ))}
-      </div>
-
-    </div >
-  )
+    );
 };
