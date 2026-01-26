@@ -123,3 +123,30 @@
     flex-direction: column;
   }
 }
+/* Stats Table */
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 11px;
+}
+
+.stats-table th {
+  text-align: left;
+  color: #95A5A6;
+  font-weight: normal;
+  border-bottom: 1px solid #eee;
+  padding: 4px;
+}
+
+.stats-table td {
+  padding: 4px;
+  border-bottom: 1px solid #f9f9f9;
+  color: #2c3e50;
+}
+
+.stats-table td.value-col {
+  text-align: right;
+  font-weight: bold;
+  font-family: monospace;
+}

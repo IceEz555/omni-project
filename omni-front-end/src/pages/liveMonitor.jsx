@@ -254,6 +254,38 @@ export const LiveMonitor = () => {
           </div>
         </div>
 
+
+        {/* Signal Statistics */}
+        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
+          <div style={{ fontSize: '12px', color: '#95A5A6', marginBottom: '8px' }}>SIGNAL STATISTICS</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+            {/* Logic for Stats */}
+            {(() => {
+              const values = telemetryData.map(d => d.value);
+              const min = values.length ? Math.min(...values) : 0;
+              const max = values.length ? Math.max(...values) : 0;
+              const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+
+              return (
+                <>
+                  <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>MIN</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{min.toFixed(1)}</div>
+                  </div>
+                  <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>AVG</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{avg.toFixed(1)}</div>
+                  </div>
+                  <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>MAX</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{max.toFixed(1)}</div>
+                  </div>
+                </>
+              )
+            })()}
+          </div>
+        </div>
+
         {/* Classification (Keep existing logic or move) */}
         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
           <p className="card-header" style={{ padding: 0, marginBottom: '10px' }}>CURRENT POSE</p>
