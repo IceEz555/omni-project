@@ -91,6 +91,16 @@ export const UserManagement = () => {
                 {!showForm && (
                     <button
                         className="add-user-btn"
+                        onClick={() => {
+                            setEditingId(null);
+                            setFormData({
+                                Username: "",
+                                email: "",
+                                role: "Operator",
+                                project: "Yoga Research Lab"
+                            });
+                            setShowForm(true);
+                        }}
                     >
                         + Add User
                     </button>

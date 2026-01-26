@@ -55,7 +55,7 @@ export const Dashboard = ({ setPage }) => {
           <h2 className="new-project-form-title">Create New Project</h2>
 
           <div className="new-project-form-grid">
-            {/* Project Name */}
+
             <div className="form-group">
               <label className="form-label">Project Name</label>
               <input
@@ -68,7 +68,6 @@ export const Dashboard = ({ setPage }) => {
               />
             </div>
 
-            {/* Project Type */}
             <div className="form-group">
               <label className="form-label">Project Type</label>
               <select
@@ -85,7 +84,6 @@ export const Dashboard = ({ setPage }) => {
             </div>
           </div>
 
-          {/* Description */}
           <div className="form-group description-group">
             <label className="form-label">Description</label>
             <textarea
@@ -98,7 +96,6 @@ export const Dashboard = ({ setPage }) => {
             />
           </div>
 
-          {/* Buttons */}
           <div className="form-actions-row">
             <button
               onClick={handleSubmit}
@@ -123,7 +120,6 @@ export const Dashboard = ({ setPage }) => {
               <span className="status-badge">Online</span>
             </div>
 
-            {/* Image Placeholder Box */}
             <div className="device-image-placeholder">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="#BDC3C7" strokeWidth="2" />
