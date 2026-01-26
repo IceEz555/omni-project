@@ -41,10 +41,54 @@ export const DeviceProfile = () => {
         }));
     };
 
-    const handleSubmit = () => {
-        console.log("Creating profile:", formData);
-        setShowForm(false);
+    const handleSubmit = async () => {
+        try {
+            if (!formData.profile_id || !formData.name) {
+                alert("Profile ID and Name are required");
+                return;
+            }
+
+            // Note: Update logic (PUT) is not implemented in backend yet, so currently edit = assume create or error
+            // For now, only Create is fully supported by the controller
+            if (editingId) {
+                alert("Update Profile feature coming soon. Currently supporting Create/Delete.");
+                // In future: await api.put...
+            } else {
+                await api.post("/admin/create-profile", formData);
+                alert("Profile created successfully!");
+            }
+
+            fetchProfiles();
+            resetForm();
+        } catch (error) {
+            console.error("Failed to save profile:", error);
+            alert("Failed to save profile: " + (error.response?.data?.message || error.message));
+        }
     };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this profile?")) {
+            try {
+                await api.delete(`/admin/delete-profile/${id}`);
+                fetchProfiles();
+            } catch (error) {
+                console.error("Failed to delete profile:", error);
+                alert("Failed to delete profile");
+            }
+        }
+    };
+
+    const resetForm = () => {
+        setShowCreateForm(false);
+        setEditingId(null);
+        setFormData({
+            profile_id: "",
+            name: "",
+            type: "32x32 Grid",
+            dataFormat: "",
+            description: ""
+        });
+    }
 
     return (
         <div>
@@ -71,51 +115,81 @@ export const DeviceProfile = () => {
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <h3 className="form-title">{editingId ? "Edit Device Profile" : "Create New Device Profile"}</h3>
 
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label>Device Name</label>
-                            <input type="text" placeholder="e.g., Smart Insole" />
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Profile ID (Unique)</label>
+                                <input
+                                    type="text"
+                                    name="profile_id"
+                                    placeholder="e.g., ultrasonic_sensor"
+                                    value={formData.profile_id}
+                                    onChange={handleInputChange}
+                                    disabled={!!editingId} // Disable ID edit
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Device Name (Display)</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    placeholder="e.g., Ultrasonic Sensor"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
                         </div>
-                        <div className="form-group">
-                            <label>Device Type</label>
-                            <select>
-                                <option>32x32 Grid</option>
-                                <option>16x16 Grid</option>
-                                <option>Pressure Mat</option>
-                            </select>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Device Type</label>
+                                <select
+                                    name="type"
+                                    value={formData.type}
+                                    onChange={handleInputChange}
+                                >
+                                    <option value="sensor">Sensor (Timeseries)</option>
+                                    <option value="matrix">Matrix (Grid)</option>
+                                    <option value="32x32 Grid">32x32 Grid</option>
+                                    <option value="unknown">Other</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Data Format</label>
+                                <input
+                                    type="text"
+                                    name="dataFormat"
+                                    placeholder="e.g., JSON"
+                                    value={formData.dataFormat}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
                         </div>
-                    </div>
-
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label>Data Format</label>
-                            <input type="text" placeholder="e.g., JSON, Binary, CSV" />
-                        </div>
 
                         <div className="form-group">
-                            <label>Sample Rate</label>
-                            <input type="text" placeholder="e.g., 60 Hz" />
+                            <label>Description</label>
+                            <textarea
+                                name="description"
+                                placeholder="Describe the device..."
+                                rows="3"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                            ></textarea>
                         </div>
-                    </div>
 
-                    <div className="form-group">
-                        <label>Description</label>
-                        <textarea placeholder="Describe the device and its purpose..." rows="3"></textarea>
-                    </div>
-
-                    <div className="form-actions">
-                        <button
-                            className="btn-create"
-                            onClick={() => setShowCreateForm(false)}
-                        >
-                            Create Profile
-                        </button>
-                        <button
-                            className="btn-cancel"
-                            onClick={() => setShowCreateForm(false)}
-                        >
-                            Cancel
-                        </button>
+                        <div className="form-actions">
+                            <button
+                                className="btn-create"
+                                onClick={handleSubmit}
+                            >
+                                {editingId ? "Update Profile" : "Create Profile"}
+                            </button>
+                            <button
+                                className="btn-cancel"
+                                onClick={resetForm}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -135,8 +209,9 @@ export const DeviceProfile = () => {
                                 </div>
                             </div>
                             <div className="card-actions">
+                                {/* Edit button hidden until backend ready */}
                                 {/* <button className="action-btn" onClick={() => handleEdit(profile)}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    <svg ...></svg>
                                 </button> */}
                                 <button className="action-btn" onClick={() => handleDelete(profile.id)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
