@@ -92,10 +92,10 @@ export const DeviceProfile = () => {
 
     return (
         <div>
-            <div className="device-profile-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <div className="device-profile-header">
                 <div>
-                    <h1 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: "bold" }}>Device Profiles</h1>
-                    <p style={{ margin: 0, color: "#666" }}>Manage device types and data parsing configurations</p>
+                    <h1 className="device-profile-title">Device Profiles</h1>
+                    <p className="device-profile-subtitle">Manage device types and data parsing configurations</p>
                 </div>
                 {!showCreateForm && (
                     <button

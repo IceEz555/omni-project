@@ -17,7 +17,7 @@ export const AuthPage = ({ setPage }) => {
       console.log("Login Success:", response.data);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-      
+
       alert("Login Successful! 🚀");
 
       // Role-based redirection
@@ -28,7 +28,7 @@ export const AuthPage = ({ setPage }) => {
       } else if (role === "supporter") {
         setPage("Support Dashboard");
       } else {
-        setPage("Dashboard"); 
+        setPage("Dashboard");
       }
 
     } catch (error) {
@@ -44,18 +44,18 @@ export const AuthPage = ({ setPage }) => {
         <form onSubmit={handleLogin}>
           <div className="input-group">
             <label>Email</label>
-            <input 
-              type="text" 
-              placeholder="email@domain.com" 
+            <input
+              type="text"
+              placeholder="admin@omni.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="input-group">
             <label>Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••" 
+            <input
+              type="password"
+              placeholder="password123"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

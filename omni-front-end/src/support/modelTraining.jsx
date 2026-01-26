@@ -49,7 +49,7 @@ export const ModelTraining = () => {
                         onClick={() => setShowForm(true)}
                         className="start-new-training-btn"
                     >
-                        <span>▶</span> Start New Training
+                        ▶ Start New Training
                     </button>
                 )}
             </div>
@@ -171,7 +171,7 @@ export const ModelTraining = () => {
                         </div>
                     </div>
 
-                    <div style={{ marginBottom: "24px" }}>
+                    <div className="advanced-options-wrapper">
                         <button
                             onClick={() => setShowAdvanced(!showAdvanced)}
                             className="advanced-options-toggle"
