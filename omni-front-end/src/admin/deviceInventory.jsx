@@ -72,6 +72,20 @@ export const DeviceInventory = () => {
         }
     };
 
+    const [editingId, setEditingId] = useState(null);
+
+    const handleEdit = (device) => {
+        setEditingId(device.id);
+        const selectedProfile = profileList.find(p => p.name === device.profileName);
+        setShowForm(true);
+        setFormData({
+            device_name: device.name,
+            serial_number: device.serialNumber,
+            profile_id: selectedProfile ? selectedProfile.id : "", // Need Profile ID, hope we have it
+            project_name: device.project && device.project !== "-" ? device.project : ""
+        });
+    };
+
     const handleSubmit = async () => {
         try {
             if (!formData.device_name || !formData.profile_id) {
@@ -86,19 +100,25 @@ export const DeviceInventory = () => {
                 project_name: formData.project_name || null
             };
 
-            await api.post("/admin/create-device", payload);
-            alert("Device created successfully!");
+            if (editingId) {
+                await api.put(`/admin/update-device/${editingId}`, payload);
+                alert("Device updated successfully!");
+            } else {
+                await api.post("/admin/create-device", payload);
+                alert("Device created successfully!");
+            }
 
             resetForm();
             fetchDevices();
         } catch (error) {
-            console.error("Failed to create device:", error);
-            alert("Failed to create device: " + (error.response?.data?.message || error.message));
+            console.error("Failed to save device:", error);
+            alert("Failed to save device: " + (error.response?.data?.message || error.message));
         }
     };
 
     const resetForm = () => {
         setShowForm(false);
+        setEditingId(null);
         setFormData({
             device_name: "",
             serial_number: "",
@@ -130,7 +150,7 @@ export const DeviceInventory = () => {
             {showForm && (
                 <div className="modal-overlay" onClick={() => setShowForm(false)}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h2 className="add-user-form-title">Register New Device</h2>
+                        <h2 className="add-user-form-title">{editingId ? "Edit Device" : "Register New Device"}</h2>
 
                         <div className="add-user-form-grid">
                             {/* Device Name */}
@@ -203,7 +223,7 @@ export const DeviceInventory = () => {
                                 onClick={handleSubmit}
                                 className="submit-btn"
                             >
-                                Create Device
+                                {editingId ? "Update Device" : "Create Device"}
                             </button>
                             <button
                                 onClick={resetForm}
@@ -249,6 +269,17 @@ export const DeviceInventory = () => {
                                 <td>
                                     <button
                                         className="table-action-btn"
+                                        aria-label="Edit"
+                                        onClick={() => handleEdit(device)}
+                                        style={{ marginRight: '8px' }}
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        className="table-action-btn"
                                         aria-label="Delete"
                                         onClick={() => handleDelete(device.id)}
                                     >
@@ -262,7 +293,7 @@ export const DeviceInventory = () => {
                         ))}
                         {deviceList.length === 0 && (
                             <tr>
-                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>No devices found. Add one to get started.</td>
+                                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>No devices found. Add one to get started.</td>
                             </tr>
                         )}
                     </tbody>

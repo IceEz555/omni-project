@@ -41,6 +41,18 @@ export const DeviceProfile = () => {
         }));
     };
 
+    const handleEdit = (profile) => {
+        setEditingId(profile.id);
+        setFormData({
+            profile_id: profile.profile_id,
+            name: profile.name,
+            type: profile.type || "32x32 Grid",
+            dataFormat: profile.dataFormat || "JSON",
+            description: profile.description || ""
+        });
+        setShowCreateForm(true);
+    };
+
     const handleSubmit = async () => {
         try {
             if (!formData.profile_id || !formData.name) {
@@ -48,11 +60,9 @@ export const DeviceProfile = () => {
                 return;
             }
 
-            // Note: Update logic (PUT) is not implemented in backend yet, so currently edit = assume create or error
-            // For now, only Create is fully supported by the controller
             if (editingId) {
-                alert("Update Profile feature coming soon. Currently supporting Create/Delete.");
-                // In future: await api.put...
+                await api.put(`/admin/update-profile/${editingId}`, formData);
+                alert("Profile updated successfully!");
             } else {
                 await api.post("/admin/create-profile", formData);
                 alert("Profile created successfully!");
@@ -209,10 +219,12 @@ export const DeviceProfile = () => {
                                 </div>
                             </div>
                             <div className="card-actions">
-                                {/* Edit button hidden until backend ready */}
-                                {/* <button className="action-btn" onClick={() => handleEdit(profile)}>
-                                    <svg ...></svg>
-                                </button> */}
+                                <button className="action-btn" onClick={() => handleEdit(profile)} title="Edit">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
                                 <button className="action-btn" onClick={() => handleDelete(profile.id)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                 </button>
