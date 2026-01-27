@@ -109,7 +109,6 @@ export const Dashboard = ({ setPage }) => {
   // --- Render Helpers ---
   const statCards = [
     { label: "Total Devices", value: stats.total, color: "#48C9B0" },
-    { label: "Devices Online", value: stats.online, color: "#3498DB" },
     { label: "System Alerts", value: "0", color: "#E74C3C" },
   ];
 
@@ -155,7 +154,7 @@ export const Dashboard = ({ setPage }) => {
               <label>Project Name</label>
               <input
                 type="text"
-                placeholder="e.g., My New IoT Project"
+                placeholder="Project Name"
                 value={newProjectData.name}
                 onChange={(e) => setNewProjectData({ ...newProjectData, name: e.target.value })}
               />
@@ -164,7 +163,7 @@ export const Dashboard = ({ setPage }) => {
             <div className="form-group">
               <label>Description</label>
               <textarea
-                placeholder="Describe the project goal..."
+                placeholder="Describtion "
                 rows="3"
                 value={newProjectData.description}
                 onChange={(e) => setNewProjectData({ ...newProjectData, description: e.target.value })}

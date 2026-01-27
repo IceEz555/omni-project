@@ -1,4 +1,5 @@
 import React from "react";
+import "../css/modelEvaluation.css";
 
 export const ModelEvaluation = () => {
     return (

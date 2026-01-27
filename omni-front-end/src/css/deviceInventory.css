@@ -1,0 +1,45 @@
+.device-inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.header-subtitle {
+    margin: 4px 0 0 0;
+    color: #666;
+}
+
+.btn-add-device {
+    background-color: #0f172a;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.helper-text {
+    color: #888;
+    font-size: 11px;
+}
+
+.form-actions {
+    margin-top: 24px;
+}
+
+.empty-state-cell {
+    text-align: center;
+    padding: 20px;
+}

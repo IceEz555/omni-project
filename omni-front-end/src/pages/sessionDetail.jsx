@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { sessionEvents } from "../mock/data.jsx";
 import "../css/session.css";
+import "../css/sessionDetail.css";
 
 export const SessionDetail = () => {
   const [selectedEvent, setSelectedEvent] = useState(sessionEvents[0]);

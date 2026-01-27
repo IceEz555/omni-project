@@ -48,22 +48,22 @@ export const LiveMonitor = () => {
 
     // --- NEW: Sensor Data Listener (Real-time) ---
     socket.on("sensor-data", (data) => {
-        console.log("⚡ Sensor Data:", data);
-        
-        // 1. Update Graph & Display
-        setTelemetryData(prev => {
-            const newPoint = { 
-                time: data.timestamp || new Date().toISOString(), 
-                value: data.distance || 0, // Default to distance for graph
-                ...data 
-            };
-            return [...prev, newPoint].slice(-50); // Keep last 50 points
-        });
+      console.log("⚡ Sensor Data:", data);
 
-        // 2. Push to Buffer for 5s Stats
-        if (typeof data.distance === 'number') {
-            dataBufferRef.current.push(data.distance);
-        }
+      // 1. Update Graph & Display
+      setTelemetryData(prev => {
+        const newPoint = {
+          time: data.timestamp || new Date().toISOString(),
+          value: data.distance || 0, // Default to distance for graph
+          ...data
+        };
+        return [...prev, newPoint].slice(-50); // Keep last 50 points
+      });
+
+      // 2. Push to Buffer for 5s Stats
+      if (typeof data.distance === 'number') {
+        dataBufferRef.current.push(data.distance);
+      }
     });
 
     socket.on("disconnect", () => {
@@ -175,46 +175,27 @@ export const LiveMonitor = () => {
     <div className="live-monitor-wrapper monitor-wrapper">
       <div className="monitor-grid monitor-flex-row">
         <div className="card monitor-column">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="flex-between-center">
             <p className="card-header">HEATMAP (16x16)</p>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className="flex-gap-10">
               <button
                 onClick={handleCalibrate}
                 disabled={!isConnected}
-                style={{
-                  padding: '4px 8px',
-                  fontSize: '10px',
-                  backgroundColor: '#2c3e50',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: isConnected ? 'pointer' : 'not-allowed',
-                  opacity: isConnected ? 1 : 0.5
-                }}
+                className="btn-calibrate"
               >
                 CALIBRATE
               </button>
-              <span style={{ fontSize: '10px', color: isConnected ? '#2ecc71' : '#e74c3c' }}>● {isConnected ? 'LIVE' : 'DISCONNECTED'}</span>
+              <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`}>● {isConnected ? 'LIVE' : 'DISCONNECTED'}</span>
             </div>
           </div>
-          <div style={{ textAlign: 'center', fontSize: '10px', color: '#95a5a6', marginBottom: '5px' }}>
+          <div className="monitor-stats-bar">
             Max: {matrixData.length ? Math.max(...matrixData.flat()) : 0} |
             Min: {matrixData.length ? Math.min(...matrixData.flat()) : 0} |
             Pkts: {packetCount} |
             Last: {lastRxTime ? lastRxTime.toLocaleTimeString() : "Waiting..."}
           </div>
 
-          <div className="heatmap-container" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(16, 1fr)',
-            gap: '1px',
-            backgroundColor: '#000',
-            padding: '10px',
-            aspectRatio: '1/1',
-            width: '100%',
-            maxWidth: '400px',
-            margin: '0 auto'
-          }}>
+          <div className="heatmap-container heatmap-grid">
             {matrixData.map((row, rIndex) => (
               row.map((val, cIndex) => (
                 <div
@@ -233,7 +214,7 @@ export const LiveMonitor = () => {
         <div className="card monitor-column">
           <p className="card-header">AI Predict Skeleton</p>
           <div className="skeleton-box flex-1">
-            <div style={{ color: '#7F8C8D', textAlign: 'center', marginTop: '40px' }}>
+            <div className="skeleton-message">
               Waiting for Camera Feed...
             </div>
           </div>
@@ -243,41 +224,41 @@ export const LiveMonitor = () => {
       <div className="card card-current-pose">
         <p className="card-header">SENSORS</p>
 
-        {/* HC-SR04 Distance */}
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '12px', color: '#95A5A6', marginBottom: '4px' }}>HC-SR04 DISTANCE</div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-            <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#E67E22' }}>
-              {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].distance !== undefined
-                ? telemetryData[telemetryData.length - 1].distance.toFixed(1)
-                : "--"}
-            </span>
-            <span style={{ fontSize: '14px', color: '#95A5A6', marginBottom: '5px' }}>cm</span>
-          </div>
-        </div>
-
-        {/* DHT11 Temp/Humidity */}
-        <div style={{ display: 'flex', gap: '20px' }}>
-          <div>
-            <div style={{ fontSize: '12px', color: '#95A5A6', marginBottom: '4px' }}>TEMP</div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-              <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#E74C3C' }}>
-                {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].temperature !== undefined
-                  ? telemetryData[telemetryData.length - 1].temperature.toFixed(1)
+        <div className="sensor-grid">
+          <div className="sensor-card">
+            <div className="sensor-label">HC-SR04 DISTANCE</div>
+            <div className="sensor-value-container">
+              <span className="sensor-value" style={{ color: '#E67E22' }}>
+                {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].distance !== undefined
+                  ? telemetryData[telemetryData.length - 1].distance.toFixed(1)
                   : "--"}
               </span>
-              <span style={{ fontSize: '14px', color: '#95A5A6', marginBottom: '5px' }}>°C</span>
+              <span className="sensor-unit">cm</span>
             </div>
           </div>
-          <div>
-            <div style={{ fontSize: '12px', color: '#95A5A6', marginBottom: '4px' }}>HUMIDITY</div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
-              <span style={{ fontSize: '24px', fontWeight: 'bold', color: '#3498DB' }}>
-                {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].humidity !== undefined
-                  ? telemetryData[telemetryData.length - 1].humidity.toFixed(1)
-                  : "--"}
-              </span>
-              <span style={{ fontSize: '14px', color: '#95A5A6', marginBottom: '5px' }}>%</span>
+
+          <div className="sensor-row">
+            <div className="sensor-card">
+              <div className="sensor-label">TEMP</div>
+              <div className="sensor-value-container">
+                <span className="sensor-value" style={{ color: '#E74C3C' }}>
+                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].temperature !== undefined
+                    ? telemetryData[telemetryData.length - 1].temperature.toFixed(1)
+                    : "--"}
+                </span>
+                <span className="sensor-unit">°C</span>
+              </div>
+            </div>
+            <div className="sensor-card">
+              <div className="sensor-label">HUMIDITY</div>
+              <div className="sensor-value-container">
+                <span className="sensor-value" style={{ color: '#3498DB' }}>
+                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].humidity !== undefined
+                    ? telemetryData[telemetryData.length - 1].humidity.toFixed(1)
+                    : "--"}
+                </span>
+                <span className="sensor-unit">%</span>
+              </div>
             </div>
           </div>
         </div>
@@ -285,27 +266,27 @@ export const LiveMonitor = () => {
 
         {/* Signal Statistics */}
         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
-          <div style={{ fontSize: '12px', color: '#95A5A6', marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+          <div className="signal-stats-header">
             <span>SIGNAL STATISTICS (5s Window)</span>
-            <span style={{ fontSize: '10px', color: '#BDC3C7' }}>Updates every 5s</span>
+            <span className="signal-stats-update">Updates every 5s</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+          <div className="stats-card-container">
             {/* Logic for Stats */}
             {(() => {
               // Use 5s Interval Stats found in state
               return (
                 <>
-                  <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>MIN</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{intervalStats.min.toFixed(2)}</div>
+                  <div className="stats-card">
+                    <div className="stats-label">MIN</div>
+                    <div className="stats-value">{intervalStats.min.toFixed(2)}</div>
                   </div>
-                  <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>AVG</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{intervalStats.avg.toFixed(2)}</div>
+                  <div className="stats-card">
+                    <div className="stats-label">AVG</div>
+                    <div className="stats-value">{intervalStats.avg.toFixed(2)}</div>
                   </div>
-                  <div style={{ textAlign: 'center', flex: 1, backgroundColor: '#F4F6F7', padding: '8px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '10px', color: '#7F8C8D', marginBottom: '2px' }}>MAX</div>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#2C3E50' }}>{intervalStats.max.toFixed(2)}</div>
+                  <div className="stats-card">
+                    <div className="stats-label">MAX</div>
+                    <div className="stats-value">{intervalStats.max.toFixed(2)}</div>
                   </div>
                 </>
               )
@@ -313,64 +294,64 @@ export const LiveMonitor = () => {
           </div>
         </div>
 
-        {/* Classification (Keep existing logic or move) */}
-        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
-          <p className="card-header" style={{ padding: 0, marginBottom: '10px' }}>CURRENT POSE</p>
-          <h2 className="pose-title">
-            {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].value < 20 ? "Cobra Pose" : "Tree Pose"}
-          </h2>
-          <div className="confidence-section" style={{ marginTop: '10px' }}>
-            <div className="confidence-header">
-              <span>AI Confidence</span>
-              <span>{telemetryData.length > 0 ? "92%" : "0%"}</span>
-            </div>
-            <div className="confidence-track">
-              <div className="confidence-fill" style={{ width: telemetryData.length > 0 ? '92%' : '0%' }}></div>
-            </div>
+        {/* Signal Timeline (Moved here) */}
+        <div className="section-separator">
+          <div className="flex-between-center">
+            <p className="card-header margin-bottom-0">SIGNAL TIMELINE {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
+            {selectedDevice && (
+              <span className="status-badge online status-badge-small">
+                LIVE
+              </span>
+            )}
           </div>
+          <div className="signal-placeholder-container" style={{ height: '200px', marginTop: '10px' }}>
+            {telemetryData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={telemetryData}>
+                  <XAxis dataKey="time" tickFormatter={formatTime} stroke="#95A5A6" fontSize={12} minTickGap={30} />
+                  <YAxis stroke="#95A5A6" fontSize={12} domain={['auto', 'auto']} />
+                  <Tooltip
+                    labelFormatter={formatTime}
+                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#3498DB"
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={{ r: 6 }}
+                    animationDuration={500}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="no-device-text">
+                {selectedDevice ? "Loading Data..." : "No Device Selected"}
+              </div>
+            )}
+          </div>
+          <p className="latest-value-text">
+            Latest: {telemetryData.length > 0 ? telemetryData[telemetryData.length - 1].value.toFixed(2) : "-"}
+          </p>
         </div>
       </div>
 
-      <div className="card card-signal">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p className="card-header" style={{ marginBottom: 0 }}>SIGNAL TIMELINE {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
-          {selectedDevice && (
-            <span className="status-badge online" style={{ fontSize: '10px' }}>
-              LIVE
-            </span>
-          )}
+      {/* Current Pose (Moved to separate card) */}
+      <div className="card card-pose">
+        <p className="card-header pose-section-header">CURRENT POSE</p>
+        <h2 className="pose-title">
+          {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].value < 20 ? "Cobra Pose" : "Tree Pose"}
+        </h2>
+        <div className="confidence-section">
+          <div className="confidence-header">
+            <span>AI Confidence</span>
+            <span>{telemetryData.length > 0 ? "92%" : "0%"}</span>
+          </div>
+          <div className="confidence-track">
+            <div className="confidence-fill" style={{ width: telemetryData.length > 0 ? '92%' : '0%' }}></div>
+          </div>
         </div>
-
-        <div className="signal-placeholder" style={{ background: 'none', height: '200px' }}>
-          {telemetryData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={telemetryData}>
-                <XAxis dataKey="time" tickFormatter={formatTime} stroke="#95A5A6" fontSize={12} minTickGap={30} />
-                <YAxis stroke="#95A5A6" fontSize={12} domain={['auto', 'auto']} />
-                <Tooltip
-                  labelFormatter={formatTime}
-                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#3498DB"
-                  strokeWidth={3}
-                  dot={false}
-                  activeDot={{ r: 6 }}
-                  animationDuration={500}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDC3C7' }}>
-              {selectedDevice ? "Loading Data..." : "No Device Selected"}
-            </div>
-          )}
-        </div>
-        <p style={{ textAlign: 'right', fontSize: '12px', color: '#95A5A6', marginTop: '8px' }}>
-          Latest: {telemetryData.length > 0 ? telemetryData[telemetryData.length - 1].value.toFixed(2) : "-"}
-        </p>
       </div>
     </div >
   )

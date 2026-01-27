@@ -1,4 +1,5 @@
 import React from "react";
+import "../css/dataLabeling.css";
 
 export const DataLabeling = () => {
     return (

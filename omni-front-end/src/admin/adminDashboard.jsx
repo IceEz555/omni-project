@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/dashboard.css"; // ใช้ style พื้นฐานร่วมกัน
+import "../css/adminDashboard.css";
 
 export const AdminDashboard = () => {
   const stats = [

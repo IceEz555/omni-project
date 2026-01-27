@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import "../css/userManagement.css";
+import "../css/deviceInventory.css";
 import "../css/modal.css";
 
 export const DeviceInventory = () => {
@@ -8,7 +9,7 @@ export const DeviceInventory = () => {
     const [profileList, setProfileList] = useState([]);
     const [projectList, setProjectList] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    
+
     // Form Data
     const [formData, setFormData] = useState({
         device_name: "",
@@ -87,7 +88,7 @@ export const DeviceInventory = () => {
 
             await api.post("/admin/create-device", payload);
             alert("Device created successfully!");
-            
+
             resetForm();
             fetchDevices();
         } catch (error) {
@@ -108,31 +109,18 @@ export const DeviceInventory = () => {
 
     return (
         <div>
-            <div className="user-management-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <div className="user-management-header device-inventory-header">
                 <div>
-                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "bold" }}>Device Inventory</h2>
-                    <p style={{ margin: "4px 0 0 0", color: "#666" }}>Manage physical devices and assign them to projects</p>
+                    <h2 className="header-title">Device Inventory</h2>
+                    <p className="header-subtitle">Manage physical devices and assign them to projects</p>
                 </div>
                 {!showForm && (
                     <button
-                        className="add-user-btn"
                         onClick={() => {
                             resetForm();
                             setShowForm(true);
                         }}
-                        style={{
-                            backgroundColor: "#0f172a",
-                            color: "white",
-                            padding: "10px 20px",
-                            borderRadius: "6px",
-                            border: "none",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            fontSize: "14px",
-                            fontWeight: "500"
-                        }}
+                        className="add-user-btn btn-add-device"
                     >
                         + Add Device
                     </button>
@@ -169,7 +157,7 @@ export const DeviceInventory = () => {
                                     onChange={handleInputChange}
                                     className="form-input"
                                 />
-                                <small style={{color: '#888', fontSize: '11px'}}>Must match the ID in your Arduino Code</small>
+                                <small className="helper-text">Must match the ID in your Arduino Code</small>
                             </div>
 
                             {/* Device Profile */}
@@ -210,7 +198,7 @@ export const DeviceInventory = () => {
                         </div>
 
                         {/* Buttons */}
-                        <div className="form-actions" style={{ marginTop: "24px" }}>
+                        <div className="form-actions">
                             <button
                                 onClick={handleSubmit}
                                 className="submit-btn"
@@ -274,7 +262,7 @@ export const DeviceInventory = () => {
                         ))}
                         {deviceList.length === 0 && (
                             <tr>
-                                <td colSpan="6" style={{textAlign: 'center', padding: '20px'}}>No devices found. Add one to get started.</td>
+                                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>No devices found. Add one to get started.</td>
                             </tr>
                         )}
                     </tbody>

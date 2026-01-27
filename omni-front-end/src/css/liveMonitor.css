@@ -94,6 +94,10 @@
   flex: 0 0 auto;
 }
 
+.card-pose {
+  flex: 0 0 auto;
+}
+
 .card-signal {
   flex: 0 0 120px;
 }
@@ -123,6 +127,7 @@
     flex-direction: column;
   }
 }
+
 /* Stats Table */
 .stats-table {
   width: 100%;
@@ -149,4 +154,206 @@
   text-align: right;
   font-weight: bold;
   font-family: monospace;
+}
+
+.flex-between-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-gap-10 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-calibrate {
+  padding: 4px 8px;
+  font-size: 10px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-calibrate:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.status-indicator {
+  font-size: 10px;
+}
+
+.status-live {
+  color: #2ecc71;
+}
+
+.status-disconnected {
+  color: #e74c3c;
+}
+
+.monitor-stats-bar {
+  text-align: center;
+  font-size: 10px;
+  color: #95a5a6;
+  margin-bottom: 5px;
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 1px;
+  background-color: #000;
+  padding: 10px;
+  aspect-ratio: 1/1;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.skeleton-message {
+  color: #7F8C8D;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.sensor-label {
+  font-size: 12px;
+  color: #95A5A6;
+  margin-bottom: 4px;
+}
+
+.sensor-value-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.sensor-value {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.sensor-unit {
+  font-size: 14px;
+  color: #95A5A6;
+  margin-bottom: 5px;
+}
+
+.signal-stats-header {
+  font-size: 12px;
+  color: #95A5A6;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.signal-stats-update {
+  font-size: 10px;
+  color: #BDC3C7;
+}
+
+.stats-card-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stats-card {
+  text-align: center;
+  flex: 1;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.stats-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-color: #dee2e6;
+}
+
+.stats-label {
+  font-size: 10px;
+  color: #7F8C8D;
+  margin-bottom: 2px;
+}
+
+.stats-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #2C3E50;
+}
+
+.signal-placeholder-container {
+  background: none;
+  height: 200px;
+}
+
+.no-device-text {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #BDC3C7;
+}
+
+.latest-value-text {
+  text-align: right;
+  font-size: 12px;
+  color: #95A5A6;
+  margin-top: 8px;
+}
+
+.section-separator {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.pose-section-header {
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.status-badge-small {
+  font-size: 10px;
+}
+
+.margin-bottom-0 {
+  margin-bottom: 0;
+}
+
+.sensor-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.sensor-row {
+  display: flex;
+  gap: 16px;
+}
+
+.sensor-row>* {
+  flex: 1;
+}
+
+.sensor-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.sensor-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-color: #dee2e6;
 }

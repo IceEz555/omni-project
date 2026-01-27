@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
+import "../css/register.css";
 
 export const RegisterPage = ({ setPage }) => {
     const [formData, setFormData] = useState({
@@ -42,7 +43,7 @@ export const RegisterPage = ({ setPage }) => {
         <div className="auth-container">
             <div className="auth-card">
                 <img src={logo} alt="Logo" className="auth-logo" />
-                <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#333" }}>Register</h2>
+                <h2 className="register-title">Register</h2>
 
                 <div className="input-group">
                     <label>Username</label>
@@ -54,7 +55,7 @@ export const RegisterPage = ({ setPage }) => {
                         onChange={handleChange}
                     />
                 </div>
-                
+
                 <div className="input-group">
                     <label>Email</label>
                     <input
@@ -90,33 +91,13 @@ export const RegisterPage = ({ setPage }) => {
 
                 <button
                     className="btn-primary"
-                    style={{
-                        background: "var(--seafoam-main)",
-                        color: "white",
-                        border: "none",
-                        width: "100%",
-                        padding: "10px",
-                        borderRadius: "6px",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                        marginTop: "10px"
-                    }}
                     onClick={handleRegister}
                 >
                     Register
                 </button>
 
                 <button
-                    className="btn-link"
-                    style={{
-                        marginTop: "16px",
-                        background: "transparent",
-                        color: "var(--seafoam-main)",
-                        border: "none",
-                        width: "100%",
-                        cursor: "pointer",
-                        textDecoration: "underline"
-                    }}
+                    className="btn-link btn-back-login"
                     onClick={() => setPage("Login")}
                 >
                     Back to Login
