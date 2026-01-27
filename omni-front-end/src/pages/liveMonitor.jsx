@@ -46,6 +46,26 @@ export const LiveMonitor = () => {
       }
     });
 
+    // --- NEW: Sensor Data Listener (Real-time) ---
+    socket.on("sensor-data", (data) => {
+        console.log("⚡ Sensor Data:", data);
+        
+        // 1. Update Graph & Display
+        setTelemetryData(prev => {
+            const newPoint = { 
+                time: data.timestamp || new Date().toISOString(), 
+                value: data.distance || 0, // Default to distance for graph
+                ...data 
+            };
+            return [...prev, newPoint].slice(-50); // Keep last 50 points
+        });
+
+        // 2. Push to Buffer for 5s Stats
+        if (typeof data.distance === 'number') {
+            dataBufferRef.current.push(data.distance);
+        }
+    });
+
     socket.on("disconnect", () => {
       setIsConnected(false);
     });
@@ -55,7 +75,6 @@ export const LiveMonitor = () => {
     };
   }, []);
 
-  // Auto-Calibration: Set baseline on first data receive
   // Auto-Calibration: Set baseline on first valid data receive
   useEffect(() => {
     if (isConnected && matrixData && !baseline) {
@@ -89,40 +108,8 @@ export const LiveMonitor = () => {
     init();
   }, []);
 
-  // Polling Telemetry (Faster: 1000ms)
-  useEffect(() => {
-    if (!selectedDevice) return;
+  // Polling removed in favor of Socket.IO 'sensor-data' event
 
-    const fetchData = async () => {
-      try {
-        // Fetch by Device Serial Number (Hardware ID)
-        const lookupId = selectedDevice.serialNumber || selectedDevice.name;
-
-        const res = await api.get(`/admin/get-telemetry/${lookupId}`);
-        const data = res.data.data;
-
-        if (data && data.length > 0) {
-          const latestPoint = data[data.length - 1]; // Get the very latest point
-
-          // 1. Real-time Display Update
-          setTelemetryData(data); // Update graph/latest value immediately
-
-          // 2. Add to Buffer (The "Bag")
-          // We push the LATEST value received into our buffer
-          if (latestPoint && typeof latestPoint.value === 'number') {
-            dataBufferRef.current.push(latestPoint.value);
-          }
-        }
-      } catch (error) {
-        console.warn("Failed to fetch live telemetry", error);
-      }
-    };
-
-    fetchData(); // Immediate fetch
-    const interval = setInterval(fetchData, 1000); // Poll every 1s (Real-time-ish)
-
-    return () => clearInterval(interval);
-  }, [selectedDevice]);
 
 
 

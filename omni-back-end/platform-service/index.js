@@ -26,17 +26,29 @@ const mqttClient = mqtt.connect(MQTT_BROKER);
 mqttClient.on('connect', () => {
     console.log('✅ Platform Service Connected to MQTT');
     mqttClient.subscribe('iot/matrix/stream');
+    mqttClient.subscribe('iot/+/telemetry'); // Subscribe to ALL sensor telemetry
 });
 
 mqttClient.on('message', (topic, message) => {
-    if (topic === 'iot/matrix/stream') {
-        try {
-            const data = JSON.parse(message.toString());
-            // Broadcast to all connected socket clients
+    try {
+        const data = JSON.parse(message.toString());
+
+        // 1. Matrix Data (Pressure Mat)
+        if (topic === 'iot/matrix/stream') {
             io.emit('matrix-data', data);
-        } catch (e) {
-            console.error("Error parsing MQTT matrix data", e);
         }
+        
+        // 2. Generic Sensor Data (Ultrasonic, DHT, etc.)
+        // Matches topic "iot/{deviceId}/telemetry"
+        if (topic.match(/iot\/.*\/telemetry/)) {
+            // Broadcast to Frontend
+            // Frontend listens to 'sensor-data' and checks device_id
+            io.emit('sensor-data', data); 
+            console.log(`📡 Relayed Sensor Data [${data.device_id}] to Socket.io`);
+        }
+
+    } catch (e) {
+        console.error("Error parsing MQTT data:", e);
     }
 });
 
