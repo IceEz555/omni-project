@@ -18,6 +18,7 @@ import { SupportDashboard } from "./support/supportDashboard";
 import { DataLabeling } from "./support/dataLabeling";
 import { ModelTraining } from "./support/modelTraining";
 import { ModelEvaluation } from "./support/modelEvaluation";
+import { ProjectDetails } from "./pages/projectDetails";
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
       {/* User Routes (LayoutUser acts as wrapper) */}
       <Route path="/" element={<LayoutUser />}>
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="project/:id" element={<ProjectDetails />} />
         <Route path="live-monitor" element={<LiveMonitor />} />
         <Route path="sessions" element={<Sessions />} />
         <Route path="sessions/:id" element={<SessionDetail />} />

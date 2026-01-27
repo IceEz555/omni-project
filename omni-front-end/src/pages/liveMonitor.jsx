@@ -173,6 +173,7 @@ export const LiveMonitor = () => {
 
   return (
     <div className="live-monitor-wrapper monitor-wrapper">
+      <h1>Live Monitor</h1>
       <div className="monitor-grid monitor-flex-row">
         <div className="card monitor-column">
           <div className="flex-between-center">
@@ -267,13 +268,12 @@ export const LiveMonitor = () => {
         {/* Signal Statistics */}
         <div className="signal-stats-wrapper">
           <div className="signal-stats-header">
-            <span>SIGNAL STATISTICS (5s Window)</span>
+            <span>STATISTICS</span>
             <span className="signal-stats-update">Updates every 5s</span>
           </div>
           <div className="stats-card-container">
             {/* Logic for Stats */}
             {(() => {
-              // Use 5s Interval Stats found in state
               return (
                 <>
                   <div className="stats-card">
@@ -297,7 +297,7 @@ export const LiveMonitor = () => {
         {/* Signal Timeline (Moved here) */}
         <div className="section-separator">
           <div className="flex-between-center">
-            <p className="card-header margin-bottom-0">SIGNAL TIMELINE {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
+            <p className="card-header margin-bottom-0">GRAPH {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
             {selectedDevice && (
               <span className="status-badge online status-badge-small">
                 LIVE

@@ -11,7 +11,7 @@ export const DeviceProfile = () => {
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         profile_id: "",
-        name: "", 
+        name: "",
         type: "32x32 Grid",
         dataFormat: "",
         description: ""
@@ -204,7 +204,7 @@ export const DeviceProfile = () => {
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line></svg>
                                 </div>
                                 <div className="device-info">
-                                    <h3>{profile.name} <span style={{fontSize: '12px', color: '#888'}}>({profile.profile_id})</span></h3>
+                                    <h3>{profile.name} <span style={{ fontSize: '12px', color: '#888' }}>({profile.profile_id})</span></h3>
                                     <p>{profile.description || "No description"}</p>
                                 </div>
                             </div>

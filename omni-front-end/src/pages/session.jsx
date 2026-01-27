@@ -5,6 +5,8 @@ export const Sessions = () => { // Removed setPage prop
   const navigate = useNavigate();
 
   return (
+    <div>
+      <h1>Sessions</h1>
     <table>
       <thead>
         <tr><th>Date</th><th>Duration</th><th>Summary</th><th>Action</th></tr>
@@ -20,6 +22,7 @@ export const Sessions = () => { // Removed setPage prop
         ))}
       </tbody>
     </table>
+    </div>
   )
 };
 

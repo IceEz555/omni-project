@@ -73,7 +73,7 @@ export const DeviceCard = ({ device }) => {
 
                 <button
                     className="btn-device-action"
-                    onClick={() => navigate('/live-monitor')}
+                    onClick={() => navigate(`/project/${device.id || device.serialNumber || '1'}`)}
                 >
                     Start Live Monitor
                 </button>
