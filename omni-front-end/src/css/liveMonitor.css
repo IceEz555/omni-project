@@ -381,3 +381,27 @@
   height: 200px;
   margin-top: 10px;
 }
+
+/* Session Button */
+.session-nav-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-session {
+  width: auto;
+  padding: 12px 24px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  background-color: #1a1a1a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-session:hover {
+  background-color: #34495e;
+}

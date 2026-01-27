@@ -190,11 +190,33 @@ export const ProjectDetails = () => {
                 </div>
             </div>
 
+            {/* View Live Button (Between Sections) */}
+            <div style={{ margin: '20px 0', display: 'flex', justifySelf: 'end' }}>
+                <button
+                    className="view-live-btn"
+                    style={{
+                        backgroundColor: '#fff',
+                        color: '#0f172a',
+                        padding: '12px 24px',
+                        borderRadius: '6px',
+                        border: '1px solid #e2e8f0',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        width: '100%',
+                        textAlign: 'center',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                    }}
+                    onClick={() => navigate("/live-monitor")}
+                >
+                    View Live Monitor
+                </button>
+            </div>
+
             {/* Add Device Modal */}
             {showAddModal && (
                 <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3 className="form-title">Register New Device</h3>
+                        <h3 className="form-title">New Device</h3>
 
                         <div className="add-user-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {/* Device Name */}
@@ -240,21 +262,6 @@ export const ProjectDetails = () => {
                                 </select>
                             </div>
 
-                            {/* Assign to Project */}
-                            <div>
-                                <label className="form-group-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Assign to Project (Optional)</label>
-                                <select
-                                    className="form-select-box"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                                    value={newDeviceData.project_name}
-                                    onChange={(e) => setNewDeviceData({ ...newDeviceData, project_name: e.target.value })}
-                                >
-                                    <option value="">Select Project</option>
-                                    {projectList.map(p => (
-                                        <option key={p.id} value={p.name}>{p.name}</option>
-                                    ))}
-                                </select>
-                            </div>
                         </div>
 
                         <div className="form-actions" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '24px' }}>
@@ -298,13 +305,6 @@ export const ProjectDetails = () => {
                             <div className="device-info-row">
                                 Updated: {formatTime(device.lastUpdated)}
                             </div>
-
-                            <button
-                                className="view-live-btn"
-                                onClick={() => navigate("/live-monitor")}
-                            >
-                                View Live
-                            </button>
                         </div>
                     ))}
                 </div>

@@ -353,6 +353,16 @@ export const LiveMonitor = () => {
           </div>
         </div>
       </div>
+
+      {/* Navigation Button */}
+      <div className="session-nav-container">
+        <button
+          className="btn-session"
+          onClick={() => window.location.href = '/sessions'}
+        >
+          Sessions
+        </button>
+      </div>
     </div >
   )
 };
