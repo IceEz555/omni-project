@@ -228,7 +228,7 @@ export const LiveMonitor = () => {
           <div className="sensor-card">
             <div className="sensor-label">HC-SR04 DISTANCE</div>
             <div className="sensor-value-container">
-              <span className="sensor-value" style={{ color: '#E67E22' }}>
+              <span className="sensor-value text-distance">
                 {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].distance !== undefined
                   ? telemetryData[telemetryData.length - 1].distance.toFixed(1)
                   : "--"}
@@ -241,7 +241,7 @@ export const LiveMonitor = () => {
             <div className="sensor-card">
               <div className="sensor-label">TEMP</div>
               <div className="sensor-value-container">
-                <span className="sensor-value" style={{ color: '#E74C3C' }}>
+                <span className="sensor-value text-temp">
                   {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].temperature !== undefined
                     ? telemetryData[telemetryData.length - 1].temperature.toFixed(1)
                     : "--"}
@@ -252,7 +252,7 @@ export const LiveMonitor = () => {
             <div className="sensor-card">
               <div className="sensor-label">HUMIDITY</div>
               <div className="sensor-value-container">
-                <span className="sensor-value" style={{ color: '#3498DB' }}>
+                <span className="sensor-value text-humidity">
                   {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].humidity !== undefined
                     ? telemetryData[telemetryData.length - 1].humidity.toFixed(1)
                     : "--"}
@@ -265,7 +265,7 @@ export const LiveMonitor = () => {
 
 
         {/* Signal Statistics */}
-        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee' }}>
+        <div className="signal-stats-wrapper">
           <div className="signal-stats-header">
             <span>SIGNAL STATISTICS (5s Window)</span>
             <span className="signal-stats-update">Updates every 5s</span>
@@ -304,7 +304,7 @@ export const LiveMonitor = () => {
               </span>
             )}
           </div>
-          <div className="signal-placeholder-container" style={{ height: '200px', marginTop: '10px' }}>
+          <div className="signal-placeholder-container signal-chart-container">
             {telemetryData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={telemetryData}>

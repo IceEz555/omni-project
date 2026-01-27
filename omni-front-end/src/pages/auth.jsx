@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 
-export const AuthPage = ({ setPage }) => {
+export const AuthPage = () => { // Removed setPage prop
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -24,11 +26,11 @@ export const AuthPage = ({ setPage }) => {
       const role = response.data.user.role?.toLowerCase();
 
       if (role === "admin") {
-        setPage("AdminDashboard");
+        navigate("/admin/dashboard");
       } else if (role === "supporter") {
-        setPage("Support Dashboard");
+        navigate("/support/dashboard");
       } else {
-        setPage("Dashboard");
+        navigate("/dashboard");
       }
 
     } catch (error) {
@@ -80,7 +82,7 @@ export const AuthPage = ({ setPage }) => {
             cursor: "pointer",
             textDecoration: "underline"
           }}
-          onClick={() => setPage("Register")}
+          onClick={() => navigate("/register")}
         >
           Create an Account
         </button>
@@ -96,7 +98,7 @@ export const AuthPage = ({ setPage }) => {
             borderRadius: "6px",
             cursor: "pointer"
           }}
-          onClick={() => setPage("AdminDashboard")}
+          onClick={() => navigate("/admin/dashboard")}
         >
           Login as Admin
         </button>
@@ -112,7 +114,7 @@ export const AuthPage = ({ setPage }) => {
             borderRadius: "6px",
             cursor: "pointer"
           }}
-          onClick={() => setPage("Support Dashboard")}
+          onClick={() => navigate("/support/dashboard")}
         >
           Login as Supporter
         </button>

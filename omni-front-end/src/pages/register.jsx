@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 import "../css/register.css";
 
-export const RegisterPage = ({ setPage }) => {
+export const RegisterPage = () => { // Removed setPage prop
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: "",
         username: "",
@@ -32,7 +34,7 @@ export const RegisterPage = ({ setPage }) => {
                 password: formData.password
             });
             alert("Registration successful! Please login.");
-            setPage("Login");
+            navigate("/login");
         } catch (error) {
             console.error("Registration failed:", error);
             alert("Registration failed: " + (error.response?.data?.error || error.message));
@@ -98,7 +100,7 @@ export const RegisterPage = ({ setPage }) => {
 
                 <button
                     className="btn-link btn-back-login"
-                    onClick={() => setPage("Login")}
+                    onClick={() => navigate("/login")}
                 >
                     Back to Login
                 </button>

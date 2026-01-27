@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { LayoutUser } from "./layout/layoutUser";
 import { LayoutSupport } from "./layout/layoutSupport";
 import { AdminLayout } from "./layout/layoutAdmin";
@@ -19,46 +20,40 @@ import { ModelTraining } from "./support/modelTraining";
 import { ModelEvaluation } from "./support/modelEvaluation";
 
 export default function App() {
-  const [page, setPage] = useState("Login");
-
-  if (page === "Login") return <AuthPage setPage={setPage} />;
-  if (page === "Register") return <RegisterPage setPage={setPage} />;
-
-  const adminPages = ["AdminDashboard", "Device Profile", "Device Inventory", "User Management"];
-  const isAdminPage = adminPages.includes(page);
-
-  const supportPages = ["Support Dashboard", "Data Labeling", "Model Training", "Model Evaluation"];
-  const isSupportPage = supportPages.includes(page);
-
-  if (isAdminPage) {
-    return (
-      <AdminLayout title={page} currentPage={page} setPage={setPage}>
-        {page === "AdminDashboard" && <AdminDashboard />}
-        {page === "Device Profile" && <DeviceProfile />}
-        {page === "Device Inventory" && <DeviceInventory />}
-        {page === "User Management" && <UserManagement />}
-      </AdminLayout>
-    );
-  }
-
-  if (isSupportPage) {
-    return (
-      <LayoutSupport title={page} currentPage={page} setPage={setPage}>
-        {page === "Support Dashboard" && <SupportDashboard />}
-        {page === "Data Labeling" && <DataLabeling />}
-        {page === "Model Training" && <ModelTraining />}
-        {page === "Model Evaluation" && <ModelEvaluation />}
-      </LayoutSupport>
-    );
-  }
-
   return (
-    <LayoutUser title={page} currentPage={page} setPage={setPage}>
-      {page === "Dashboard" && <Dashboard setPage={setPage} />}
-      {page === "Live Monitor" && <LiveMonitor />}
-      {page === "Sessions" && <Sessions setPage={setPage} />}
-      {page === "Session Detail" && <SessionDetail />}
-    </LayoutUser>
+    <Routes>
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* Default Redirect */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+
+      {/* Admin Routes */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="profiles" element={<DeviceProfile />} />
+        <Route path="inventory" element={<DeviceInventory />} />
+        <Route path="users" element={<UserManagement />} />
+      </Route>
+
+      {/* Support Routes */}
+      <Route path="/support" element={<LayoutSupport />}>
+        <Route index element={<Navigate to="/support/dashboard" replace />} />
+        <Route path="dashboard" element={<SupportDashboard />} />
+        <Route path="labeling" element={<DataLabeling />} />
+        <Route path="training" element={<ModelTraining />} />
+        <Route path="evaluation" element={<ModelEvaluation />} />
+      </Route>
+
+      {/* User Routes (LayoutUser acts as wrapper) */}
+      <Route path="/" element={<LayoutUser />}>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="live-monitor" element={<LiveMonitor />} />
+        <Route path="sessions" element={<Sessions />} />
+        <Route path="sessions/:id" element={<SessionDetail />} />
+      </Route>
+    </Routes>
   );
 }
 

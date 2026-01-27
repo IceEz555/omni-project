@@ -31,7 +31,7 @@ export const AdminDashboard = () => {
           <h3 className="section-title">Quick Actions</h3>
           <div className="quick-actions-list">
             {[
-              { title: "Create New Device Profile", desc: "Define a new device type and data format" },
+              { title: "New Project", desc: "Define a new project" },
               { title: "Add New User", desc: "Create account and assign role" },
               { title: "View System Logs", desc: "Check API performance and errors" }
             ].map((action, idx) => (

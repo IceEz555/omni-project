@@ -105,7 +105,7 @@ export const DeviceProfile = () => {
                             setShowCreateForm(true);
                         }}
                     >
-                        + Create Profile
+                        + New Project
                     </button>
                 )}
             </div>
@@ -113,7 +113,7 @@ export const DeviceProfile = () => {
             {showCreateForm && (
                 <div className="modal-overlay" onClick={() => setShowCreateForm(false)}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3 className="form-title">{editingId ? "Edit Device Profile" : "Create New Device Profile"}</h3>
+                        <h3 className="form-title">{editingId ? "Edit Project" : "New Project"}</h3>
 
                         <div className="form-row">
                             <div className="form-group">
@@ -132,7 +132,7 @@ export const DeviceProfile = () => {
                                 <input
                                     type="text"
                                     name="name"
-                                    placeholder="e.g., Ultrasonic Sensor"
+                                    placeholder="Device Name"
                                     value={formData.name}
                                     onChange={handleInputChange}
                                 />

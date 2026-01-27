@@ -457,6 +457,48 @@
   cursor: pointer;
 }
 
+.no-data-placeholder {
+  padding: 20px;
+  text-align: center;
+  color: #95a5a6;
+  font-size: 14px;
+}
+
+/* Admin Modal Styles Compatibility */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.btn-create {
+  background: #0f172a;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-cancel {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
 .cancel-btn {
   background-color: white;
   color: black;
