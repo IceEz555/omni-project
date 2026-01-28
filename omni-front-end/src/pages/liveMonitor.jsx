@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import "../css/liveMonitor.css";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -16,6 +17,7 @@ const formatTime = (isoString) => {
 // ... existing imports
 
 export const LiveMonitor = () => {
+  const [searchParams] = useSearchParams();
   const [telemetryData, setTelemetryData] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [matrixData, setMatrixData] = useState(Array(32).fill(Array(32).fill(0)));
@@ -24,6 +26,11 @@ export const LiveMonitor = () => {
 
   const [packetCount, setPacketCount] = useState(0);
   const [lastRxTime, setLastRxTime] = useState(null);
+  const [hasDevices, setHasDevices] = useState(true); // Assume true initially to avoid flicker
+  const [showSoilMoisture, setShowSoilMoisture] = useState(false);
+  const [showDistance, setShowDistance] = useState(true);
+  const [showTemp, setShowTemp] = useState(true);
+  const [showHumidity, setShowHumidity] = useState(true);
 
   // Buffer and Stats for 5-second Interval
   const dataBufferRef = useRef([]);
@@ -73,9 +80,15 @@ export const LiveMonitor = () => {
     socket.on("sensor-data", (data) => {
       // Filter by Device ID
       const currentDevice = selectedDeviceRef.current;
+
+      // Strict Filtering: If we have a selected device, ONLY accept matching ID
       if (currentDevice && data.device_id && data.device_id !== currentDevice.serialNumber) {
         return; // Ignore data from other devices
       }
+
+      // If no device is selected, we shouldn't be plotting anything ideally, 
+      // or we just plot generic data. Requirement says "Direct match".
+      if (!currentDevice) return;
 
       console.log("⚡ Sensor Data:", data);
       setIsConnected(true); // Valid data received
@@ -85,9 +98,15 @@ export const LiveMonitor = () => {
       setTelemetryData(prev => {
         const newPoint = {
           time: data.timestamp || new Date().toISOString(),
-          value: data.distance || 0, // Default to distance for graph
+          value: data.distance !== undefined ? data.distance : (prev.length > 0 ? prev[prev.length - 1].value : 0),
           ...data
         };
+        // If the new 'value' is undefined (e.g. only temp sent), keep previous or 0? 
+        // Actually, let's prioritize distance for the main graph as per existing logic, 
+        // but if distance is missing, maybe fallback or just don't plot 'value'?
+        // Existing code: value: data.distance || 0. 
+        // Let's keep it safe.
+
         return [...prev, newPoint].slice(-50); // Keep last 50 points
       });
 
@@ -128,14 +147,26 @@ export const LiveMonitor = () => {
         // Check for mock data fallback if API returns empty/error handled elsewhere
         let devices = Array.isArray(res.data) ? res.data : [];
 
+        // Filter by Profile if param exists
+        const profileFilter = searchParams.get('profile');
+        if (profileFilter) {
+          devices = devices.filter(d => d.profileKey === profileFilter);
+        }
+
         if (devices.length > 0) {
+          setHasDevices(true);
           // Default to first active device logic, or just the first one
           // Prefer finding one that matches "sensor" type or has "Arduino" in name
           const target = devices.find(d => d.name.toLowerCase().includes('arduino')) || devices[0];
           setSelectedDevice(target);
+        } else {
+          setHasDevices(false);
         }
       } catch (error) {
         console.error("Failed to load devices", error);
+        // If error, maybe assume no devices or keep previous state? 
+        // Safe to say no devices found if error occurs during init usually
+        setHasDevices(false);
       }
     };
     init();
@@ -195,16 +226,45 @@ export const LiveMonitor = () => {
   };
 
   // --- EMPTY STATE UI ---
-  if (!selectedDevice && packetCount === 0) { // Check packetCount to avoid flickering during initial load
+  if (!hasDevices) { // reliance on explicit Flag
     return (
-      <div className="live-monitor-wrapper monitor-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
-        <div className="empty-state-card" style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📡</div>
-          <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>No Devices Found</h2>
-          <p style={{ color: '#6b7280', marginBottom: '24px' }}>Please register a device to start monitoring.</p>
+      <div className="live-monitor-wrapper monitor-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <div className="empty-state-card" style={{
+          textAlign: 'center',
+          padding: '60px',
+          background: 'white',
+          borderRadius: '16px',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          maxWidth: '500px',
+          width: '90%'
+        }}>
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}>�</div>
+          <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1f2937', marginBottom: '12px' }}>ไม่พบอุปกรณ์</h2>
+          <p style={{ color: '#6b7280', marginBottom: '32px', fontSize: '16px' }}>กรุณากดปุ่มด้านล่างเพื่อเพิ่มอุปกรณ์ใหม่ (Add Device)</p>
           <button
-            onClick={() => window.location.href = '/admin/inventory'}
-            style={{ backgroundColor: '#0f172a', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+            onClick={() => {
+              const profileId = searchParams.get('profile');
+              if (profileId) {
+                window.location.href = `/project/${profileId}`;
+              } else {
+                // Fallback context: dashboard or inventory
+                window.location.href = '/dashboard';
+              }
+            }}
+            style={{
+              backgroundColor: '#0f172a',
+              color: 'white',
+              padding: '14px 28px',
+              borderRadius: '10px',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '16px',
+              transition: 'all 0.2s',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
             + Add Device
           </button>
@@ -279,45 +339,98 @@ export const LiveMonitor = () => {
       </div>
 
       <div className="card card-current-pose">
-        <p className="card-header">SENSORS</p>
+        <div className="flex-between-center">
+          <p className="card-header margin-bottom-0">SENSORS</p>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <button
+              className="btn-calibrate"
+              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showDistance ? '#1f2937' : '#9ca3af', color: 'white' }}
+              onClick={() => setShowDistance(!showDistance)}
+            >
+              {showDistance ? 'HIDE HC-SR04' : 'SHOW HC-SR04'}
+            </button>
+            <button
+              className="btn-calibrate"
+              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showTemp ? '#1f2937' : '#9ca3af', color: 'white' }}
+              onClick={() => setShowTemp(!showTemp)}
+            >
+              {showTemp ? 'HIDE TEMP' : 'SHOW TEMP'}
+            </button>
+            <button
+              className="btn-calibrate"
+              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showHumidity ? '#1f2937' : '#9ca3af', color: 'white' }}
+              onClick={() => setShowHumidity(!showHumidity)}
+            >
+              {showHumidity ? 'HIDE HUMIDITY' : 'SHOW HUMIDITY'}
+            </button>
+            <button
+              className="btn-calibrate"
+              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showSoilMoisture ? '#1f2937' : '#9ca3af', color: 'white' }}
+              onClick={() => setShowSoilMoisture(!showSoilMoisture)}
+            >
+              {showSoilMoisture ? 'HIDE SOIL' : 'SHOW SOIL'}
+            </button>
+          </div>
+        </div>
 
         <div className="sensor-grid">
-          <div className="sensor-card">
-            <div className="sensor-label">HC-SR04 DISTANCE</div>
-            <div className="sensor-value-container">
-              <span className="sensor-value text-distance">
-                {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].distance !== undefined
-                  ? telemetryData[telemetryData.length - 1].distance.toFixed(1)
-                  : "--"}
-              </span>
-              <span className="sensor-unit">cm</span>
+          {showDistance && (
+            <div className="sensor-card">
+              <div className="sensor-label">HC-SR04 DISTANCE</div>
+              <div className="sensor-value-container">
+                <span className="sensor-value text-distance">
+                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].distance !== undefined
+                    ? telemetryData[telemetryData.length - 1].distance.toFixed(1)
+                    : "--"}
+                </span>
+                <span className="sensor-unit">cm</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="sensor-row">
-            <div className="sensor-card">
-              <div className="sensor-label">TEMP</div>
-              <div className="sensor-value-container">
-                <span className="sensor-value text-temp">
-                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].temperature !== undefined
-                    ? telemetryData[telemetryData.length - 1].temperature.toFixed(1)
-                    : "--"}
-                </span>
-                <span className="sensor-unit">°C</span>
+            {showTemp && (
+              <div className="sensor-card">
+                <div className="sensor-label">TEMP</div>
+                <div className="sensor-value-container">
+                  <span className="sensor-value text-temp">
+                    {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].temperature !== undefined
+                      ? telemetryData[telemetryData.length - 1].temperature.toFixed(1)
+                      : "--"}
+                  </span>
+                  <span className="sensor-unit">°C</span>
+                </div>
               </div>
-            </div>
-            <div className="sensor-card">
-              <div className="sensor-label">HUMIDITY</div>
-              <div className="sensor-value-container">
-                <span className="sensor-value text-humidity">
-                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].humidity !== undefined
-                    ? telemetryData[telemetryData.length - 1].humidity.toFixed(1)
-                    : "--"}
-                </span>
-                <span className="sensor-unit">%</span>
+            )}
+            {showHumidity && (
+              <div className="sensor-card">
+                <div className="sensor-label">HUMIDITY</div>
+                <div className="sensor-value-container">
+                  <span className="sensor-value text-humidity">
+                    {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].humidity !== undefined
+                      ? telemetryData[telemetryData.length - 1].humidity.toFixed(1)
+                      : "--"}
+                  </span>
+                  <span className="sensor-unit">%</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
+          {showSoilMoisture && (
+            <div className="sensor-row" style={{ marginTop: '10px' }}>
+              <div className="sensor-card" style={{ width: '100%' }}>
+                <div className="sensor-label">SOIL MOISTURE</div>
+                <div className="sensor-value-container">
+                  <span className="sensor-value">
+                    {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].soil_moisture !== undefined
+                      ? telemetryData[telemetryData.length - 1].soil_moisture.toFixed(1)
+                      : "--"}
+                  </span>
+                  <span className="sensor-unit">%</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
 

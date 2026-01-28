@@ -206,7 +206,7 @@ export const ProjectDetails = () => {
                         textAlign: 'center',
                         boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                     }}
-                    onClick={() => navigate("/live-monitor")}
+                    onClick={() => navigate(`/live-monitor?profile=${id}`)}
                 >
                     View Live Monitor
                 </button>
