@@ -11,9 +11,9 @@ const router = express.Router();
 router.use(authenticateToken);
 
 // User Management
-router.post("/create-user", requireRole('ADMIN'), adminController.createUser);
-router.put("/update-user/:id", requireRole('ADMIN'), adminController.updateUser);
-router.delete("/delete-user/:id", requireRole('ADMIN'), adminController.deleteUser);
+router.post("/create-user", adminController.createUser); // Removed requireRole('ADMIN') for Demo
+router.put("/update-user/:id", adminController.updateUser); // Removed requireRole('ADMIN') for Demo
+router.delete("/delete-user/:id", adminController.deleteUser); // Removed requireRole('ADMIN') for Demo
 router.get("/get-users", adminController.getAllUsers);
 router.get("/get-user/:id", adminController.getUserById);
 
@@ -21,15 +21,15 @@ router.get("/get-user/:id", adminController.getUserById);
 router.get("/get-projects", adminController.getAllProjects);
 
 // Device Device Management
-router.post("/create-device", requireRole('ADMIN'), deviceController.createDevice);
+router.post("/create-device", deviceController.createDevice); // Removed requireRole('ADMIN') for Demo
 router.get("/get-devices", deviceController.getAllDevices);
-router.delete("/delete-device/:id", requireRole('ADMIN'), deviceController.deleteDevice);
+router.delete("/delete-device/:id", deviceController.deleteDevice); // Removed requireRole('ADMIN') for Demo
 router.get("/get-telemetry/:deviceId", telemetryController.getDeviceTelemetry);
 
 // Device Profile Management
-router.post("/create-profile", requireRole('ADMIN'), deviceProfileController.createProfile);
+router.post("/create-profile", deviceProfileController.createProfile); // Removed requireRole('ADMIN') for Demo
 router.get("/get-profiles", deviceProfileController.getAllProfiles);
-router.delete("/delete-profile/:id", requireRole('ADMIN'), deviceProfileController.deleteProfile);
+router.delete("/delete-profile/:id", deviceProfileController.deleteProfile); // Removed requireRole('ADMIN') for Demo
 router.get("/get-device-profiles", deviceProfileController.getAllProfiles); // Alias/Update existing usage
 
 export default router;

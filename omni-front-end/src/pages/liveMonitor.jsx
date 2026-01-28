@@ -17,7 +17,7 @@ import { io } from "socket.io-client";
 export const LiveMonitor = () => {
   const [telemetryData, setTelemetryData] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
-  const [matrixData, setMatrixData] = useState(Array(16).fill(Array(16).fill(0)));
+  const [matrixData, setMatrixData] = useState(Array(32).fill(Array(32).fill(0)));
   const [isConnected, setIsConnected] = useState(false);
   const [baseline, setBaseline] = useState(null); // Calibration baseline
 
@@ -154,13 +154,10 @@ export const LiveMonitor = () => {
     }
 
     const maxVal = 600; // Cap at 600 like python script
-
     // Threshold (Noise Gate)
     if (calibratedValue < 10) calibratedValue = 0;
-
     const safeVal = Math.min(Math.max(calibratedValue, 0), maxVal);
     const intensity = Math.floor((safeVal / maxVal) * 255);
-
     return `rgb(${intensity}, 0, ${255 - intensity})`;
   };
 
@@ -206,7 +203,7 @@ export const LiveMonitor = () => {
 
           <div className="heatmap-container" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(16, 1fr)',
+            gridTemplateColumns: 'repeat(32, 1fr)',
             gap: '1px',
             backgroundColor: '#000',
             padding: '10px',
