@@ -10,7 +10,7 @@ async function main() {
   // 1. Roles
   const roles = ['ADMIN', 'OPERATOR', 'SUPPORTER', 'USER'];
   const roleMap = {};
-
+  
   for (const r of roles) {
     const role = await prisma.role.upsert({
       where: { name: r },
