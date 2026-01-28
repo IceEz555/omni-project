@@ -29,6 +29,27 @@ export const LiveMonitor = () => {
   const dataBufferRef = useRef([]);
   const [intervalStats, setIntervalStats] = useState({ min: 0, max: 0, avg: 0 });
 
+  // Ref for Selected Device to be accessible in Socket Callback
+  const selectedDeviceRef = useRef(null);
+
+  // Sync Ref with State
+  useEffect(() => {
+    selectedDeviceRef.current = selectedDevice;
+  }, [selectedDevice]);
+
+  // Connection Watchdog
+  useEffect(() => {
+    const watchdog = setInterval(() => {
+      if (lastRxTime) {
+        const timeDiff = new Date() - new Date(lastRxTime);
+        if (timeDiff > 5000 && isConnected) {
+          setIsConnected(false); // Mark as Disconnected if silent for 5s
+        }
+      }
+    }, 1000);
+    return () => clearInterval(watchdog);
+  }, [lastRxTime, isConnected]);
+
   // Socket Connection for Matrix
   useEffect(() => {
     const socket = io("http://localhost:4000"); // Updated to match backend PORT 4000
@@ -44,12 +65,21 @@ export const LiveMonitor = () => {
         setMatrixData(payload.data);
         setPacketCount(prev => prev + 1);
         setLastRxTime(new Date());
+        setIsConnected(true);
       }
     });
 
     // --- NEW: Sensor Data Listener (Real-time) ---
     socket.on("sensor-data", (data) => {
+      // Filter by Device ID
+      const currentDevice = selectedDeviceRef.current;
+      if (currentDevice && data.device_id && data.device_id !== currentDevice.serialNumber) {
+        return; // Ignore data from other devices
+      }
+
       console.log("⚡ Sensor Data:", data);
+      setIsConnected(true); // Valid data received
+      setLastRxTime(new Date());
 
       // 1. Update Graph & Display
       setTelemetryData(prev => {
@@ -95,7 +125,9 @@ export const LiveMonitor = () => {
       try {
         // 1. Get Devices
         const res = await api.get("/admin/get-devices");
-        const devices = res.data;
+        // Check for mock data fallback if API returns empty/error handled elsewhere
+        let devices = Array.isArray(res.data) ? res.data : [];
+
         if (devices.length > 0) {
           // Default to first active device logic, or just the first one
           // Prefer finding one that matches "sensor" type or has "Arduino" in name
@@ -108,10 +140,6 @@ export const LiveMonitor = () => {
     };
     init();
   }, []);
-
-  // Polling removed in favor of Socket.IO 'sensor-data' event
-
-
 
 
   // Interval Calculation Logic (Every 5 seconds)
@@ -138,9 +166,6 @@ export const LiveMonitor = () => {
 
     return () => clearInterval(calcInterval);
   }, []); // Run once on mount
-
-  // ... existing socket & polling effects ...
-
 
   // Helper to get color from value (0-1023)
   const getCellColor = (value, rIndex, cIndex) => {
@@ -169,6 +194,25 @@ export const LiveMonitor = () => {
     }
   };
 
+  // --- EMPTY STATE UI ---
+  if (!selectedDevice && packetCount === 0) { // Check packetCount to avoid flickering during initial load
+    return (
+      <div className="live-monitor-wrapper monitor-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+        <div className="empty-state-card" style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📡</div>
+          <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>No Devices Found</h2>
+          <p style={{ color: '#6b7280', marginBottom: '24px' }}>Please register a device to start monitoring.</p>
+          <button
+            onClick={() => window.location.href = '/admin/inventory'}
+            style={{ backgroundColor: '#0f172a', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+          >
+            + Add Device
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="live-monitor-wrapper monitor-wrapper">
       <h1>Live Monitor</h1>
@@ -184,7 +228,9 @@ export const LiveMonitor = () => {
               >
                 CALIBRATE
               </button>
-              <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`}>● {isConnected ? 'LIVE' : 'DISCONNECTED'}</span>
+              <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`} style={{ color: isConnected ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                ● {isConnected ? 'LIVE' : 'DISCONNECTED'}
+              </span>
             </div>
           </div>
           <div className="monitor-stats-bar">
@@ -221,7 +267,6 @@ export const LiveMonitor = () => {
               ))}
             </div>
           </div>
-        </div>
         </div>
         <div className="card monitor-column">
           <p className="card-header">AI Predict Skeleton</p>
@@ -305,13 +350,13 @@ export const LiveMonitor = () => {
           </div>
         </div>
 
-        {/* Signal Timeline (Moved here) */}
+        {/* Signal Timeline */}
         <div className="section-separator">
           <div className="flex-between-center">
             <p className="card-header margin-bottom-0">GRAPH {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
             {selectedDevice && (
-              <span className="status-badge online status-badge-small">
-                LIVE
+              <span className="status-badge online status-badge-small" style={{ backgroundColor: isConnected ? '#dcfce7' : '#fee2e2', color: isConnected ? '#166534' : '#b91c1c' }}>
+                {isConnected ? 'LIVE' : 'OFFLINE'}
               </span>
             )}
           </div>
@@ -338,7 +383,7 @@ export const LiveMonitor = () => {
               </ResponsiveContainer>
             ) : (
               <div className="no-device-text">
-                {selectedDevice ? "Loading Data..." : "No Device Selected"}
+                {selectedDevice ? "Waiting for Data..." : "No Device Selected"}
               </div>
             )}
           </div>
@@ -348,7 +393,7 @@ export const LiveMonitor = () => {
         </div>
       </div>
 
-      {/* Current Pose (Moved to separate card) */}
+      {/* Current Pose */}
       <div className="card card-pose">
         <p className="card-header pose-section-header">CURRENT POSE</p>
         <h2 className="pose-title">
