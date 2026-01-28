@@ -3,6 +3,8 @@ import api from "../api/axios";
 import "../css/liveMonitor.css";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+import { io } from "socket.io-client";
+
 // Helper for formatting time (HH:mm:ss)
 const formatTime = (isoString) => {
   if (!isoString) return "";
@@ -10,7 +12,6 @@ const formatTime = (isoString) => {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 };
 
-import { io } from "socket.io-client";
 
 // ... existing imports
 
@@ -220,6 +221,7 @@ export const LiveMonitor = () => {
               ))}
             </div>
           </div>
+        </div>
         </div>
         <div className="card monitor-column">
           <p className="card-header">AI Predict Skeleton</p>

@@ -211,3 +211,35 @@ const payload = {
 const topic = `iot/${deviceId}/telemetry`;
 mqttClient.publish(topic, JSON.stringify(payload));
 ```
+
+---
+
+## 7. สรุปหน้าที่ Service และผลกระทบ (Why do we need them?)
+
+สิ่งที่แต่ละตัวทำ และถ้า **(❌) ไม่รัน** จะเกิดอะไรขึ้น:
+
+#### 1. `omni-back-end/serial-bridge`
+
+- **คืออะไร**: ล่ามแปลภาษา (Arduino Serial Port ↔ MQTT)
+- **ทำหน้าที่**: อ่านข้อมูลดิบจาก USB และแปลงเป็น JSON ส่งให้คนอื่น
+- **(❌) ถ้าไม่รัน**:
+  - ข้อมูลจาก Arduino จะตันอยู่ที่คอม ไม่ถูกส่งเข้าระบบ
+  - หน้าเว็บจะขึ้นว่า **"Disconnected"** หรือไม่มีข้อมูลใหม่เข้ามาเลย
+
+#### 2. `omni-back-end/platform-service`
+
+- **คืออะไร**: สมองกลหลัก (Main API + Socket.IO Server)
+- **ทำหน้าที่**:
+  1. จัดการระบบ Database (Login, User, Device List)
+  2. รับข้อมูลจาก MQTT แล้วยิงสดไปที่หน้าเว็บ (Socket.IO Real-time)
+- **(❌) ถ้าไม่รัน**:
+  - **หน้าเว็บตายสนิท**: Login ไม่ได้, โหลดรายการอุปกรณ์ไม่ได้
+  - กราฟไม่ขยับ เพราะไม่มีตัวกลางส่งข้อมูลจาก MQTT ไปให้ Frontend
+
+#### 3. `omni-back-end/ingest-service` (ตัวเสริม)
+
+- **คืออะไร**: นักจดบันทึก (Data Recorder)
+- **ทำหน้าที่**: ดักฟัง MQTT แล้วบันทึกข้อมูลทุกค่าลง InfluxDB (Database สำหรับเก็บข้อมูลย้อนหลัง)
+- **(❌) ถ้าไม่รัน**:
+  - **กราฟ Real-time ยังวิ่งปกติ** (Live Monitor ทำงานได้)
+  - **แต่ดูย้อนหลังไม่ได้**: ข้อมูลเก่าหายหมด ไม่มีการบันทึกประวัติไว้ จะ Export หรือดูกราฟย้อนหลังไม่ได้เลย

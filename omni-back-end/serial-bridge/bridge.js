@@ -4,85 +4,130 @@ import mqtt from 'mqtt';
 
 // --- CONFIGURATION ---
 const MQTT_BROKER = 'mqtt://localhost:1883';
-const SERIAL_PORT = 'COM5'; // <--- CHANGE THIS to your Arduino Port (e.g., COM3, /dev/ttyUSB0)
-const BAUD_RATE = 460800;
+const BAUD_RATE = 115200; // Must match Arduino
 
-// Connect to MQTT
+// --- MQTT SETUP ---
 const mqttClient = mqtt.connect(MQTT_BROKER);
 
 mqttClient.on('connect', () => {
     console.log('✅ Connected to MQTT Broker');
 });
 
-// Setup Serial Port
-const port = new SerialPort({ path: SERIAL_PORT, baudRate: BAUD_RATE });
-const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
-
-console.log(`🔌 Attempting to connect to Serial Port: ${SERIAL_PORT}`);
-
-port.on('open', () => {
-    console.log('✅ Serial Port Opened');
-});
-
-port.on('error', (err) => {
-    console.error('❌ Serial Port Error: ', err.message);
-    console.log('HINT: Check if Arduino is connected and the COM port in gateway.js is correct.');
-});
-
-// Parsing State
+// --- STATE VARIABLES ---
+let port;
+let parser;
 let isReadingMatrix = false;
 let matrixBuffer = [];
 const MATRIX_ROWS = 32;
 const MATRIX_COLS = 32;
 
-// Read Data from Serial
-parser.on('data', (data) => {
+// --- AUTO-DISCOVERY & CONNECTION LOGIC ---
+async function autoConnect() {
+    try {
+        if (port && port.isOpen) return;
+
+        console.log("🔎 Scanning Serial Ports...");
+        const ports = await SerialPort.list();
+        
+        // Filter logic: Find ports that look like Arduino or USB Serial
+        // On Windows, usually COM3+ (COM1/2 are typically internal)
+        const validPort = ports.find(p => 
+            p.manufacturer?.includes('Arduino') || 
+            (p.path.startsWith('COM') && p.path !== 'COM1' && p.path !== 'COM2') ||
+            p.path.includes('usb')
+        );
+
+        if (!validPort) {
+            console.log("⚠️ No suitable Arduino found. Retrying in 5s...");
+            setTimeout(autoConnect, 5000);
+            return;
+        }
+
+        console.log(`🔌 Found Potential Device: ${validPort.path} (${validPort.manufacturer || 'Generic'})`);
+        connectToPort(validPort.path);
+
+    } catch (err) {
+        console.error("Scanning Error:", err);
+        setTimeout(autoConnect, 5000);
+    }
+}
+
+function connectToPort(path) {
+    if (port && port.isOpen) return;
+
+    port = new SerialPort({ path: path, baudRate: BAUD_RATE, autoOpen: false });
+    parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
+
+    port.open((err) => {
+        if (err) {
+            console.error(`❌ Failed to open ${path}:`, err.message);
+            console.log("Retry scanning in 5s...");
+            setTimeout(autoConnect, 5000);
+            return;
+        }
+        console.log(`✅ Serial Port Opened: ${path}`);
+    });
+
+    port.on('close', () => {
+        console.warn('⚠️ Port Closed. Reconnecting...');
+        port = null; // Clear port instance
+        setTimeout(autoConnect, 3000);
+    });
+
+    port.on('error', (err) => {
+        console.error('❌ Port Error:', err.message);
+        if (!port.isOpen) {
+             setTimeout(autoConnect, 5000); 
+        }
+    });
+
+    // Attach data listener
+    parser.on('data', handleSerialData);
+}
+
+// --- DATA HANDLING LOGIC ---
+function handleSerialData(data) {
     try {
         const cleanData = data.toString().replace(/[\x00-\x1F\x7F]/g, "").trim();
 
-        // --- MATRIX PARSING (16x16) ---
+        // --- MATRIX PARSING (16x16 or 32x32) ---
         if (cleanData === "TABLE") {
             isReadingMatrix = true;
             matrixBuffer = [];
-            // console.log("Detected Matrix Start...");
             return;
         }
 
         if (isReadingMatrix) {
             // Validate row data (should be numbers)
             const row = cleanData.split(' ').map(Number);
-            if (row.length === MATRIX_COLS && !row.some(isNaN)) {
+            // Relaxed check: Accept any row length for flexibility, or check strict
+            if (row.length > 0 && !row.some(isNaN)) {
                 matrixBuffer.push(row);
-            } else {
-                // Invalid row, abort? Or just ignore bad lines?
-                // console.warn("Invalid Matrix Row:", cleanData);
             }
 
+            // Check completion (Classic 32x32 assumption, ideally this should be dynamic)
             if (matrixBuffer.length === MATRIX_ROWS) {
-                // Complete Matrix
                 const payload = {
-                    device_id: "pressure_mat_16x16",
+                    device_id: "pressure_mat_16x16", // Consider making this dynamic later
                     data: matrixBuffer,
                     timestamp: new Date().toISOString()
                 };
 
                 // Publish to Special Stream Topic
                 mqttClient.publish('iot/matrix/stream', JSON.stringify(payload));
-                // console.log("🚀 Published Matrix Frame");
-
+                
                 isReadingMatrix = false;
                 matrixBuffer = [];
             }
-            return; // Don't process as standard packet
+            return;
         }
 
         // --- STANDARD PARSING ---
         // Expected Format: "DEVICE_ID|PROFILE_ID|JSON_DATA"
-        console.log(`📥 Received from Serial: ${cleanData}`);
+        console.log(`📥 Received: ${cleanData}`);
 
         const parts = cleanData.split('|');
         if (parts.length < 3) {
-            // console.warn('⚠️ Invalid Data Format.');
             return;
         }
 
@@ -100,11 +145,14 @@ parser.on('data', (data) => {
 
         const topic = `iot/${deviceId}/telemetry`;
         mqttClient.publish(topic, JSON.stringify(payload));
-        console.log(`🚀 Published to MQTT [${topic}]:`, payload);
+        console.log(`🚀 Published to [${topic}]`);
 
     } catch (err) {
         console.error('❌ Error processing serial data:', err);
         isReadingMatrix = false; // Reset on error
         matrixBuffer = [];
     }
-});
+}
+
+// Start the process
+autoConnect();

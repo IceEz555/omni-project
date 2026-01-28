@@ -31,6 +31,12 @@ export const createDevice = async (req, res) => {
 // Get All Devices
 export const getAllDevices = async (req, res) => {
     try {
+        const devices = await prisma.device.findMany({
+            include: {
+                profile: true
+            }
+        });
+
         const formattedDevices = devices.map(device => ({
             id: device.id,
             name: device.device_name,
