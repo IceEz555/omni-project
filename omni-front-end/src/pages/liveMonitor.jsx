@@ -204,20 +204,21 @@ export const LiveMonitor = () => {
             maxWidth: '400px',
             margin: '0 auto'
           }}>
-          <div className="heatmap-container heatmap-grid">
-            {matrixData.map((row, rIndex) => (
-              row.map((val, cIndex) => (
-                <div
-                  key={`${rIndex}-${cIndex}`}
-                  style={{
-                    backgroundColor: getCellColor(val, rIndex, cIndex),
-                    width: '100%',
-                    height: '100%' // Aspect ratio handles height
-                  }}
-                  title={`R${rIndex} C${cIndex}: ${val}`}
-                />
-              ))
-            ))}
+            <div className="heatmap-container heatmap-grid">
+              {matrixData.map((row, rIndex) => (
+                row.map((val, cIndex) => (
+                  <div
+                    key={`${rIndex}-${cIndex}`}
+                    style={{
+                      backgroundColor: getCellColor(val, rIndex, cIndex),
+                      width: '100%',
+                      height: '100%' // Aspect ratio handles height
+                    }}
+                    title={`R${rIndex} C${cIndex}: ${val}`}
+                  />
+                ))
+              ))}
+            </div>
           </div>
         </div>
         <div className="card monitor-column">
