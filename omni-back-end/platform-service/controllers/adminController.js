@@ -44,22 +44,7 @@ export const createUser = async (req, res) => {
         }
     });
 
-    // 4. Assign to Project (if provided)
-    if (project_name) {
-        const project = await prisma.project.findFirst({
-            where: { name: project_name }
-        });
-        
-        if (project) {
-            await prisma.projectUser.create({
-                data: {
-                    user_id: newUser.id,
-                    project_id: project.id,
-                    role_in_project: 'USER' // Default role in project
-                }
-            });
-        }
-    }
+    // 4. Assign to Project - REMOVED
 
     return res.status(201).json({ message: "User created successfully", user: newUser });
  } catch (error) {
@@ -100,27 +85,7 @@ export const updateUser = async (req, res) => {
         }
 
         // 3. If project_name is provided, update project membership
-        if (project_name) {
-             const project = await prisma.project.findFirst({
-                where: { name: project_name }
-            });
-            
-            if (project) {
-                // Remove existing projects (assuming single-project UI logic)
-                await prisma.projectUser.deleteMany({
-                    where: { user_id: id }
-                });
-
-                // Add to new project
-                await prisma.projectUser.create({
-                    data: {
-                        user_id: id,
-                        project_id: project.id,
-                        role_in_project: 'USER'
-                    }
-                });
-            }
-        }
+        // if (project_name) { ... } REMOVED
 
         const updatedUser = await prisma.user.update({
             where: { id: id },
@@ -140,7 +105,7 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        await prisma.projectUser.deleteMany({ where: { user_id: id }}); // Clean up memberships first
+        // await prisma.projectUser.deleteMany({ where: { user_id: id }}); // Clean up memberships first - REMOVED
         const deletedUser = await prisma.user.delete({
             where: { id: id }
         });
@@ -153,27 +118,8 @@ export const deleteUser = async (req, res) => {
 // Get All Users
 export const getAllUsers = async (req, res) => {
     try {
-        const users = await prisma.user.findMany({
-            include: {
-                role: true,
-                project_memberships: {
-                    include: {
-                        project: true // Project names
-                    }
-                },
-                sessions: {
-                    orderBy: { start_time: 'desc' },
-                    take: 1,
-                    select: { start_time: true }
-                },
-                _count: {
-                    select: { sessions: true }
-                }
-            }
-        });
-
         const formattedUsers = users.map(user => {
-            const projects = user.project_memberships.map(pm => pm.project.name).join(", ") || "-";
+            const projects = "-"; // Project removed
             const lastSession = user.sessions[0];
             const lastActive = lastSession ? lastSession.start_time : user.created_at;
 
@@ -210,12 +156,11 @@ export const getUserById = async (req, res) => {
 }
 
 // Get All Projects (For Dropdown)
+// Get All Projects (For Dropdown) - REMOVED
 export const getAllProjects = async (req, res) => {
     try {
-        const projects = await prisma.project.findMany({
-            select: { id: true, name: true }
-        });
-        res.json(projects);
+        // Empty implementation
+        res.json([]);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

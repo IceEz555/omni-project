@@ -17,8 +17,8 @@ router.delete("/delete-user/:id", adminController.deleteUser); // Removed requir
 router.get("/get-users", adminController.getAllUsers);
 router.get("/get-user/:id", adminController.getUserById);
 
-// Project Management
-router.get("/get-projects", adminController.getAllProjects);
+// Project Management - REMOVED
+// router.get("/get-projects", adminController.getAllProjects);
 
 // Device Device Management
 router.post("/create-device", deviceController.createDevice); // Removed requireRole('ADMIN') for Demo

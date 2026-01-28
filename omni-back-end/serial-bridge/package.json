@@ -1,11 +1,11 @@
 {
-  "name": "serial-gateway",
+  "name": "serial-bridge",
   "version": "1.0.0",
   "description": "Reads data from Serial Port (Arduino) and publishes to MQTT",
-  "main": "gateway.js",
+  "main": "bridge.js",
   "type": "module",
   "scripts": {
-    "start": "node gateway.js"
+    "start": "node bridge.js"
   },
   "dependencies": {
     "mqtt": "^5.3.4",
