@@ -46,74 +46,15 @@ async function main() {
     });
     console.log(`Created User: ${u.username}`);
 
-    // Seed projects for specific users
-    if (u.username === 'sarah') {
-       await createProject(user.id, "Yoga Research Lab");
-       // Add dummy session
-       await createSession(user.id, "Yoga Research Lab");
-    } else if (u.username === 'john') {
-       await createProject(user.id, "Physical Therapy Clinic");
-    }
+    // Seed projects for specific users - REMOVED
+    // if (u.username === 'sarah') { ... }
   }
 
   console.log('✅ Seeding finished.');
 }
 
-async function createProject(ownerId, projectName) {
-    const existing = await prisma.project.findFirst({ where: { name: projectName }});
-    let projectId = existing?.id;
-
-    if (!existing) {
-        const p = await prisma.project.create({
-            data: {
-                name: projectName,
-                owner_id: ownerId,
-            }
-        });
-        projectId = p.id;
-        console.log(`Created Project: ${projectName}`);
-    }
-
-    // Add owner as member
-    await prisma.projectUser.upsert({
-        where: { project_id_user_id: { project_id: projectId, user_id: ownerId } },
-        update: {},
-        create: {
-            project_id: projectId,
-            user_id: ownerId,
-            role_in_project: 'ADMIN' 
-        }
-    });
-}
-
-async function createSession(userId, projectName) {
-    const project = await prisma.project.findFirst({ where: { name: projectName }});
-    const profile = await prisma.deviceProfile.upsert({
-        where: { profile_id: 'yoga_mat_v1' },
-        update: {},
-        create: { profile_id: 'yoga_mat_v1', data_type: 'matrix', schema_definition: {} }
-    });
-    
-    const device = await prisma.device.upsert({
-        where: { project_id_device_name: { project_id: project.id, device_name: 'Mat 1' } },
-        update: {},
-        create: { 
-            device_name: 'Mat 1', 
-            serial_number: 'MAT_001', // Added default serial number
-            project_id: project.id, 
-            device_profile_id: profile.id 
-        }
-    });
-
-    await prisma.session.create({
-        data: {
-            project_id: project.id,
-            device_id: device.id,
-            user_id: userId,
-            start_time: new Date()
-        }
-    });
-}
+// function createProject() ... REMOVED
+// function createSession() ... REMOVED
 
 main()
   .catch((e) => {

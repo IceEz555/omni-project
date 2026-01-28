@@ -10,19 +10,6 @@ export const createDevice = async (req, res) => {
             return res.status(400).json({ message: "Device name and Profile are required" });
         }
 
-        // 1. Find Project (Optional)
-        let project_id_db = null;
-        if (project_name) {
-            const project = await prisma.project.findFirst({
-                where: { name: project_name }
-            });
-            if (project) {
-                project_id_db = project.id;
-            } else {
-                return res.status(404).json({ message: `Project '${project_name}' not found` });
-            }
-        }
-
         // 2. Create Device
         // Note: profile_id coming from frontend is likely the UUID of the device_profile table
         const newDevice = await prisma.device.create({
@@ -30,7 +17,6 @@ export const createDevice = async (req, res) => {
                 device_name: device_name,
                 serial_number: req.body.serial_number || `UNKNOWN_${Date.now()}`, // Fallback if not provided, but mostly required
                 device_profile_id: profile_id, // This is the UUID FK
-                project_id: project_id_db,
                 status: 'OFFLINE'
             }
         });
@@ -45,22 +31,11 @@ export const createDevice = async (req, res) => {
 // Get All Devices
 export const getAllDevices = async (req, res) => {
     try {
-        const devices = await prisma.device.findMany({
-            include: {
-                project: {
-                    select: { name: true }
-                },
-                profile: {
-                    select: { name: true, profile_id: true, data_type: true } 
-                }
-            }
-        });
-
         const formattedDevices = devices.map(device => ({
             id: device.id,
             name: device.device_name,
             serialNumber: device.serial_number,
-            project: device.project ? device.project.name : "-",
+            project: "-", // Project removed
             profileName: device.profile.name,
             profileKey: device.profile.profile_id, // e.g. "yoga_mat_v1"
             type: device.profile.data_type, // Map data_type to type
