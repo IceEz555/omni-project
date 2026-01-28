@@ -118,6 +118,19 @@ export const deleteUser = async (req, res) => {
 // Get All Users
 export const getAllUsers = async (req, res) => {
     try {
+        const users = await prisma.user.findMany({
+            include: {
+                role: true,
+                sessions: {
+                    orderBy: { start_time: 'desc' },
+                    take: 1,
+                    select: { start_time: true }
+                },
+                _count: {
+                    select: { sessions: true }
+                }
+            }
+        });
         const formattedUsers = users.map(user => {
             const projects = "-"; // Project removed
             const lastSession = user.sessions[0];
