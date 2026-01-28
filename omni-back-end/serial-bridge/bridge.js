@@ -16,11 +16,6 @@ mqttClient.on('connect', () => {
 // --- STATE VARIABLES ---
 let port;
 let parser;
-let isReadingMatrix = false;
-let matrixBuffer = [];
-const MATRIX_ROWS = 32;
-const MATRIX_COLS = 32;
-
 // --- AUTO-DISCOVERY & CONNECTION LOGIC ---
 async function autoConnect() {
     try {
@@ -85,41 +80,48 @@ function connectToPort(path) {
     parser.on('data', handleSerialData);
 }
 
+// Parsing State
+let isReadingMatrix = false;
+let matrixBuffer = [];
+
 // --- DATA HANDLING LOGIC ---
 function handleSerialData(data) {
     try {
         const cleanData = data.toString().replace(/[\x00-\x1F\x7F]/g, "").trim();
 
-        // --- MATRIX PARSING (16x16 or 32x32) ---
+        // --- MATRIX PARSING (Dynamic Size) ---
         if (cleanData === "TABLE") {
+            // If we have a previous buffer filled, publish it now (End of previous frame)
+            if (matrixBuffer.length > 0) {
+                 const payload = {
+                    device_id: "pressure_mat_dynamic", // Ideally, this should come from the device too
+                    data: matrixBuffer,
+                    timestamp: new Date().toISOString()
+                };
+                mqttClient.publish('iot/matrix/stream', JSON.stringify(payload));
+            }
+            
+            // Start new frame
             isReadingMatrix = true;
             matrixBuffer = [];
             return;
         }
 
         if (isReadingMatrix) {
-            // Validate row data (should be numbers)
+            // Validate row data
             const row = cleanData.split(' ').map(Number);
-            // Relaxed check: Accept any row length for flexibility, or check strict
-            if (row.length > 0 && !row.some(isNaN)) {
+            
+            // Heuristic: If it looks like a valid row of numbers, add it
+            if (row.length > 1 && !row.some(isNaN)) {
                 matrixBuffer.push(row);
-            }
-
-            // Check completion (Classic 32x32 assumption, ideally this should be dynamic)
-            if (matrixBuffer.length === MATRIX_ROWS) {
-                const payload = {
-                    device_id: "pressure_mat_16x16", // Consider making this dynamic later
-                    data: matrixBuffer,
-                    timestamp: new Date().toISOString()
-                };
-
-                // Publish to Special Stream Topic
-                mqttClient.publish('iot/matrix/stream', JSON.stringify(payload));
-                
+            } else if (cleanData.includes('|')) {
+                // Safety: If we see a pipe '|', it might be a standard packet interrupt
                 isReadingMatrix = false;
-                matrixBuffer = [];
+                // Don't return, let it flow to standard parsing below
+            } else {
+                return; // Ignore garbage lines
             }
-            return;
+            return; // Stay in matrix mode
         }
 
         // --- STANDARD PARSING ---
