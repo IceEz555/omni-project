@@ -7,26 +7,26 @@ import "../css/modal.css";
 // Helper Component: Profile Card
 const ProfileCard = ({ profile, navigate }) => {
   return (
-    <div className="card device-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="card device-card">
       <div className="card-header-row">
-        <span className="card-title" style={{ fontSize: '18px' }}>{profile.name}</span>
-        <span className="status-badge online" style={{ background: '#e0f2fe', color: '#0284c7' }}>
+        <span className="card-title">{profile.name}</span>
+        <span className="status-badge online">
           PROFILE
         </span>
       </div>
 
-      <div className="card-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ padding: '10px 0', color: '#4b5563' }}>
-          <div style={{ marginBottom: '4px', fontSize: '14px' }}>
-            <span style={{ fontWeight: 500 }}>ID:</span> {profile.profile_id}
+      <div className="card-content">
+        <div className="profile-info-container">
+          <div className="profile-id-row">
+            <span className="font-medium">ID:</span> {profile.profile_id}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <div className="info-row">
             <span>Total Devices:</span>
-            <span style={{ fontWeight: 'bold' }}>{profile.deviceCount}</span>
+            <span className="font-bold">{profile.deviceCount}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="info-row">
             <span>Online:</span>
-            <span style={{ fontWeight: 'bold', color: profile.onlineCount > 0 ? '#16a34a' : '#6b7280' }}>
+            <span className={`font-bold ${profile.onlineCount > 0 ? 'text-green' : 'text-gray'}`}>
               {profile.onlineCount}
             </span>
           </div>
@@ -35,7 +35,6 @@ const ProfileCard = ({ profile, navigate }) => {
         <button
           className="btn-device-action"
           onClick={() => navigate(`/project/${profile.profile_id}`)}
-          style={{ marginTop: 'auto' }}
         >
           View Inventory
         </button>
@@ -155,7 +154,7 @@ export const Dashboard = () => {
 
       <div className="projects-header">
         <h2 className="projects-title">Device Profiles</h2>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="header-actions">
           <button
             className="new-project-btn"
             onClick={() => setShowCreateProfile(true)}
@@ -178,7 +177,7 @@ export const Dashboard = () => {
             <ProfileCard key={prof.id} profile={prof} navigate={navigate} />
           ))
         ) : (
-          <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: '#6b7280', background: 'white', borderRadius: '8px' }}>
+          <div className="empty-state-message">
             {isLoading ? "Loading Profiles..." : "No Device Profiles Found."}
           </div>
         )}

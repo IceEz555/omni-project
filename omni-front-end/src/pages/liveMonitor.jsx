@@ -228,40 +228,20 @@ export const LiveMonitor = () => {
   // --- EMPTY STATE UI ---
   if (!hasDevices) { // reliance on explicit Flag
     return (
-      <div className="live-monitor-wrapper monitor-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <div className="empty-state-card" style={{
-          textAlign: 'center',
-          padding: '60px',
-          background: 'white',
-          borderRadius: '16px',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          maxWidth: '500px',
-          width: '90%'
-        }}>
-          <div style={{ fontSize: '64px', marginBottom: '24px' }}>�</div>
+      <div className="live-monitor-wrapper monitor-wrapper monitor-wrapper--empty">
+        <div className="empty-state-card">
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}></div>
           <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1f2937', marginBottom: '12px' }}>ไม่พบอุปกรณ์</h2>
           <p style={{ color: '#6b7280', marginBottom: '32px', fontSize: '16px' }}>กรุณากดปุ่มด้านล่างเพื่อเพิ่มอุปกรณ์ใหม่ (Add Device)</p>
           <button
+            className="btn-add-device"
             onClick={() => {
               const profileId = searchParams.get('profile');
               if (profileId) {
                 window.location.href = `/project/${profileId}`;
               } else {
-                // Fallback context: dashboard or inventory
                 window.location.href = '/dashboard';
               }
-            }}
-            style={{
-              backgroundColor: '#0f172a',
-              color: 'white',
-              padding: '14px 28px',
-              borderRadius: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: '600',
-              fontSize: '16px',
-              transition: 'all 0.2s',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -300,26 +280,15 @@ export const LiveMonitor = () => {
             Last: {lastRxTime ? lastRxTime.toLocaleTimeString() : "Waiting..."}
           </div>
 
-          <div className="heatmap-container" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(32, 1fr)',
-            gap: '1px',
-            backgroundColor: '#000',
-            padding: '10px',
-            aspectRatio: '1/1',
-            width: '100%',
-            maxWidth: '400px',
-            margin: '0 auto'
-          }}>
+          <div className="heatmap-container heatmap-grid-32">
             <div className="heatmap-container heatmap-grid">
               {matrixData.map((row, rIndex) => (
                 row.map((val, cIndex) => (
                   <div
                     key={`${rIndex}-${cIndex}`}
+                    className="heatmap-cell"
                     style={{
                       backgroundColor: getCellColor(val, rIndex, cIndex),
-                      width: '100%',
-                      height: '100%' // Aspect ratio handles height
                     }}
                     title={`R${rIndex} C${cIndex}: ${val}`}
                   />
@@ -341,31 +310,27 @@ export const LiveMonitor = () => {
       <div className="card card-current-pose">
         <div className="flex-between-center">
           <p className="card-header margin-bottom-0">SENSORS</p>
-          <div style={{ display: 'flex', gap: '5px' }}>
+          <div className="sensor-controls">
             <button
-              className="btn-calibrate"
-              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showDistance ? '#1f2937' : '#9ca3af', color: 'white' }}
+              className={`btn-sensor-toggle ${showDistance ? 'active' : 'inactive'}`}
               onClick={() => setShowDistance(!showDistance)}
             >
               {showDistance ? 'HIDE HC-SR04' : 'SHOW HC-SR04'}
             </button>
             <button
-              className="btn-calibrate"
-              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showTemp ? '#1f2937' : '#9ca3af', color: 'white' }}
+              className={`btn-sensor-toggle ${showTemp ? 'active' : 'inactive'}`}
               onClick={() => setShowTemp(!showTemp)}
             >
               {showTemp ? 'HIDE TEMP' : 'SHOW TEMP'}
             </button>
             <button
-              className="btn-calibrate"
-              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showHumidity ? '#1f2937' : '#9ca3af', color: 'white' }}
+              className={`btn-sensor-toggle ${showHumidity ? 'active' : 'inactive'}`}
               onClick={() => setShowHumidity(!showHumidity)}
             >
               {showHumidity ? 'HIDE HUMIDITY' : 'SHOW HUMIDITY'}
             </button>
             <button
-              className="btn-calibrate"
-              style={{ fontSize: '10px', padding: '2px 6px', backgroundColor: showSoilMoisture ? '#1f2937' : '#9ca3af', color: 'white' }}
+              className={`btn-sensor-toggle ${showSoilMoisture ? 'active' : 'inactive'}`}
               onClick={() => setShowSoilMoisture(!showSoilMoisture)}
             >
               {showSoilMoisture ? 'HIDE SOIL' : 'SHOW SOIL'}

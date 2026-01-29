@@ -162,12 +162,11 @@ export const ProjectDetails = () => {
 
     return (
         <div className="project-details-container">
-            <div className="project-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h1 className="project-title" style={{ margin: 0 }}>{pageTitle}</h1>
-                <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="project-header">
+                <h1 className="project-title">{pageTitle}</h1>
+                <div className="header-actions">
                     <button
                         className="btn-add-device"
-                        style={{ backgroundColor: '#0f172a', color: 'white', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
                         onClick={openAddModal}
                     >
                         + Add Device
@@ -191,21 +190,9 @@ export const ProjectDetails = () => {
             </div>
 
             {/* View Live Button (Between Sections) */}
-            <div style={{ margin: '20px 0', display: 'flex', justifySelf: 'end' }}>
+            <div className="view-live-btn-wrapper">
                 <button
                     className="view-live-btn"
-                    style={{
-                        backgroundColor: '#fff',
-                        color: '#0f172a',
-                        padding: '12px 24px',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        width: '100%',
-                        textAlign: 'center',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}
                     onClick={() => navigate(`/live-monitor?profile=${id}`)}
                 >
                     View Live Monitor
@@ -218,15 +205,14 @@ export const ProjectDetails = () => {
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <h3 className="form-title">New Device</h3>
 
-                        <div className="add-user-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div className="add-user-form-grid">
                             {/* Device Name */}
                             <div>
-                                <label className="form-group-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Device Name (Friendly)</label>
+                                <label className="form-group-label">Device Name (Friendly)</label>
                                 <input
                                     type="text"
                                     placeholder="e.g., Living Room Sensor"
                                     className="form-input"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
                                     value={newDeviceData.device_name}
                                     onChange={(e) => setNewDeviceData({ ...newDeviceData, device_name: e.target.value })}
                                 />
@@ -234,24 +220,22 @@ export const ProjectDetails = () => {
 
                             {/* Serial Number */}
                             <div>
-                                <label className="form-group-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Hardware ID (Serial Number)</label>
+                                <label className="form-group-label">Hardware ID (Serial Number)</label>
                                 <input
                                     type="text"
                                     placeholder="e.g., Arduino_Ult_01"
                                     className="form-input"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
                                     value={newDeviceData.serial_number}
                                     onChange={(e) => setNewDeviceData({ ...newDeviceData, serial_number: e.target.value })}
                                 />
-                                <small className="helper-text" style={{ fontSize: '12px', color: '#6b7280' }}>Must match the ID in your Arduino Code</small>
+                                <small className="helper-text">Must match the ID in your Arduino Code</small>
                             </div>
 
                             {/* Device Profile */}
                             <div>
-                                <label className="form-group-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Device Profile (Type)</label>
+                                <label className="form-group-label">Device Profile (Type)</label>
                                 <select
                                     className="form-select-box"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
                                     value={newDeviceData.profile_id}
                                     onChange={(e) => setNewDeviceData({ ...newDeviceData, profile_id: e.target.value })}
                                 >
@@ -264,16 +248,16 @@ export const ProjectDetails = () => {
 
                         </div>
 
-                        <div className="form-actions" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '24px' }}>
+                        <div className="form-actions">
                             <button
                                 onClick={() => setShowAddModal(false)}
-                                style={{ padding: '10px 20px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer' }}
+                                className="btn-cancel"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleAddDevice}
-                                style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', background: '#0f172a', color: 'white', cursor: 'pointer' }}
+                                className="btn-submit"
                             >
                                 Create Device
                             </button>

@@ -64,7 +64,6 @@ export const AuthPage = () => { // Removed setPage prop
           </div>
           <button
             className="btn-primary"
-            style={{ background: "var(--seafoam-main)", color: "white", border: "none" }}
             type="submit"
           >
             Sign In
@@ -73,47 +72,18 @@ export const AuthPage = () => { // Removed setPage prop
 
         <button
           className="btn-link"
-          style={{
-            marginTop: "16px",
-            background: "transparent",
-            color: "var(--seafoam-main)",
-            border: "none",
-            width: "100%",
-            cursor: "pointer",
-            textDecoration: "underline"
-          }}
           onClick={() => navigate("/register")}
         >
           Create an Account
         </button>
         <button
           className="btn-secondary"
-          style={{
-            marginTop: "12px",
-            background: "transparent",
-            color: "#666",
-            border: "1px solid #ddd",
-            width: "100%",
-            padding: "10px",
-            borderRadius: "6px",
-            cursor: "pointer"
-          }}
           onClick={() => navigate("/admin/dashboard")}
         >
           Login as Admin
         </button>
         <button
           className="btn-secondary"
-          style={{
-            marginTop: "12px",
-            background: "transparent",
-            color: "#666",
-            border: "1px solid #ddd",
-            width: "100%",
-            padding: "10px",
-            borderRadius: "6px",
-            cursor: "pointer"
-          }}
           onClick={() => navigate("/support/dashboard")}
         >
           Login as Supporter

@@ -5,11 +5,19 @@
     min-height: 100vh;
 }
 
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
 .project-title {
     font-size: 24px;
     font-weight: bold;
     color: #111827;
-    margin-bottom: 24px;
+    margin: 0;
+    /* margin-bottom 24px removed as per inline style */
 }
 
 /* Device Grid */
@@ -52,21 +60,28 @@
     margin-bottom: 4px;
 }
 
+.view-live-btn-wrapper {
+    margin: 20px 0;
+    display: flex;
+    justify-self: end;
+}
+
 .view-live-btn {
-    width: 100%;
-    margin-top: auto;
-    background: #e5e7eb;
-    border: 1px solid #d1d5db;
-    padding: 8px;
-    border-radius: 4px;
-    color: #374151;
-    font-weight: 500;
+    background-color: #fff;
+    color: #0f172a;
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
     cursor: pointer;
-    transition: background 0.2s;
+    font-weight: 600;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    margin-top: auto;
 }
 
 .view-live-btn:hover {
-    background: #d1d5db;
+    background: #f8fafc;
 }
 
 /* Empty State */
@@ -84,10 +99,9 @@
 }
 
 .btn-add-device {
-    margin-top: 16px;
-    background: #0f172a;
+    background-color: #0f172a;
     color: white;
-    padding: 10px 20px;
+    padding: 10px 16px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
@@ -117,4 +131,59 @@
     font-size: 14px;
     color: #6b7280;
     margin: 0;
+}
+
+/* Form Styles Extracted */
+.add-user-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-input,
+.form-select-box {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+}
+
+.helper-text {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.btn-cancel {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+}
+
+.btn-submit {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    background: #0f172a;
+    color: white;
+    cursor: pointer;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
 }
