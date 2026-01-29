@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { sessionEvents } from "../mock/data.jsx";
 import "../css/session.css";
-import "../css/sessionDetail.css";
+// import "../css/sessionDetail.css"; // Removing missing file import
+import { Card } from "../components/common/Card";
 
 export const SessionDetail = () => {
   const [selectedEvent, setSelectedEvent] = useState(sessionEvents[0]);
@@ -26,8 +27,7 @@ export const SessionDetail = () => {
       </div>
 
       <div className="session-main-content">
-        <div className="card">
-          <h2>Session Details</h2>
+        <Card title="Session Details">
           <div className="session-info-row">
             <div>
               <p className="info-label">DURATION</p>
@@ -58,17 +58,15 @@ export const SessionDetail = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div className="card timeline-card">
-          <p className="info-label">TIMELINE PLAYBACK</p>
+        <Card className="timeline-card" title="TIMELINE PLAYBACK" titleClassName="info-label">
           <div className="timeline-placeholder">
             [ Signal Graph Placeholder for {selectedEvent.pose} ]
           </div>
-        </div>
+        </Card>
 
-        <div className="card pose-stats-card">
-          <h2>Pose Statistics</h2>
+        <Card className="pose-stats-card" title="Pose Statistics">
           <div className="pose-stats-container">
             {/* Chart Section */}
             <div className="chart-container">
@@ -171,7 +169,7 @@ export const SessionDetail = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

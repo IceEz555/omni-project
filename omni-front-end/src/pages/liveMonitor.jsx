@@ -3,6 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import "../css/liveMonitor.css";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Button } from "../components/common/Button";
+import { Card } from "../components/common/Card";
 
 import { io } from "socket.io-client";
 
@@ -233,7 +235,7 @@ export const LiveMonitor = () => {
           <div style={{ fontSize: '64px', marginBottom: '24px' }}></div>
           <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1f2937', marginBottom: '12px' }}>ไม่พบอุปกรณ์</h2>
           <p style={{ color: '#6b7280', marginBottom: '32px', fontSize: '16px' }}>กรุณากดปุ่มด้านล่างเพื่อเพิ่มอุปกรณ์ใหม่ (Add Device)</p>
-          <button
+          <Button
             className="btn-add-device"
             onClick={() => {
               const profileId = searchParams.get('profile');
@@ -243,11 +245,10 @@ export const LiveMonitor = () => {
                 window.location.href = '/dashboard';
               }
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            style={{ transform: 'none' }} // Override specific style if needed, though replaced logic is simpler
           >
             + Add Device
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -257,22 +258,26 @@ export const LiveMonitor = () => {
     <div className="live-monitor-wrapper monitor-wrapper">
       <h1>Live Monitor</h1>
       <div className="monitor-grid monitor-flex-row">
-        <div className="card monitor-column">
-          <div className="flex-between-center">
-            <p className="card-header">HEATMAP (16x16)</p>
-            <div className="flex-gap-10">
-              <button
+        <Card
+          className="monitor-column"
+          title="HEATMAP (16x16)"
+          headerAction={
+            <div className="flex-gap-10" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Button
                 onClick={handleCalibrate}
                 disabled={!isConnected}
                 className="btn-calibrate"
+                variant="primary"
+                style={{ padding: '4px 12px', fontSize: '12px' }}
               >
                 CALIBRATE
-              </button>
+              </Button>
               <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`} style={{ color: isConnected ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
                 ● {isConnected ? 'LIVE' : 'DISCONNECTED'}
               </span>
             </div>
-          </div>
+          }
+        >
           <div className="monitor-stats-bar">
             Max: {matrixData.length ? Math.max(...matrixData.flat()) : 0} |
             Min: {matrixData.length ? Math.min(...matrixData.flat()) : 0} |
@@ -296,47 +301,54 @@ export const LiveMonitor = () => {
               ))}
             </div>
           </div>
-        </div>
-        <div className="card monitor-column">
-          <p className="card-header">AI Predict Skeleton</p>
+        </Card>
+
+        <Card className="monitor-column" title="AI Predict Skeleton">
           <div className="skeleton-box flex-1">
             <div className="skeleton-message">
               Waiting for Camera Feed...
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="card card-current-pose">
-        <div className="flex-between-center">
-          <p className="card-header margin-bottom-0">SENSORS</p>
+      <Card
+        className="card-current-pose"
+        title="SENSORS"
+        titleClassName="margin-bottom-0"
+        headerAction={
           <div className="sensor-controls">
-            <button
+            <Button
               className={`btn-sensor-toggle ${showDistance ? 'active' : 'inactive'}`}
               onClick={() => setShowDistance(!showDistance)}
+              variant="outline"
             >
               {showDistance ? 'HIDE HC-SR04' : 'SHOW HC-SR04'}
-            </button>
-            <button
+            </Button>
+            <Button
               className={`btn-sensor-toggle ${showTemp ? 'active' : 'inactive'}`}
               onClick={() => setShowTemp(!showTemp)}
+              variant="outline"
             >
               {showTemp ? 'HIDE TEMP' : 'SHOW TEMP'}
-            </button>
-            <button
+            </Button>
+            <Button
               className={`btn-sensor-toggle ${showHumidity ? 'active' : 'inactive'}`}
               onClick={() => setShowHumidity(!showHumidity)}
+              variant="outline"
             >
               {showHumidity ? 'HIDE HUMIDITY' : 'SHOW HUMIDITY'}
-            </button>
-            <button
+            </Button>
+            <Button
               className={`btn-sensor-toggle ${showSoilMoisture ? 'active' : 'inactive'}`}
               onClick={() => setShowSoilMoisture(!showSoilMoisture)}
+              variant="outline"
             >
               {showSoilMoisture ? 'HIDE SOIL' : 'SHOW SOIL'}
-            </button>
+            </Button>
           </div>
-        </div>
+        }
+      >
 
         <div className="sensor-grid">
           {showDistance && (
@@ -431,7 +443,7 @@ export const LiveMonitor = () => {
         {/* Signal Timeline */}
         <div className="section-separator">
           <div className="flex-between-center">
-            <p className="card-header margin-bottom-0">GRAPH {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
+            <p className="card-header margin-bottom-0" style={{ fontWeight: 600 }}>GRAPH {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
             {selectedDevice && (
               <span className="status-badge online status-badge-small" style={{ backgroundColor: isConnected ? '#dcfce7' : '#fee2e2', color: isConnected ? '#166534' : '#b91c1c' }}>
                 {isConnected ? 'LIVE' : 'OFFLINE'}
@@ -469,11 +481,10 @@ export const LiveMonitor = () => {
             Latest: {telemetryData.length > 0 ? telemetryData[telemetryData.length - 1].value.toFixed(2) : "-"}
           </p>
         </div>
-      </div>
+      </Card>
 
       {/* Current Pose */}
-      <div className="card card-pose">
-        <p className="card-header pose-section-header">CURRENT POSE</p>
+      <Card className="card-pose" title="CURRENT POSE" titleClassName="pose-section-header">
         <h2 className="pose-title">
           {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].value < 20 ? "Cobra Pose" : "Tree Pose"}
         </h2>
@@ -486,16 +497,16 @@ export const LiveMonitor = () => {
             <div className="confidence-fill" style={{ width: telemetryData.length > 0 ? '92%' : '0%' }}></div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Navigation Button */}
       <div className="session-nav-container">
-        <button
+        <Button
           className="btn-session"
           onClick={() => window.location.href = '/sessions'}
         >
           Sessions
-        </button>
+        </Button>
       </div>
     </div >
   )

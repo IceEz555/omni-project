@@ -1,11 +1,12 @@
 import React from "react";
 import "../css/supportDashboard.css";
+import { Card } from "../components/common/Card";
 
 export const SupportDashboard = () => {
     return (
         <div className="support-dashboard-container">
             <div className="metrics-grid">
-                <div className="metric-card">
+                <Card className="metric-card">
                     <div className="metric-icon icon-blue">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
@@ -15,9 +16,9 @@ export const SupportDashboard = () => {
                     <span className="metric-label">Labeled Samples</span>
                     <h3 className="metric-value">12,847</h3>
                     <span className="metric-trend">+450 this week</span>
-                </div>
+                </Card>
 
-                <div className="metric-card">
+                <Card className="metric-card">
                     <div className="metric-icon icon-purple">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
@@ -28,9 +29,9 @@ export const SupportDashboard = () => {
                     <span className="metric-label">Active Models</span>
                     <h3 className="metric-value">3</h3>
                     <span className="metric-trend">2 in training</span>
-                </div>
+                </Card>
 
-                <div className="metric-card">
+                <Card className="metric-card">
                     <div className="metric-icon icon-green">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
@@ -40,9 +41,9 @@ export const SupportDashboard = () => {
                     <span className="metric-label">Best Accuracy</span>
                     <h3 className="metric-value">94.2%</h3>
                     <span className="metric-trend">Pose Recognition v3</span>
-                </div>
+                </Card>
 
-                <div className="metric-card">
+                <Card className="metric-card">
                     <div className="metric-icon icon-orange">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
@@ -53,12 +54,11 @@ export const SupportDashboard = () => {
                     <span className="metric-label">Training Datasets</span>
                     <h3 className="metric-value">8</h3>
                     <span className="metric-trend">245 GB total</span>
-                </div>
+                </Card>
             </div>
 
             <div className="dashboard-sections-grid">
-                <div className="section-card">
-                    <h3 className="section-title">Quick Actions</h3>
+                <Card className="section-card" title="Quick Actions" titleClassName="section-title">
 
                     <div className="quick-action-item">
                         <div className="action-icon">
@@ -97,10 +97,9 @@ export const SupportDashboard = () => {
                             <p>Analyze confusion matrices and metrics</p>
                         </div>
                     </div>
-                </div>
+                </Card>
 
-                <div className="section-card">
-                    <h3 className="section-title">Recent Training Jobs</h3>
+                <Card className="section-card" title="Recent Training Jobs" titleClassName="section-title">
 
                     <div className="training-job-item">
                         <div className="job-header">
@@ -134,14 +133,13 @@ export const SupportDashboard = () => {
                         </div>
                         <div className="job-time">2 days ago</div>
                     </div>
-                </div>
+                </Card>
             </div>
 
             <div className="datasets-section">
                 <h3 className="section-title">Available Training Datasets</h3>
                 <div className="datasets-grid">
-                    <div className="dataset-card">
-                        <h4 className="dataset-title">Yoga Poses - Full</h4>
+                    <Card className="dataset-card" title="Yoga Poses - Full" titleClassName="dataset-title">
                         <div className="dataset-stat-row">
                             <span>Samples</span>
                             <span className="dataset-stat-value">8,450</span>
@@ -154,10 +152,9 @@ export const SupportDashboard = () => {
                             <span>Size</span>
                             <span className="dataset-stat-value">52 GB</span>
                         </div>
-                    </div>
+                    </Card>
 
-                    <div className="dataset-card">
-                        <h4 className="dataset-title">Balance Training</h4>
+                    <Card className="dataset-card" title="Balance Training" titleClassName="dataset-title">
                         <div className="dataset-stat-row">
                             <span>Samples</span>
                             <span className="dataset-stat-value">3,200</span>
@@ -170,10 +167,9 @@ export const SupportDashboard = () => {
                             <span>Size</span>
                             <span className="dataset-stat-value">18 GB</span>
                         </div>
-                    </div>
+                    </Card>
 
-                    <div className="dataset-card">
-                        <h4 className="dataset-title">Physical Therapy</h4>
+                    <Card className="dataset-card" title="Physical Therapy" titleClassName="dataset-title">
                         <div className="dataset-stat-row">
                             <span>Samples</span>
                             <span className="dataset-stat-value">5,670</span>
@@ -186,10 +182,9 @@ export const SupportDashboard = () => {
                             <span>Size</span>
                             <span className="dataset-stat-value">34 GB</span>
                         </div>
-                    </div>
+                    </Card>
 
-                    <div className="dataset-card">
-                        <h4 className="dataset-title">Sports Movements</h4>
+                    <Card className="dataset-card" title="Sports Movements" titleClassName="dataset-title">
                         <div className="dataset-stat-row">
                             <span>Samples</span>
                             <span className="dataset-stat-value">12,400</span>
@@ -202,7 +197,7 @@ export const SupportDashboard = () => {
                             <span>Size</span>
                             <span className="dataset-stat-value">78 GB</span>
                         </div>
-                    </div>
+                    </Card>
                 </div>
             </div>
         </div>

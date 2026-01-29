@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import "../css/modelTraining.css";
-
+// import "../css/modal.css"; // Not strictly needed if we aren't using modal, but good to know
+import { Button } from "../components/common/Button";
+import { Input, Select } from "../components/common/Input";
+import { Card } from "../components/common/Card";
 
 export const ModelTraining = () => {
     const [showForm, setShowForm] = useState(false);
@@ -45,139 +48,136 @@ export const ModelTraining = () => {
                     <p>Configure and monitor model training jobs</p>
                 </div>
                 {!showForm && (
-                    <button
+                    <Button
                         onClick={() => setShowForm(true)}
                         className="start-new-training-btn"
                     >
                         ▶ Start New Training
-                    </button>
+                    </Button>
                 )}
             </div>
 
             {/* Configure New Training Job Form */}
             {showForm && (<>
-                <div className="training-form-container">
-                    <h2 className="training-form-title">Configure New Training Job</h2>
+                <Card className="training-form-container" title="Configure New Training Job" titleClassName="training-form-title">
 
                     <div className="training-form-grid">
                         {/* Model Name */}
                         <div>
-                            <label className="form-group-label">Model Name</label>
-                            <input
+                            <Input
+                                label="Model Name"
                                 type="text"
                                 name="modelName"
                                 placeholder="e.g., Pose Recognition v5"
                                 value={formData.modelName}
                                 onChange={handleInputChange}
-                                className="form-input"
                             />
                         </div>
 
                         {/* Model Architecture */}
                         <div>
-                            <label className="form-group-label">Model Architecture</label>
-                            <select
+                            <Select
+                                label="Model Architecture"
                                 name="architecture"
                                 value={formData.architecture}
                                 onChange={handleInputChange}
-                                className="form-select"
-                            >
-                                <option>CNN (Convolutional Neural Network)</option>
-                                <option>RNN (Recurrent Neural Network)</option>
-                                <option>Transformer</option>
-                            </select>
+                                options={[
+                                    { value: "CNN (Convolutional Neural Network)", label: "CNN (Convolutional Neural Network)" },
+                                    { value: "RNN (Recurrent Neural Network)", label: "RNN (Recurrent Neural Network)" },
+                                    { value: "Transformer", label: "Transformer" }
+                                ]}
+                            />
                         </div>
 
                         {/* Training Dataset */}
                         <div>
-                            <label className="form-group-label">Training Dataset</label>
-                            <select
+                            <Select
+                                label="Training Dataset"
                                 name="dataset"
                                 value={formData.dataset}
                                 onChange={handleInputChange}
-                                className="form-select"
-                            >
-                                <option value="">-- Select Dataset --</option>
-                                <option value="dataset1">Pose Data 2023</option>
-                                <option value="dataset2">Hand Gestures V2</option>
-                            </select>
+                                options={[
+                                    { value: "", label: "-- Select Dataset --" },
+                                    { value: "dataset1", label: "Pose Data 2023" },
+                                    { value: "dataset2", label: "Hand Gestures V2" }
+                                ]}
+                            />
                         </div>
 
                         {/* Validation Split */}
                         <div>
-                            <label className="form-group-label">Validation Split</label>
-                            <select
+                            <Select
+                                label="Validation Split"
                                 name="validationSplit"
                                 value={formData.validationSplit}
                                 onChange={handleInputChange}
-                                className="form-select"
-                            >
-                                <option>80/20 (Train/Val)</option>
-                                <option>70/30 (Train/Val)</option>
-                                <option>90/10 (Train/Val)</option>
-                            </select>
+                                options={[
+                                    { value: "80/20 (Train/Val)", label: "80/20 (Train/Val)" },
+                                    { value: "70/30 (Train/Val)", label: "70/30 (Train/Val)" },
+                                    { value: "90/10 (Train/Val)", label: "90/10 (Train/Val)" }
+                                ]}
+                            />
                         </div>
 
                         {/* Epochs */}
                         <div>
-                            <label className="form-group-label">Epochs</label>
-                            <input
+                            <Input
+                                label="Epochs"
                                 type="number"
                                 name="epochs"
                                 value={formData.epochs}
                                 onChange={handleInputChange}
-                                className="form-input"
                             />
                         </div>
 
                         {/* Batch Size */}
                         <div>
-                            <label className="form-group-label">Batch Size</label>
-                            <input
+                            <Input
+                                label="Batch Size"
                                 type="number"
                                 name="batchSize"
                                 value={formData.batchSize}
                                 onChange={handleInputChange}
-                                className="form-input"
                             />
                         </div>
 
                         {/* Learning Rate */}
                         <div>
-                            <label className="form-group-label">Learning Rate</label>
-                            <input
+                            <Input
+                                label="Learning Rate"
                                 type="number"
                                 step="0.001"
                                 name="learningRate"
                                 value={formData.learningRate}
                                 onChange={handleInputChange}
-                                className="form-input"
                             />
                         </div>
 
                         {/* Optimizer */}
                         <div>
-                            <label className="form-group-label">Optimizer</label>
-                            <select
+                            <Select
+                                label="Optimizer"
                                 name="optimizer"
                                 value={formData.optimizer}
                                 onChange={handleInputChange}
-                                className="form-select"
-                            >
-                                <option>Adam</option>
-                                <option>SGD</option>
-                                <option>RMSprop</option>
-                            </select>
+                                options={[
+                                    { value: "Adam", label: "Adam" },
+                                    { value: "SGD", label: "SGD" },
+                                    { value: "RMSprop", label: "RMSprop" }
+                                ]}
+                            />
                         </div>
                     </div>
 
                     <div className="advanced-options-wrapper">
-                        <button
+                        <Button
                             onClick={() => setShowAdvanced(!showAdvanced)}
                             className="advanced-options-toggle"
+                            variant="text" // Assuming text variant or reset via class
+                            style={{ padding: 0, textAlign: 'left', fontWeight: 600, color: '#4b5563' }}
                         >
                             <span className={`toggle-icon ${showAdvanced ? "expanded" : ""}`}>▶</span> Advanced Options
-                        </button>
+                        </Button>
 
                         {showAdvanced && (
                             <div className="advanced-options-grid">
@@ -226,20 +226,21 @@ export const ModelTraining = () => {
                     </div>
 
                     <div className="form-actions">
-                        <button
+                        <Button
                             onClick={handleStartTraining}
                             className="start-training-btn"
                         >
                             Start Training
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={() => setShowForm(false)}
                             className="cancel-btn"
+                            variant="secondary"
                         >
                             Cancel
-                        </button>
+                        </Button>
                     </div>
-                </div>
+                </Card>
                 <div className="metric-placeholder-card">
                     <span className="metric-title">Confusion</span>
                     <span className="metric-subtitle">Matrix</span>

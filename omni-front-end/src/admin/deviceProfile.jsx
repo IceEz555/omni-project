@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import "../css/deviceProfile.css";
-import "../css/modal.css";
+// import "../css/modal.css"; // Replaced by Common Modal
+import { Button } from "../components/common/Button";
+import { Input, Select } from "../components/common/Input";
+import { Modal } from "../components/common/Modal";
 
 export const DeviceProfile = () => {
     const [profiles, setProfiles] = useState([]);
@@ -108,101 +111,99 @@ export const DeviceProfile = () => {
                     <p className="device-profile-subtitle">Manage device types and data parsing configurations</p>
                 </div>
                 {!showCreateForm && (
-                    <button
-                        className="create-profile-btn"
+                    <Button
+                        variant="primary"
                         onClick={() => {
                             resetForm();
                             setShowCreateForm(true);
                         }}
                     >
                         + New Project
-                    </button>
+                    </Button>
                 )}
             </div>
 
-            {showCreateForm && (
-                <div className="modal-overlay" onClick={() => setShowCreateForm(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3 className="form-title">{editingId ? "Edit Project" : "New Project"}</h3>
-
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Profile ID (Unique)</label>
-                                <input
-                                    type="text"
-                                    name="profile_id"
-                                    placeholder="e.g., ultrasonic_sensor"
-                                    value={formData.profile_id}
-                                    onChange={handleInputChange}
-                                    disabled={!!editingId} // Disable ID edit
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Device Name (Display)</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    placeholder="Device Name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label>Device Type</label>
-                                <select
-                                    name="type"
-                                    value={formData.type}
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="sensor">Sensor (Timeseries)</option>
-                                    <option value="matrix">Matrix (Grid)</option>
-                                    <option value="32x32 Grid">32x32 Grid</option>
-                                    <option value="unknown">Other</option>
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label>Data Format</label>
-                                <input
-                                    type="text"
-                                    name="dataFormat"
-                                    placeholder="e.g., JSON"
-                                    value={formData.dataFormat}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="form-group">
-                            <label>Description</label>
-                            <textarea
-                                name="description"
-                                placeholder="Describe the device..."
-                                rows="3"
-                                value={formData.description}
-                                onChange={handleInputChange}
-                            ></textarea>
-                        </div>
-
-                        <div className="form-actions">
-                            <button
-                                className="btn-create"
-                                onClick={handleSubmit}
-                            >
-                                {editingId ? "Update Profile" : "Create Profile"}
-                            </button>
-                            <button
-                                className="btn-cancel"
-                                onClick={resetForm}
-                            >
-                                Cancel
-                            </button>
-                        </div>
+            <Modal
+                isOpen={showCreateForm}
+                onClose={() => setShowCreateForm(false)}
+                title={editingId ? "Edit Project" : "New Project"}
+                footer={
+                    <>
+                        <Button
+                            variant="primary"
+                            onClick={handleSubmit}
+                        >
+                            {editingId ? "Update Profile" : "Create Profile"}
+                        </Button>
+                        <Button
+                            variant="secondary"
+                            onClick={resetForm}
+                        >
+                            Cancel
+                        </Button>
+                    </>
+                }
+            >
+                <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
+                    <div className="form-group" style={{ flex: 1 }}>
+                        <Input
+                            label="Profile ID (Unique)"
+                            name="profile_id"
+                            placeholder="e.g., ultrasonic_sensor"
+                            value={formData.profile_id}
+                            onChange={handleInputChange}
+                            disabled={!!editingId}
+                        />
+                    </div>
+                    <div className="form-group" style={{ flex: 1 }}>
+                        <Input
+                            label="Device Name (Display)"
+                            name="name"
+                            placeholder="Device Name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
-            )}
+
+                <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
+                    <div className="form-group" style={{ flex: 1 }}>
+                        <Select
+                            label="Device Type"
+                            name="type"
+                            value={formData.type}
+                            onChange={handleInputChange}
+                            options={[
+                                { value: "sensor", label: "Sensor (Timeseries)" },
+                                { value: "matrix", label: "Matrix (Grid)" },
+                                { value: "32x32 Grid", label: "32x32 Grid" },
+                                { value: "unknown", label: "Other" }
+                            ]}
+                        />
+                    </div>
+                    <div className="form-group" style={{ flex: 1 }}>
+                        <Input
+                            label="Data Format"
+                            name="dataFormat"
+                            placeholder="e.g., JSON"
+                            value={formData.dataFormat}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                </div>
+
+                <div className="form-group">
+                    <Input
+                        type="textarea"
+                        label="Description"
+                        name="description"
+                        placeholder="Describe the device..."
+                        rows={3}
+                        value={formData.description}
+                        onChange={handleInputChange}
+                    />
+                </div>
+            </Modal>
 
             <div className="device-profile-list">
                 {isLoading && <p>Loading profiles...</p>}
@@ -219,15 +220,15 @@ export const DeviceProfile = () => {
                                 </div>
                             </div>
                             <div className="card-actions">
-                                <button className="action-btn" onClick={() => handleEdit(profile)} title="Edit">
+                                <Button className="action-btn" onClick={() => handleEdit(profile)} title="Edit" variant="outline" style={{ padding: '4px 8px' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                     </svg>
-                                </button>
-                                <button className="action-btn" onClick={() => handleDelete(profile.id)}>
+                                </Button>
+                                <Button className="action-btn" onClick={() => handleDelete(profile.id)} variant="outline" style={{ padding: '4px 8px', marginLeft: '4px', color: '#e74c3c' }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                </button>
+                                </Button>
                             </div>
                         </div>
 
