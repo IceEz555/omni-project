@@ -112,13 +112,13 @@ export const DeviceProfile = () => {
                 </div>
                 {!showCreateForm && (
                     <Button
-                        variant="primary"
+                        className="add-user-btn"
                         onClick={() => {
                             resetForm();
                             setShowCreateForm(true);
                         }}
                     >
-                        + New Project
+                        + New Profile
                     </Button>
                 )}
             </div>
@@ -132,6 +132,7 @@ export const DeviceProfile = () => {
                         <Button
                             variant="primary"
                             onClick={handleSubmit}
+                            className="color-btn"
                         >
                             {editingId ? "Update Profile" : "Create Profile"}
                         </Button>

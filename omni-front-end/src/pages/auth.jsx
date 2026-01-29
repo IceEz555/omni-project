@@ -67,7 +67,7 @@ export const AuthPage = () => { // Removed setPage prop
           <Button
             className="btn-primary"
             type="submit"
-            style={{ width: '100%', marginTop: '16px' }}
+            style={{ width: '100%', marginTop: '16px', backgroundColor: 'var(--seafoam-main)', color: 'white'  }}
           >
             Sign In
           </Button>

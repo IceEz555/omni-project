@@ -160,6 +160,7 @@ export const UserManagement = () => {
                         <Button
                             onClick={handleSubmit}
                             variant="primary"
+                            className="color-btn"
                         >
                             {editingId ? "Update User" : "Create User"}
                         </Button>

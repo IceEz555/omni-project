@@ -159,6 +159,7 @@ export const DeviceInventory = () => {
                         <Button
                             onClick={handleSubmit}
                             variant="primary"
+                            className="color-btn"
                         >
                             {editingId ? "Update Device" : "Create Device"}
                         </Button>

@@ -1,6 +1,6 @@
 /* Button Styles */
 .common-btn {
-    padding: 8px 16px;
+    padding: 5px 10px;
     border-radius: 6px;
     border: none;
     font-size: 14px;
@@ -13,12 +13,19 @@
     outline: none;
 }
 
+.btn-add {
+    background-color: #595454ff;
+    color: white;
+}
+
 .common-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
 .btn-primary {
+    padding: 10px 20px;
+    font-size: 16px;
     background-color: #3498db;
     color: white;
 }

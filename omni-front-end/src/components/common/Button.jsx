@@ -8,7 +8,7 @@ import './common.css'; // We'll create a single CSS file for common components o
 export const Button = ({
     children,
     onClick,
-    variant = 'primary', // primary, secondary, danger, outline
+    variant = '',
     className = '',
     disabled = false,
     type = 'button',
@@ -17,7 +17,7 @@ export const Button = ({
     return (
         <button
             type={type}
-            className={`common-btn btn-${variant} ${className}`}
+            className={className}
             onClick={onClick}
             disabled={disabled}
             style={style}
