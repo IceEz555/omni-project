@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/axios";
 import "../css/userManagement.css";
-import "../css/modal.css";
-
+// import "../css/modal.css"; // Replaced by Common Modal
+import { Button } from "../components/common/Button";
+import { Input, Select } from "../components/common/Input";
+import { Modal } from "../components/common/Modal";
 
 export const UserManagement = () => {
     const [userList, setUserList] = useState([]);
@@ -21,7 +23,7 @@ export const UserManagement = () => {
     const fetchUsers = async () => {
         try {
             const response = await api.get("/admin/get-users");
-            setUserList(response.data); 
+            setUserList(response.data);
         } catch (error) {
             console.error("Failed to fetch users:", error);
         }
@@ -54,7 +56,7 @@ export const UserManagement = () => {
         setEditingId(user.id);
         // Convert role to Title Case to match select options (e.g., "SUPPORTER" -> "Supporter")
         const titleCaseRole = user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase();
-        
+
         setFormData({
             Username: user.name,
             email: user.email,
@@ -96,8 +98,8 @@ export const UserManagement = () => {
             } else {
                 // Create
                 if (!formData.Username || !formData.email || !formData.password) {
-                     alert("Please fill in all required fields (Username, Email, Password)");
-                     return;
+                    alert("Please fill in all required fields (Username, Email, Password)");
+                    return;
                 }
                 await api.post("/admin/create-user", payload);
                 alert("User created successfully!");
@@ -123,10 +125,6 @@ export const UserManagement = () => {
         });
     };
 
-    // Filter logic needs to use userList. 
-    // The original code had static filters in UI but didn't implement logic. 
-    // I will just render userList. If filters need implementation, that's extra scope but I'll stick to displaying userList which includes edits.
-
     return (
         <div>
             <div className="user-management-header">
@@ -135,7 +133,7 @@ export const UserManagement = () => {
                     <p className="user-management-subtitle">Manage user accounts and role-based access</p>
                 </div>
                 {!showForm && (
-                    <button
+                    <Button
                         className="add-user-btn"
                         onClick={() => {
                             setEditingId(null);
@@ -149,122 +147,114 @@ export const UserManagement = () => {
                         }}
                     >
                         + Add User
-                    </button>
+                    </Button>
                 )}
             </div>
 
-            {showForm && (
-                <div className="modal-overlay" onClick={() => setShowForm(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h2 className="add-user-form-title">{editingId ? "Edit User Account" : "Create New User Account"}</h2>
+            <Modal
+                isOpen={showForm}
+                onClose={() => setShowForm(false)}
+                title={editingId ? "Edit User Account" : "Create New User Account"}
+                footer={
+                    <>
+                        <Button
+                            onClick={handleSubmit}
+                            variant="primary"
+                        >
+                            {editingId ? "Update User" : "Create User"}
+                        </Button>
+                        <Button
+                            onClick={resetForm}
+                            variant="secondary"
+                        >
+                            Cancel
+                        </Button>
+                    </>
+                }
+            >
+                <div className="add-user-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    {/* Full Name */}
+                    <div>
+                        <Input
+                            label="Username"
+                            name="Username"
+                            placeholder="e.g., Jane Doe"
+                            value={formData.Username}
+                            onChange={handleInputChange}
+                        />
+                    </div>
 
-                        <div className="add-user-form-grid">
-                            {/* Full Name */}
-                            <div>
-                                <label className="form-group-label">Username</label>
-                                <input
-                                    type="text"
-                                    name="Username"
-                                    placeholder="e.g., Jane Doe"
-                                    value={formData.Username}
-                                    onChange={handleInputChange}
-                                    className="form-input"
-                                />
-                            </div>
+                    {/* Email */}
+                    <div>
+                        <Input
+                            label="Email"
+                            name="email"
+                            placeholder="jane.doe@example.com"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                        />
+                    </div>
 
-                            {/* Email */}
-                            <div>
-                                <label className="form-group-label">Email</label>
-                                <input
-                                    type="text"
-                                    name="email"
-                                    placeholder="jane.doe@example.com"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className="form-input"
-                                />
-                            </div>
+                    {/* Role */}
+                    <div>
+                        <Select
+                            label="Role"
+                            name="role"
+                            value={formData.role}
+                            onChange={handleInputChange}
+                            options={[
+                                { value: "User", label: "User" },
+                                { value: "Admin", label: "Admin" },
+                                { value: "Supporter", label: "Supporter" }
+                            ]}
+                        />
+                    </div>
 
-                            {/* Role */}
-                            <div>
-                                <label className="form-group-label">Role</label>
-                                <select
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleInputChange}
-                                    className="form-select-box"
-                                >
-                                    <option>User</option>
-                                    <option>Admin</option>
-                                    <option>Supporter</option>
-                                </select>
-                            </div>
+                    {/* Assign to Project */}
+                    <div>
+                        <Select
+                            label="Assign to Project"
+                            name="project"
+                            value={formData.project}
+                            onChange={handleInputChange}
+                            options={[
+                                { value: "", label: "Select Project" },
+                                ...projectList.map(project => ({
+                                    value: project.name,
+                                    label: project.name
+                                }))
+                            ]}
+                        />
+                    </div>
 
-                            {/* Assign to Project */}
-                            <div>
-                                <label className="form-group-label">Assign to Project</label>
-                                <select
-                                    name="project"
-                                    value={formData.project}
-                                    onChange={handleInputChange}
-                                    className="form-select-box"
-                                >
-                                    <option value="">Select Project</option>
-                                    {projectList.map((project) => (
-                                        <option key={project.id} value={project.name}>
-                                            {project.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                    {/* Status */}
+                    <div>
+                        <Select
+                            label="Status"
+                            name="status"
+                            value={formData.status}
+                            onChange={handleInputChange}
+                            options={[
+                                { value: "Active", label: "Active" },
+                                { value: "Inactive", label: "Inactive" },
+                                { value: "Banned", label: "Banned" }
+                            ]}
+                        />
+                    </div>
 
-                             {/* Status */}
-                             <div>
-                                <label className="form-group-label">Status</label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleInputChange}
-                                    className="form-select-box"
-                                >
-                                    <option>Active</option>
-                                    <option>Inactive</option>
-                                    <option>Banned</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Password */}
-                        <div style={{ marginTop: "16px" }}>
-                            <label className="form-group-label">Password</label>
-                            <input
-                                type="password"
-                                name="password"
-                                placeholder="Enter password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                className="form-input"
-                            />
-                        </div>
-
-                        {/* Buttons */}
-                        <div className="form-actions" style={{ marginTop: "24px" }}>
-                            <button
-                                onClick={handleSubmit}
-                                className="submit-btn"
-                            >
-                                {editingId ? "Update User" : "Create User"}
-                            </button>
-                            <button
-                                onClick={resetForm}
-                                className="cancel-btn"
-                            >
-                                Cancel
-                            </button>
-                        </div>
+                    {/* Password */}
+                    <div style={{ marginTop: "0" }}> {/* margin handled by grid gap typically, or Input wrapper */}
+                        <Input
+                            type="password"
+                            label="Password"
+                            name="password"
+                            placeholder="Enter password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                        />
                     </div>
                 </div>
-            )}
+            </Modal>
 
             <div className="filters-bar">
                 <div className="filter-group">
@@ -336,26 +326,30 @@ export const UserManagement = () => {
                                 <td>{user.sessions}</td>
                                 <td>
                                     <div className="action-buttons">
-                                        <button
+                                        <Button
                                             className="table-action-btn"
                                             aria-label="Edit"
                                             onClick={() => handleEdit(user)}
+                                            variant="outline"
+                                            style={{ marginRight: '8px', padding: '4px 8px' }}
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                             </svg>
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
                                             className="table-action-btn"
                                             aria-label="Delete"
                                             onClick={() => handleDelete(user.id)}
+                                            variant="outline"
+                                            style={{ padding: '4px 8px', color: '#e74c3c' }}
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <polyline points="3 6 5 6 21 6"></polyline>
                                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                             </svg>
-                                        </button>
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>

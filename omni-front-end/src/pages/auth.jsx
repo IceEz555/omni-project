@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
+import { Button } from "../components/common/Button";
+import { Input } from "../components/common/Input";
 
 export const AuthPage = () => { // Removed setPage prop
   const navigate = useNavigate();
@@ -45,8 +47,8 @@ export const AuthPage = () => { // Removed setPage prop
         <img src={logo} alt="Logo" className="auth-logo" />
         <form onSubmit={handleLogin}>
           <div className="input-group">
-            <label>Email</label>
-            <input
+            <Input
+              label="Email"
               type="text"
               placeholder="admin@omni.com"
               value={email}
@@ -54,70 +56,47 @@ export const AuthPage = () => { // Removed setPage prop
             />
           </div>
           <div className="input-group">
-            <label>Password</label>
-            <input
+            <Input
+              label="Password"
               type="password"
               placeholder="password123"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button
+          <Button
             className="btn-primary"
-            style={{ background: "var(--seafoam-main)", color: "white", border: "none" }}
             type="submit"
+            style={{ width: '100%', marginTop: '16px' }}
           >
             Sign In
-          </button>
+          </Button>
         </form>
 
-        <button
+        <Button
+          variant="outline"
           className="btn-link"
-          style={{
-            marginTop: "16px",
-            background: "transparent",
-            color: "var(--seafoam-main)",
-            border: "none",
-            width: "100%",
-            cursor: "pointer",
-            textDecoration: "underline"
-          }}
           onClick={() => navigate("/register")}
+          style={{ width: '100%', marginTop: '12px', border: 'none', background: 'transparent' }}
         >
           Create an Account
-        </button>
-        <button
-          className="btn-secondary"
-          style={{
-            marginTop: "12px",
-            background: "transparent",
-            color: "#666",
-            border: "1px solid #ddd",
-            width: "100%",
-            padding: "10px",
-            borderRadius: "6px",
-            cursor: "pointer"
-          }}
-          onClick={() => navigate("/admin/dashboard")}
-        >
-          Login as Admin
-        </button>
-        <button
-          className="btn-secondary"
-          style={{
-            marginTop: "12px",
-            background: "transparent",
-            color: "#666",
-            border: "1px solid #ddd",
-            width: "100%",
-            padding: "10px",
-            borderRadius: "6px",
-            cursor: "pointer"
-          }}
-          onClick={() => navigate("/support/dashboard")}
-        >
-          Login as Supporter
-        </button>
+        </Button>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          <Button
+            className="btn-secondary"
+            onClick={() => navigate("/admin/dashboard")}
+            style={{ flex: 1, fontSize: '12px' }}
+          >
+            Login as Admin
+          </Button>
+          <Button
+            className="btn-secondary"
+            onClick={() => navigate("/support/dashboard")}
+            style={{ flex: 1, fontSize: '12px' }}
+          >
+            Login as Supporter
+          </Button>
+        </div>
       </div>
     </div>
   );

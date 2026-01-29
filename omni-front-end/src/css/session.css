@@ -24,28 +24,38 @@ td {
   gap: 24px;
   height: 100%;
   width: 100%;
+  align-items: flex-start;
+  /* Prevent stretching */
 }
 
 .session-list-sidebar {
   width: 300px;
   background: white;
-  border: 1px solid var(--border-color);
+  border: 1px solid #eee;
+  /* Updated border color */
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  /* Added shadow */
+  flex-shrink: 0;
+  /* Prevent shrinking */
 }
 
 .session-list-header {
   padding: 16px;
-  background: var(--seafoam-bg);
-  border-bottom: 1px solid var(--border-color);
-  font-weight: bold;
-  color: var(--seafoam-main);
+  background: #e0f2f1;
+  /* Seafoam light */
+  border-bottom: 1px solid #b2dfdb;
+  font-weight: 600;
+  color: #00695c;
+  /* Seafoam dark */
 }
 
 .session-list-content {
-  flex: 1;
+  max-height: 600px;
+  /* Limit height */
   overflow-y: auto;
 }
 
@@ -53,7 +63,7 @@ td {
   padding: 16px;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .session-list-item:hover {
@@ -61,13 +71,20 @@ td {
 }
 
 .session-list-item.selected {
-  background: var(--seafoam-light);
-  border-left: 4px solid var(--seafoam-main);
+  background: #b2dfdb;
+  /* Seafoam accent */
+  border-left: 4px solid #009688;
+  /* Seafoam main */
+}
+
+.session-time-text {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
 }
 
 .session-list-current-pose {
-  margin-top: 4px;
-  font-size: 0.9em;
+  font-size: 0.85em;
   color: #666;
 }
 
@@ -89,102 +106,112 @@ td {
   flex-direction: column;
   gap: 20px;
   min-width: 0;
+  /* Enable text truncation in flex children */
 }
 
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  border: 1px solid var(--border-color, #f0f0f0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
+/* Card override NOT needed global .card, relying on Common Card mostly but this was here */
+/* Keeping it for fallback or specific session cards if not using Common Card everywhere fully yet? */
+/* Actually, we are using Common Card, so .card styles here might conflict if applied to divs. */
+/* The JSX uses Common Card which has .common-card class. */
 
 .session-info-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 48px;
+  gap: 60px;
+  /* Increased gap */
   margin-bottom: 24px;
+  padding-left: 4px;
+  /* Safety padding */
 }
 
 .info-label {
-  font-size: 11px;
+  font-size: 12px;
+  /* Increased size */
   text-transform: uppercase;
   color: #888;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  display: block;
 }
 
 .info-value {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 600;
   color: #333;
   margin: 0;
 }
 
 .pose-breakdown-section {
-  margin-top: 24px;
+  margin-top: 32px;
 }
 
 .pose-breakdown-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .pose-breakdown-item {
   display: grid;
-  grid-template-columns: 120px 1fr 40px;
+  grid-template-columns: 120px 1fr 50px;
   align-items: center;
   gap: 16px;
   font-size: 14px;
   color: #444;
 }
 
+.pose-name {
+  font-weight: 500;
+}
+
 .pose-bar-track {
-  height: 6px;
+  height: 8px;
+  /* Thicker bar */
   background: #f0f0f0;
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
   width: 100%;
 }
 
 .pose-bar-fill {
   height: 100%;
-  background: var(--seafoam-main, #4db6ac);
-  border-radius: 3px;
+  background: #4db6ac;
+  /* Seafoam */
+  border-radius: 4px;
 }
 
 .timeline-placeholder {
-  height: 120px;
-  background: #f8f8f8;
+  height: 140px;
+  background: #fafafa;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #aaa;
-  margin-top: 16px;
-  font-size: 0.9em;
-  border: 1px dashed #ddd;
+  font-weight: 500;
+  border: 2px dashed #eee;
 }
 
 /* Pose Statistics Styles */
-.pose-stats-card {
-  margin-top: 24px;
+.pose-stats-card.common-card {
+  overflow: visible;
+  /* Allow chart labels to overflow */
 }
 
 .pose-stats-container {
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 /* Chart Container */
 .chart-container {
   display: flex;
-  height: 250px;
-  margin-bottom: 24px;
+  height: 300px;
+  /* Increased Height */
+  margin-bottom: 40px;
+  /* Increased margin for rotated labels */
   padding-right: 20px;
   position: relative;
-  /* Added relative positioning for y-axis title if needed */
 }
 
 /* Y-Axis Label */
@@ -194,11 +221,12 @@ td {
   text-align: center;
   color: #888;
   font-size: 12px;
-  margin-right: 8px;
+  margin-right: 12px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 500;
 }
 
 .y-axis {
@@ -210,16 +238,18 @@ td {
   font-size: 12px;
   text-align: right;
   min-width: 40px;
-  height: calc(100% - 30px);
-  /* Adjust for x-axis labels height */
+  height: 100%;
+  /* Full height */
+  padding-bottom: 30px;
+  /* Space for x-axis line alignment */
 }
 
 .chart-area {
   flex: 1;
   position: relative;
-  border-left: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  height: calc(100% - 30px);
+  border-left: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  height: 100%;
 }
 
 .x-grid-lines {
@@ -228,6 +258,7 @@ td {
   left: 0;
   width: 100%;
   height: 100%;
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -237,12 +268,13 @@ td {
 .grid-line {
   width: 100%;
   height: 1px;
-  border-top: 1px dashed #eee;
+  border-top: 1px dashed #f0f0f0;
 }
 
 .grid-line-base {
   width: 100%;
   height: 1px;
+  /* border-bottom handled by chart-area */
 }
 
 /* Bars */
@@ -251,15 +283,16 @@ td {
   justify-content: space-around;
   align-items: flex-end;
   height: 100%;
-  padding: 0 20px;
+  padding: 0 40px;
+  /* Increased side padding */
 }
 
 .bar-group {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  /* Gap between primary and secondary bar */
+  gap: 0;
+  /* No gap between bars if they are stacked (they aren't) */
   height: 100%;
   justify-content: flex-end;
   position: relative;
@@ -268,38 +301,48 @@ td {
 
 .bar {
   width: 100%;
-  border-radius: 2px 2px 0 0;
+  border-radius: 4px 4px 0 0;
   transition: height 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .bar.primary {
   background-color: #4285f4;
-  /* Blue color from screenshot */
+  /* Blue */
 }
 
 .bar.secondary {
+  /* This seems to be a decorative line or secondary metric? */
+  /* Hiding or adjusting styling based on usage */
   background-color: #34a853;
-  /* Green color from screenshot example */
-  width: 100%;
+  height: 0;
+  display: none;
+  /* Hiding secondary bar as it seemed to be 1px */
 }
 
 .x-label {
   position: absolute;
-  bottom: -35px;
+  bottom: -40px;
+  /* Adjusted position */
+  left: 50%;
+  transform: translateX(-50%) rotate(-45deg);
   font-size: 12px;
-  color: #666;
+  color: #555;
   white-space: nowrap;
-  transform: rotate(-45deg);
-  transform-origin: top center;
   text-align: right;
+  width: 100px;
+  /* Fixed width to control rotation center */
+  transform-origin: center top;
 }
 
 /* Legend */
 .chart-legend {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 32px;
   margin-bottom: 32px;
+  padding-top: 16px;
 }
 
 .legend-item {
@@ -307,14 +350,15 @@ td {
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--seafoam-main);
+  color: #555;
   font-weight: 500;
 }
 
 .legend-color {
   width: 12px;
   height: 12px;
-  border-radius: 2px;
+  border-radius: 50%;
+  /* Circle legend */
 }
 
 .legend-color.primary {
@@ -329,27 +373,36 @@ td {
 /* Stat Cards */
 .stat-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
 }
 
 .stat-card {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px;
   background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .stat-card h3 {
   margin: 0 0 16px 0;
   font-size: 16px;
   color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-size: 14px;
 }
 
@@ -358,10 +411,15 @@ td {
 }
 
 .stat-label {
-  color: #666;
+  color: #888;
+}
+
+.stat-val {
+  font-weight: 600;
+  color: #333;
 }
 
 
 .mb-8 {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }

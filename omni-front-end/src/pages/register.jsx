@@ -4,6 +4,8 @@ import api from "../api/axios";
 import logo from "../assets/logo.png";
 import "../css/auth.css";
 import "../css/register.css";
+import { Button } from "../components/common/Button";
+import { Input } from "../components/common/Input";
 
 export const RegisterPage = () => { // Removed setPage prop
     const navigate = useNavigate();
@@ -48,8 +50,8 @@ export const RegisterPage = () => { // Removed setPage prop
                 <h2 className="register-title">Register</h2>
 
                 <div className="input-group">
-                    <label>Username</label>
-                    <input
+                    <Input
+                        label="Username"
                         type="text"
                         name="username"
                         placeholder="Username"
@@ -59,8 +61,8 @@ export const RegisterPage = () => { // Removed setPage prop
                 </div>
 
                 <div className="input-group">
-                    <label>Email</label>
-                    <input
+                    <Input
+                        label="Email"
                         type="email"
                         name="email"
                         placeholder="email@domain.com"
@@ -70,8 +72,8 @@ export const RegisterPage = () => { // Removed setPage prop
                 </div>
 
                 <div className="input-group">
-                    <label>Password</label>
-                    <input
+                    <Input
+                        label="Password"
                         type="password"
                         name="password"
                         placeholder="••••••••"
@@ -81,8 +83,8 @@ export const RegisterPage = () => { // Removed setPage prop
                 </div>
 
                 <div className="input-group">
-                    <label>Confirm Password</label>
-                    <input
+                    <Input
+                        label="Confirm Password"
                         type="password"
                         name="confirmPassword"
                         placeholder="••••••••"
@@ -91,19 +93,22 @@ export const RegisterPage = () => { // Removed setPage prop
                     />
                 </div>
 
-                <button
+                <Button
                     className="btn-primary"
                     onClick={handleRegister}
+                    style={{ width: '100%', marginTop: '16px' }}
                 >
                     Register
-                </button>
+                </Button>
 
-                <button
+                <Button
+                    variant="outline"
                     className="btn-link btn-back-login"
                     onClick={() => navigate("/login")}
+                    style={{ width: '100%', marginTop: '12px', border: 'none', background: 'transparent' }}
                 >
                     Back to Login
-                </button>
+                </Button>
             </div>
         </div>
     );

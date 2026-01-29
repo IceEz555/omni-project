@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import "../css/liveMonitor.css";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Button } from "../components/common/Button";
+import { Card } from "../components/common/Card";
 
 import { io } from "socket.io-client";
 
@@ -16,6 +19,7 @@ const formatTime = (isoString) => {
 // ... existing imports
 
 export const LiveMonitor = () => {
+  const [searchParams] = useSearchParams();
   const [telemetryData, setTelemetryData] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [matrixData, setMatrixData] = useState(Array(32).fill(Array(32).fill(0)));
@@ -24,6 +28,11 @@ export const LiveMonitor = () => {
 
   const [packetCount, setPacketCount] = useState(0);
   const [lastRxTime, setLastRxTime] = useState(null);
+  const [hasDevices, setHasDevices] = useState(true); // Assume true initially to avoid flicker
+  const [showSoilMoisture, setShowSoilMoisture] = useState(false);
+  const [showDistance, setShowDistance] = useState(true);
+  const [showTemp, setShowTemp] = useState(true);
+  const [showHumidity, setShowHumidity] = useState(true);
 
   // Buffer and Stats for 5-second Interval
   const dataBufferRef = useRef([]);
@@ -73,9 +82,15 @@ export const LiveMonitor = () => {
     socket.on("sensor-data", (data) => {
       // Filter by Device ID
       const currentDevice = selectedDeviceRef.current;
+
+      // Strict Filtering: If we have a selected device, ONLY accept matching ID
       if (currentDevice && data.device_id && data.device_id !== currentDevice.serialNumber) {
         return; // Ignore data from other devices
       }
+
+      // If no device is selected, we shouldn't be plotting anything ideally, 
+      // or we just plot generic data. Requirement says "Direct match".
+      if (!currentDevice) return;
 
       console.log("⚡ Sensor Data:", data);
       setIsConnected(true); // Valid data received
@@ -85,9 +100,15 @@ export const LiveMonitor = () => {
       setTelemetryData(prev => {
         const newPoint = {
           time: data.timestamp || new Date().toISOString(),
-          value: data.distance || 0, // Default to distance for graph
+          value: data.distance !== undefined ? data.distance : (prev.length > 0 ? prev[prev.length - 1].value : 0),
           ...data
         };
+        // If the new 'value' is undefined (e.g. only temp sent), keep previous or 0? 
+        // Actually, let's prioritize distance for the main graph as per existing logic, 
+        // but if distance is missing, maybe fallback or just don't plot 'value'?
+        // Existing code: value: data.distance || 0. 
+        // Let's keep it safe.
+
         return [...prev, newPoint].slice(-50); // Keep last 50 points
       });
 
@@ -128,14 +149,26 @@ export const LiveMonitor = () => {
         // Check for mock data fallback if API returns empty/error handled elsewhere
         let devices = Array.isArray(res.data) ? res.data : [];
 
+        // Filter by Profile if param exists
+        const profileFilter = searchParams.get('profile');
+        if (profileFilter) {
+          devices = devices.filter(d => d.profileKey === profileFilter);
+        }
+
         if (devices.length > 0) {
+          setHasDevices(true);
           // Default to first active device logic, or just the first one
           // Prefer finding one that matches "sensor" type or has "Arduino" in name
           const target = devices.find(d => d.name.toLowerCase().includes('arduino')) || devices[0];
           setSelectedDevice(target);
+        } else {
+          setHasDevices(false);
         }
       } catch (error) {
         console.error("Failed to load devices", error);
+        // If error, maybe assume no devices or keep previous state? 
+        // Safe to say no devices found if error occurs during init usually
+        setHasDevices(false);
       }
     };
     init();
@@ -195,19 +228,27 @@ export const LiveMonitor = () => {
   };
 
   // --- EMPTY STATE UI ---
-  if (!selectedDevice && packetCount === 0) { // Check packetCount to avoid flickering during initial load
+  if (!hasDevices) { // reliance on explicit Flag
     return (
-      <div className="live-monitor-wrapper monitor-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
-        <div className="empty-state-card" style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📡</div>
-          <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' }}>No Devices Found</h2>
-          <p style={{ color: '#6b7280', marginBottom: '24px' }}>Please register a device to start monitoring.</p>
-          <button
-            onClick={() => window.location.href = '/admin/inventory'}
-            style={{ backgroundColor: '#0f172a', color: 'white', padding: '12px 24px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+      <div className="live-monitor-wrapper monitor-wrapper monitor-wrapper--empty">
+        <div className="empty-state-card">
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}></div>
+          <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1f2937', marginBottom: '12px' }}>ไม่พบอุปกรณ์</h2>
+          <p style={{ color: '#6b7280', marginBottom: '32px', fontSize: '16px' }}>กรุณากดปุ่มด้านล่างเพื่อเพิ่มอุปกรณ์ใหม่ (Add Device)</p>
+          <Button
+            className="btn-add-device"
+            onClick={() => {
+              const profileId = searchParams.get('profile');
+              if (profileId) {
+                window.location.href = `/project/${profileId}`;
+              } else {
+                window.location.href = '/dashboard';
+              }
+            }}
+            style={{ transform: 'none' }} // Override specific style if needed, though replaced logic is simpler
           >
             + Add Device
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -217,22 +258,26 @@ export const LiveMonitor = () => {
     <div className="live-monitor-wrapper monitor-wrapper">
       <h1>Live Monitor</h1>
       <div className="monitor-grid monitor-flex-row">
-        <div className="card monitor-column">
-          <div className="flex-between-center">
-            <p className="card-header">HEATMAP (16x16)</p>
-            <div className="flex-gap-10">
-              <button
+        <Card
+          className="monitor-column"
+          title="HEATMAP (16x16)"
+          headerAction={
+            <div className="flex-gap-10" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Button
                 onClick={handleCalibrate}
                 disabled={!isConnected}
                 className="btn-calibrate"
+                variant="primary"
+                style={{ padding: '4px 12px', fontSize: '12px' }}
               >
                 CALIBRATE
-              </button>
+              </Button>
               <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`} style={{ color: isConnected ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
                 ● {isConnected ? 'LIVE' : 'DISCONNECTED'}
               </span>
             </div>
-          </div>
+          }
+        >
           <div className="monitor-stats-bar">
             Max: {matrixData.length ? Math.max(...matrixData.flat()) : 0} |
             Min: {matrixData.length ? Math.min(...matrixData.flat()) : 0} |
@@ -240,26 +285,15 @@ export const LiveMonitor = () => {
             Last: {lastRxTime ? lastRxTime.toLocaleTimeString() : "Waiting..."}
           </div>
 
-          <div className="heatmap-container" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(32, 1fr)',
-            gap: '1px',
-            backgroundColor: '#000',
-            padding: '10px',
-            aspectRatio: '1/1',
-            width: '100%',
-            maxWidth: '400px',
-            margin: '0 auto'
-          }}>
+          <div className="heatmap-container heatmap-grid-32">
             <div className="heatmap-container heatmap-grid">
               {matrixData.map((row, rIndex) => (
                 row.map((val, cIndex) => (
                   <div
                     key={`${rIndex}-${cIndex}`}
+                    className="heatmap-cell"
                     style={{
                       backgroundColor: getCellColor(val, rIndex, cIndex),
-                      width: '100%',
-                      height: '100%' // Aspect ratio handles height
                     }}
                     title={`R${rIndex} C${cIndex}: ${val}`}
                   />
@@ -267,57 +301,113 @@ export const LiveMonitor = () => {
               ))}
             </div>
           </div>
-        </div>
-        <div className="card monitor-column">
-          <p className="card-header">AI Predict Skeleton</p>
+        </Card>
+
+        <Card className="monitor-column" title="AI Predict Skeleton">
           <div className="skeleton-box flex-1">
             <div className="skeleton-message">
               Waiting for Camera Feed...
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="card card-current-pose">
-        <p className="card-header">SENSORS</p>
+      <Card
+        className="card-current-pose"
+        title="SENSORS"
+        titleClassName="margin-bottom-0"
+        headerAction={
+          <div className="sensor-controls">
+            <Button
+              className={`btn-sensor-toggle ${showDistance ? 'active' : 'inactive'}`}
+              onClick={() => setShowDistance(!showDistance)}
+              variant="outline"
+            >
+              {showDistance ? 'HIDE HC-SR04' : 'SHOW HC-SR04'}
+            </Button>
+            <Button
+              className={`btn-sensor-toggle ${showTemp ? 'active' : 'inactive'}`}
+              onClick={() => setShowTemp(!showTemp)}
+              variant="outline"
+            >
+              {showTemp ? 'HIDE TEMP' : 'SHOW TEMP'}
+            </Button>
+            <Button
+              className={`btn-sensor-toggle ${showHumidity ? 'active' : 'inactive'}`}
+              onClick={() => setShowHumidity(!showHumidity)}
+              variant="outline"
+            >
+              {showHumidity ? 'HIDE HUMIDITY' : 'SHOW HUMIDITY'}
+            </Button>
+            <Button
+              className={`btn-sensor-toggle ${showSoilMoisture ? 'active' : 'inactive'}`}
+              onClick={() => setShowSoilMoisture(!showSoilMoisture)}
+              variant="outline"
+            >
+              {showSoilMoisture ? 'HIDE SOIL' : 'SHOW SOIL'}
+            </Button>
+          </div>
+        }
+      >
 
         <div className="sensor-grid">
-          <div className="sensor-card">
-            <div className="sensor-label">HC-SR04 DISTANCE</div>
-            <div className="sensor-value-container">
-              <span className="sensor-value text-distance">
-                {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].distance !== undefined
-                  ? telemetryData[telemetryData.length - 1].distance.toFixed(1)
-                  : "--"}
-              </span>
-              <span className="sensor-unit">cm</span>
+          {showDistance && (
+            <div className="sensor-card">
+              <div className="sensor-label">HC-SR04 DISTANCE</div>
+              <div className="sensor-value-container">
+                <span className="sensor-value text-distance">
+                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].distance !== undefined
+                    ? telemetryData[telemetryData.length - 1].distance.toFixed(1)
+                    : "--"}
+                </span>
+                <span className="sensor-unit">cm</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="sensor-row">
-            <div className="sensor-card">
-              <div className="sensor-label">TEMP</div>
-              <div className="sensor-value-container">
-                <span className="sensor-value text-temp">
-                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].temperature !== undefined
-                    ? telemetryData[telemetryData.length - 1].temperature.toFixed(1)
-                    : "--"}
-                </span>
-                <span className="sensor-unit">°C</span>
+            {showTemp && (
+              <div className="sensor-card">
+                <div className="sensor-label">TEMP</div>
+                <div className="sensor-value-container">
+                  <span className="sensor-value text-temp">
+                    {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].temperature !== undefined
+                      ? telemetryData[telemetryData.length - 1].temperature.toFixed(1)
+                      : "--"}
+                  </span>
+                  <span className="sensor-unit">°C</span>
+                </div>
               </div>
-            </div>
-            <div className="sensor-card">
-              <div className="sensor-label">HUMIDITY</div>
-              <div className="sensor-value-container">
-                <span className="sensor-value text-humidity">
-                  {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].humidity !== undefined
-                    ? telemetryData[telemetryData.length - 1].humidity.toFixed(1)
-                    : "--"}
-                </span>
-                <span className="sensor-unit">%</span>
+            )}
+            {showHumidity && (
+              <div className="sensor-card">
+                <div className="sensor-label">HUMIDITY</div>
+                <div className="sensor-value-container">
+                  <span className="sensor-value text-humidity">
+                    {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].humidity !== undefined
+                      ? telemetryData[telemetryData.length - 1].humidity.toFixed(1)
+                      : "--"}
+                  </span>
+                  <span className="sensor-unit">%</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
+          {showSoilMoisture && (
+            <div className="sensor-row" style={{ marginTop: '10px' }}>
+              <div className="sensor-card" style={{ width: '100%' }}>
+                <div className="sensor-label">SOIL MOISTURE</div>
+                <div className="sensor-value-container">
+                  <span className="sensor-value">
+                    {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].soil_moisture !== undefined
+                      ? telemetryData[telemetryData.length - 1].soil_moisture.toFixed(1)
+                      : "--"}
+                  </span>
+                  <span className="sensor-unit">%</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
 
@@ -353,7 +443,7 @@ export const LiveMonitor = () => {
         {/* Signal Timeline */}
         <div className="section-separator">
           <div className="flex-between-center">
-            <p className="card-header margin-bottom-0">GRAPH {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
+            <p className="card-header margin-bottom-0" style={{ fontWeight: 600 }}>GRAPH {selectedDevice ? `(${selectedDevice.name})` : ""}</p>
             {selectedDevice && (
               <span className="status-badge online status-badge-small" style={{ backgroundColor: isConnected ? '#dcfce7' : '#fee2e2', color: isConnected ? '#166534' : '#b91c1c' }}>
                 {isConnected ? 'LIVE' : 'OFFLINE'}
@@ -391,11 +481,10 @@ export const LiveMonitor = () => {
             Latest: {telemetryData.length > 0 ? telemetryData[telemetryData.length - 1].value.toFixed(2) : "-"}
           </p>
         </div>
-      </div>
+      </Card>
 
       {/* Current Pose */}
-      <div className="card card-pose">
-        <p className="card-header pose-section-header">CURRENT POSE</p>
+      <Card className="card-pose" title="CURRENT POSE" titleClassName="pose-section-header">
         <h2 className="pose-title">
           {telemetryData.length > 0 && telemetryData[telemetryData.length - 1].value < 20 ? "Cobra Pose" : "Tree Pose"}
         </h2>
@@ -408,16 +497,16 @@ export const LiveMonitor = () => {
             <div className="confidence-fill" style={{ width: telemetryData.length > 0 ? '92%' : '0%' }}></div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Navigation Button */}
       <div className="session-nav-container">
-        <button
+        <Button
           className="btn-session"
           onClick={() => window.location.href = '/sessions'}
         >
           Sessions
-        </button>
+        </Button>
       </div>
     </div >
   )

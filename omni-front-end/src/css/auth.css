@@ -37,3 +37,36 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
 }
+
+/* Extracted Button Styles */
+.btn-primary {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  background: var(--seafoam-main);
+  color: white;
+  border: none;
+}
+
+.btn-link {
+  margin-top: 16px;
+  background: transparent;
+  color: var(--seafoam-main);
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-secondary {
+  margin-top: 12px;
+  background: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}

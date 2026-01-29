@@ -2,7 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import "../css/projectDetails.css";
-import "../css/modal.css";
+// import "../css/modal.css"; // Replaced by Common Modal
+import { Button } from "../components/common/Button";
+import { Input, Select } from "../components/common/Input";
+import { Modal } from "../components/common/Modal";
+import { Card } from "../components/common/Card";
 
 // Helper for formatting time
 const formatTime = (isoString) => {
@@ -162,140 +166,124 @@ export const ProjectDetails = () => {
 
     return (
         <div className="project-details-container">
-            <div className="project-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h1 className="project-title" style={{ margin: 0 }}>{pageTitle}</h1>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
+            <div className="project-header">
+                <h1 className="project-title">{pageTitle}</h1>
+                <div className="header-actions">
+                    <Button
                         className="btn-add-device"
-                        style={{ backgroundColor: '#0f172a', color: 'white', padding: '10px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: '500' }}
                         onClick={openAddModal}
                     >
                         + Add Device
-                    </button>
+                    </Button>
                 </div>
             </div>
 
             <div className="quick-stats">
-                <div className="stat-box">
+                <Card className="stat-box" style={{ padding: '16px' }}>
                     <h3>{projectDevices.length}</h3>
                     <p>Total Devices</p>
-                </div>
-                <div className="stat-box">
+                </Card>
+                <Card className="stat-box" style={{ padding: '16px' }}>
                     <h3>{projectDevices.filter(d => d.isOnline).length}</h3>
                     <p>Devices Online</p>
-                </div>
-                <div className="stat-box">
+                </Card>
+                <Card className="stat-box" style={{ padding: '16px' }}>
                     <h3>{projectDevices.filter(d => d.isOnline).length > 0 ? "Active" : "Idle"}</h3>
                     <p>Status</p>
-                </div>
+                </Card>
             </div>
 
             {/* View Live Button (Between Sections) */}
-            <div style={{ margin: '20px 0', display: 'flex', justifySelf: 'end' }}>
-                <button
+            <div className="view-live-btn-wrapper">
+                <Button
                     className="view-live-btn"
-                    style={{
-                        backgroundColor: '#fff',
-                        color: '#0f172a',
-                        padding: '12px 24px',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        width: '100%',
-                        textAlign: 'center',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}
-                    onClick={() => navigate("/live-monitor")}
+                    onClick={() => navigate(`/live-monitor?profile=${id}`)}
                 >
                     View Live Monitor
-                </button>
+                </Button>
             </div>
 
             {/* Add Device Modal */}
-            {showAddModal && (
-                <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <h3 className="form-title">New Device</h3>
-
-                        <div className="add-user-form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {/* Device Name */}
-                            <div>
-                                <label className="form-group-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Device Name (Friendly)</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g., Living Room Sensor"
-                                    className="form-input"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                                    value={newDeviceData.device_name}
-                                    onChange={(e) => setNewDeviceData({ ...newDeviceData, device_name: e.target.value })}
-                                />
-                            </div>
-
-                            {/* Serial Number */}
-                            <div>
-                                <label className="form-group-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Hardware ID (Serial Number)</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g., Arduino_Ult_01"
-                                    className="form-input"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                                    value={newDeviceData.serial_number}
-                                    onChange={(e) => setNewDeviceData({ ...newDeviceData, serial_number: e.target.value })}
-                                />
-                                <small className="helper-text" style={{ fontSize: '12px', color: '#6b7280' }}>Must match the ID in your Arduino Code</small>
-                            </div>
-
-                            {/* Device Profile */}
-                            <div>
-                                <label className="form-group-label" style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Device Profile (Type)</label>
-                                <select
-                                    className="form-select-box"
-                                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                                    value={newDeviceData.profile_id}
-                                    onChange={(e) => setNewDeviceData({ ...newDeviceData, profile_id: e.target.value })}
-                                >
-                                    <option value="">Select Profile</option>
-                                    {profileList.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name} (Type: {p.type || 'N/A'})</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <div className="form-actions" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '24px' }}>
-                            <button
-                                onClick={() => setShowAddModal(false)}
-                                style={{ padding: '10px 20px', borderRadius: '6px', border: '1px solid #d1d5db', background: 'white', cursor: 'pointer' }}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleAddDevice}
-                                style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', background: '#0f172a', color: 'white', cursor: 'pointer' }}
-                            >
-                                Create Device
-                            </button>
-                        </div>
+            <Modal
+                isOpen={showAddModal}
+                onClose={() => setShowAddModal(false)}
+                title="New Device"
+                footer={
+                    <>
+                        <Button
+                            onClick={handleAddDevice}
+                            className="btn-submit"
+                        >
+                            Create Device
+                        </Button>
+                        <Button
+                            onClick={() => setShowAddModal(false)}
+                            className="btn-cancel"
+                            variant="secondary"
+                        >
+                            Cancel
+                        </Button>
+                    </>
+                }
+            >
+                <div className="add-user-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    {/* Device Name */}
+                    <div>
+                        <Input
+                            label="Device Name (Friendly)"
+                            placeholder="e.g., Living Room Sensor"
+                            value={newDeviceData.device_name}
+                            onChange={(e) => setNewDeviceData({ ...newDeviceData, device_name: e.target.value })}
+                        />
                     </div>
+
+                    {/* Serial Number */}
+                    <div>
+                        <Input
+                            label="Hardware ID (Serial Number)"
+                            placeholder="e.g., Arduino_Ult_01"
+                            value={newDeviceData.serial_number}
+                            onChange={(e) => setNewDeviceData({ ...newDeviceData, serial_number: e.target.value })}
+                        />
+                        <small className="helper-text" style={{ fontSize: '11px', color: '#666', marginTop: '-12px', display: 'block' }}>Must match the ID in your Arduino Code</small>
+                    </div>
+
+                    {/* Device Profile */}
+                    <div>
+                        <Select
+                            label="Device Profile (Type)"
+                            value={newDeviceData.profile_id}
+                            onChange={(e) => setNewDeviceData({ ...newDeviceData, profile_id: e.target.value })}
+                            options={[
+                                { value: "", label: "Select Profile" },
+                                ...profileList.map(p => ({
+                                    value: p.id,
+                                    label: `${p.name} (Type: ${p.type || 'N/A'})`
+                                }))
+                            ]}
+                        />
+                    </div>
+
                 </div>
-            )}
+            </Modal>
 
             {isLoading ? (
                 <div style={{ padding: '40px', textAlign: 'center' }}>Loading Project Data...</div>
             ) : projectDevices.length > 0 ? (
                 <div className="device-grid">
                     {projectDevices.map((device) => (
-                        <div key={device.id} className="project-device-card">
-                            <div className="device-card-header">
-                                <h3 className="device-name">{device.name}</h3>
+                        <Card
+                            key={device.id}
+                            className="project-device-card"
+                            title={device.name}
+                            titleClassName="device-name"
+                            headerAction={
                                 <div className={`status-badge ${device.isOnline ? 'online' : 'offline'}`}
-                                    style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '12px', backgroundColor: device.isOnline ? '#dcfce7' : '#f3f4f6', color: device.isOnline ? '#166534' : '#6b7280' }}>
+                                    style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '12px', backgroundColor: device.isOnline ? '#dcfce7' : '#f3f4f6', color: device.isOnline ? '#166534' : '#6b7280' }}>
                                     {device.isOnline ? 'ONLINE' : 'OFFLINE'}
                                 </div>
-                            </div>
-
+                            }
+                        >
                             <div className="device-info-row">
                                 Type: {device.type || "Sensor"}
                             </div>
@@ -305,19 +293,19 @@ export const ProjectDetails = () => {
                             <div className="device-info-row">
                                 Updated: {formatTime(device.lastUpdated)}
                             </div>
-                        </div>
+                        </Card>
                     ))}
                 </div>
             ) : (
                 <div className="empty-state">
                     <h3>No Devices Found</h3>
                     <p>There are no devices in this project yet.</p>
-                    <button
+                    <Button
                         className="btn-add-device"
                         onClick={openAddModal}
                     >
                         + Add Device
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

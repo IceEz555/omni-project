@@ -1,6 +1,7 @@
 import React from "react";
 import "../css/dashboard.css"; // ใช้ style พื้นฐานร่วมกัน
 import "../css/adminDashboard.css";
+import { Card } from "../components/common/Card";
 
 export const AdminDashboard = () => {
   const stats = [
@@ -15,20 +16,19 @@ export const AdminDashboard = () => {
       {/* ส่วนบน: Stats Cards */}
       <div className="admin-stats-grid">
         {stats.map((stat, idx) => (
-          <div key={idx} className="card" style={{ borderLeft: `4px solid ${stat.color}` }}>
+          <Card key={idx} className="card" style={{ borderLeft: `4px solid ${stat.color}` }}>
             <p className="stat-card-label">{stat.label}</p>
             <h2 className="stat-card-value">{stat.value}</h2>
             <p className="stat-change-text" style={{ color: stat.label === "System Alerts" ? "#E74C3C" : "#27AE60" }}>
               {stat.change}
             </p>
-          </div>
+          </Card>
         ))}
       </div>
 
       <div className="admin-middle-row">
         {/* ส่วนกลางขวา: Quick Actions (Swapped to Left) */}
-        <div className="card flex-1">
-          <h3 className="section-title">Quick Actions</h3>
+        <Card className="card flex-1" title="Quick Actions" titleClassName="section-title">
           <div className="quick-actions-list">
             {[
               { title: "New Project", desc: "Define a new project" },
@@ -41,11 +41,10 @@ export const AdminDashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* ส่วนกลางซ้าย: Recent User Activity (Swapped to Right) */}
-        <div className="card flex-1">
-          <h3 className="section-title">Recent User Activity</h3>
+        <Card className="card flex-1" title="Recent User Activity">
           <div className="user-activity-list">
             {["Sarah Chen", "Dr. Martinez", "John Smith"].map((user, i) => (
               <div key={i} className="user-activity-item">
@@ -62,13 +61,12 @@ export const AdminDashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* ส่วนล่าง: Project Data Isolation & System Status */}
       <div className="admin-bottom-row">
-        <div className="card flex-3">
-          <h3 className="section-title">Project Data Isolation</h3>
+        <Card className="card flex-3" title="Project Data Isolation">
           <div className="project-grid">
             {["Yoga Research Lab", "Physical Therapy Clinic", "Sports Performance"].map((project, idx) => (
               <div key={idx} className="project-card">
@@ -84,11 +82,10 @@ export const AdminDashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* System Status (Moves here) */}
-        <div className="card flex-1">
-          <h3 className="section-title">System Status</h3>
+        <Card className="card flex-1" title="System Status">
           <div className="system-status-list">
             {[
               { label: "API Server", status: "Online" },
@@ -104,7 +101,7 @@ export const AdminDashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

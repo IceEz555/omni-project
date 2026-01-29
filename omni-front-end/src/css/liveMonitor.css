@@ -405,3 +405,77 @@
 .btn-session:hover {
   background-color: #34495e;
 }
+
+/* Extracted LiveMonitor Styles */
+.monitor-wrapper--empty {
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.empty-state-card {
+  text-align: center;
+  padding: 60px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%;
+}
+
+.btn-add-device {
+  background-color: #0f172a;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-add-device:hover {
+  transform: translateY(-2px);
+}
+
+.heatmap-grid-32 {
+  display: grid;
+  grid-template-columns: repeat(32, 1fr);
+  gap: 1px;
+  background-color: #000;
+  padding: 10px;
+  aspect-ratio: 1/1;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.heatmap-cell {
+  width: 100%;
+  height: 100%;
+}
+
+.btn-sensor-toggle {
+  font-size: 10px;
+  padding: 2px 6px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  /* match btn-calibrate */
+  cursor: pointer;
+}
+
+.btn-sensor-toggle.active {
+  background-color: #1f2937;
+}
+
+.btn-sensor-toggle.inactive {
+  background-color: #9ca3af;
+}
+
+.sensor-controls {
+  display: flex;
+  gap: 5px;
+}
