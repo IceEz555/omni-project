@@ -93,7 +93,7 @@ export const ModelTraining = () => {
                                                 {job.status}
                                             </span>
                                         </td>
-                                        <td style={{ minWidth: '150px' }}>
+                                        <td className="progress-col">
                                             <div className="training-progress-container">
                                                 <div className="training-progress-bar">
                                                     <div

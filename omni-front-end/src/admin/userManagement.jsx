@@ -76,7 +76,7 @@ export const UserManagement = () => {
                     </>
                 }
             >
-                <div className="add-user-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="add-user-form-grid">
                     {/* Full Name */}
                     <div>
                         <Input
@@ -147,7 +147,7 @@ export const UserManagement = () => {
                     </div>
 
                     {/* Password */}
-                    <div style={{ marginTop: "0" }}> {/* margin handled by grid gap typically, or Input wrapper */}
+                    <div className="form-group-no-margin"> {/* margin handled by grid gap typically, or Input wrapper */}
                         <Input
                             type="password"
                             label="Password"
@@ -243,11 +243,10 @@ export const UserManagement = () => {
                                 <td>
                                     <div className="action-buttons">
                                         <Button
-                                            className="table-action-btn"
                                             aria-label="Edit"
                                             onClick={() => handleEdit(user)}
                                             variant="outline"
-                                            style={{ marginRight: '8px', padding: '4px 8px' }}
+                                            className="table-action-btn btn-edit-action"
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -255,11 +254,10 @@ export const UserManagement = () => {
                                             </svg>
                                         </Button>
                                         <Button
-                                            className="table-action-btn"
+                                            className="table-action-btn btn-delete-action"
                                             aria-label="Delete"
                                             onClick={() => handleDelete(user.id)}
                                             variant="outline"
-                                            style={{ padding: '4px 8px', color: '#e74c3c' }}
                                         >
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                 <polyline points="3 6 5 6 21 6"></polyline>

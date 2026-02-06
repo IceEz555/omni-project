@@ -13,19 +13,11 @@ const ProfileCard = ({ profile, navigate, onEdit, onDelete }) => {
   return (
     <Card
       className="device-card"
-      style={{ position: 'relative' }}
       title={profile.name || "\u00A0"}
     >
-      <div style={{
-        position: 'absolute',
-        top: '12px',
-        right: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        zIndex: 10
-      }}>
-        <span className="status-badge online" style={{ fontSize: '10px', padding: '2px 6px' }}>
+      <div className="card-badge-container">
+        <span className="status-badge online status-badge-small">
+
           PROFILE
         </span>
         <Button
@@ -76,7 +68,7 @@ const ProfileCard = ({ profile, navigate, onEdit, onDelete }) => {
       <Button
         className="btn-device-action"
         onClick={() => navigate(`/project/${profile.profile_id}`)}
-        style={{ width: '100%', marginTop: '16px' }}
+
       >
         View Inventory
       </Button>
@@ -138,8 +130,6 @@ export const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <h1>Dashboard</h1>
-
       <div className="dashboard-stats-grid">
         {statCards.map((stat, idx) => (
           <Card key={idx} className="metric-card" style={{ borderLeft: `5px solid ${stat.color}` }}>
@@ -202,8 +192,9 @@ export const Dashboard = () => {
           </>
         }
       >
-        <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
-          <div style={{ flex: 1 }}>
+        <div className="form-row-flex">
+          <div className="form-col">
+
             <Input
               label="Profile ID (Unique)"
               type="text"
@@ -213,7 +204,8 @@ export const Dashboard = () => {
               disabled={!!editingProfileId}
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className="form-col">
+
             <Input
               label="Name"
               type="text"
@@ -224,8 +216,10 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
-          <div style={{ flex: 1 }}>
+        <div className="form-row-flex">
+
+          <div className="form-col">
+
             <Select
               label="Type"
               value={newProfileData.type}
@@ -238,7 +232,8 @@ export const Dashboard = () => {
               ]}
             />
           </div>
-          <div style={{ flex: 1 }}>
+          <div className="form-col">
+
             <Input
               label="Data Format"
               type="text"

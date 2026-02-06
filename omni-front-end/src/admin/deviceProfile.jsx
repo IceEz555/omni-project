@@ -63,8 +63,8 @@ export const DeviceProfile = () => {
                     </>
                 }
             >
-                <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
-                    <div className="form-group" style={{ flex: 1 }}>
+                <div className="form-row-flex">
+                    <div className="form-group-flex">
                         <Input
                             label="Profile ID (Unique)"
                             name="profile_id"
@@ -85,8 +85,8 @@ export const DeviceProfile = () => {
                     </div>
                 </div>
 
-                <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
-                    <div className="form-group" style={{ flex: 1 }}>
+                <div className="form-row-flex">
+                    <div className="form-group-flex">
                         <Select
                             label="Device Type"
                             name="type"

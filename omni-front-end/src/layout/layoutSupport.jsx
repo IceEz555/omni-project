@@ -8,7 +8,7 @@ export const LayoutSupport = ({ title }) => {
     const location = useLocation();
 
     const menuItems = [
-        { label: "Support Dashboard", path: "/support/dashboard" },
+        { label: "Dashboard", path: "/support/dashboard" },
         { label: "Data Labeling", path: "/support/labeling" },
         { label: "Model Training", path: "/support/training" },
         { label: "Model Evaluation", path: "/support/evaluation" }
