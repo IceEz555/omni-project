@@ -103,8 +103,8 @@
 }
 
 .icon-red {
-    background-color: #fee2e2;
-    color: #ef4444;
+    background-color: #e0e7ff !important;
+    color: #4f46e5 !important;
 }
 
 /* Dashboard Sections Grid (2 Columns) */
@@ -366,7 +366,7 @@
 }
 
 .border-red {
-    border-left: 5px solid #ef4444 !important;
+    border-left: 5px solid #4f46e5 !important;
 }
 
 .border-green {
