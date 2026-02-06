@@ -284,9 +284,9 @@ export const SessionDetail = () => {
                         <YAxis stroke="#9ca3af" fontSize={12} />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="distance" stroke="#2563eb" dot={false} strokeWidth={2} activeDot={{ r: 6 }} />
-                        <Line type="monotone" dataKey="temperature" stroke="#dc2626" dot={false} strokeWidth={2} />
-                        <Line type="monotone" dataKey="humidity" stroke="#16a34a" dot={false} strokeWidth={2} />
+                        <Line type="monotone" dataKey="distance" stroke="#2563eb" dot={false} strokeWidth={2} activeDot={{ r: 6 }} connectNulls />
+                        <Line type="monotone" dataKey="temperature" stroke="#dc2626" dot={false} strokeWidth={2} connectNulls />
+                        <Line type="monotone" dataKey="humidity" stroke="#16a34a" dot={false} strokeWidth={2} connectNulls />
                     </LineChart>
                 </ResponsiveContainer>
             ) : (

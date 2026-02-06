@@ -39,8 +39,8 @@ export const LiveMonitor = () => {
   const dataBufferRef = useRef([]);
   const [intervalStats, setIntervalStats] = useState({ min: 0, max: 0, avg: 0 });
 
-  // Dynamic Mode based on incoming data
-  const [dataMode, setDataMode] = useState(null); // 'MATRIX' | 'SENSOR' | null
+  // Dynamic Mode based on incoming data - REMOVED
+  // const [dataMode, setDataMode] = useState(null);
 
   // Ref for Selected Device to be accessible in Socket Callback
   const selectedDeviceRef = useRef(null);
@@ -95,7 +95,7 @@ export const LiveMonitor = () => {
         setPacketCount(prev => prev + 1);
         setLastRxTime(new Date());
         setIsConnected(true);
-        setDataMode('MATRIX');
+        // setDataMode('MATRIX'); // Removed to prevent mode switching flicker
       }
     });
 
@@ -167,7 +167,7 @@ export const LiveMonitor = () => {
       }
 
       setIsConnected(true); // Valid data received
-      setDataMode('SENSOR');
+      // setDataMode('SENSOR'); // Removed to prevent mode switching flicker
       setLastRxTime(new Date());
 
       // Auto-discover sensors
@@ -428,121 +428,6 @@ export const LiveMonitor = () => {
     );
   }
 
-  // --- VIEW MODE RENDER ---
-  const activeViewMode = dataMode || getDeviceMode(selectedDevice);
-
-  // --- MATRIX MODE VIEW ---
-  if (activeViewMode === 'MATRIX') {
-    return (
-      <div className="live-monitor-wrapper monitor-wrapper">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <h1>Live Monitor: {selectedDevice ? selectedDevice.name : "Unknown"}</h1>
-        </div>
-        <div className="monitor-grid monitor-flex-row">
-          <Card
-            className="monitor-column"
-            title="HEATMAP (32x32)"
-            headerAction={
-              <div className="flex-gap-10" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Button
-                  onClick={handleCalibrate}
-                  disabled={!isConnected}
-                  className="btn-calibrate"
-                  variant="primary"
-                  style={{ padding: '4px 12px', fontSize: '12px' }}
-                >
-                  CALIBRATE
-                </Button>
-
-                {/* SESSION REC BUTTON */}
-                <Button
-                  onClick={handleToggleSession}
-                  disabled={!isConnected}
-                  className={activeSessionId ? "btn-stop-rec" : "btn-start-rec"}
-                  style={{
-                    padding: '4px 12px',
-                    fontSize: '12px',
-                    backgroundColor: activeSessionId ? '#ef4444' : '#2563eb',
-                    color: 'white',
-                    border: 'none'
-                  }}
-                >
-                  {activeSessionId ? "⏹ STOP REC" : "⏺ START REC"}
-                </Button>
-
-                <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`} style={{ color: isConnected ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
-                  ● {isConnected ? 'LIVE' : 'DISCONNECTED'}
-                </span>
-              </div>
-            }
-          >
-            <div className="monitor-stats-bar">
-              Max: {matrixData.length ? Math.max(...matrixData.flat()) : 0} |
-              Min: {matrixData.length ? Math.min(...matrixData.flat()) : 0} |
-              Pkts: {packetCount} |
-              Last: {lastRxTime ? lastRxTime.toLocaleTimeString() : "Waiting..."}
-            </div>
-
-            <div className={`heatmap-container ${matrixData.length > 0 ? "heatmap-grid-dynamic" : "heatmap-grid-32"}`}
-              style={{ "--cols": matrixData.length > 0 ? matrixData[0].length : 32 }}
-            >
-              {matrixData.map((row, rIndex) => (
-                row.map((val, cIndex) => (
-                  <div
-                    key={`${rIndex}-${cIndex}`}
-                    className="heatmap-cell"
-                    style={{
-                      backgroundColor: getCellColor(val, rIndex, cIndex),
-                    }}
-                    title={`R${rIndex} C${cIndex}: ${val}`}
-                  />
-                ))
-              ))}
-            </div>
-          </Card>
-
-          <Card className="monitor-column" title="AI Predict Skeleton">
-            <div className="skeleton-box flex-1">
-              <div className="skeleton-message">
-                Waiting for Camera Feed...
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Current Pose */}
-        <Card className="card-pose" title="CURRENT POSE" titleClassName="pose-section-header">
-          <h2 className="pose-title">
-            {/* Mock Logic for Pose based on max value for demo */}
-            {matrixData.length && Math.max(...matrixData.flat()) > 300 ? "Cobra Pose" : "Tree Pose"}
-          </h2>
-          <div className="confidence-section">
-            <div className="confidence-header">
-              <span>AI Confidence</span>
-              <span>{isConnected ? "92%" : "0%"}</span>
-            </div>
-            <div className="confidence-track">
-              <div className="confidence-fill" style={{ width: isConnected ? '92%' : '0%' }}></div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Navigation Button */}
-        <div className="session-nav-container" style={{ justifyContent: 'space-between' }}>
-          <Button onClick={handleBack} className="btn-back">
-            ← Back
-          </Button>
-          <Button
-            className="btn-session"
-            onClick={() => window.location.href = '/sessions'}
-          >
-            Sessions
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   // Helper to get Label and Unit for dynamic rendering
   const getSensorConfig = (key) => {
     switch (key) {
@@ -554,37 +439,123 @@ export const LiveMonitor = () => {
     }
   };
 
-  // --- SENSOR MODE VIEW (Default) ---
+  // --- UNIFIED VIEW MODE RENDER ---
+  const isMatrixDevice = getDeviceMode(selectedDevice) === 'MATRIX' || (matrixData && matrixData.length > 0 && Math.max(...matrixData.flat()) > 0);
+  // Also show heatmap if we simply have valid matrix data that isn't just the initial zero state (optional, but safe)
+  
   return (
     <div className="live-monitor-wrapper monitor-wrapper">
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <h1>Live Monitor: {selectedDevice ? selectedDevice.name : "Unknown"}</h1>
+        {/* GLOBAL RECORD BUTTON */}
+        <Button
+          onClick={handleToggleSession}
+          disabled={!isConnected}
+          className={activeSessionId ? "btn-stop-rec" : "btn-start-rec"}
+          style={{
+             marginLeft: 'auto',
+             padding: '6px 16px',
+             fontSize: '14px',
+             backgroundColor: activeSessionId ? '#ef4444' : '#2563eb',
+             color: 'white',
+             border: 'none',
+             borderRadius: '6px',
+             fontWeight: '600',
+             boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}
+        >
+          {activeSessionId ? "⏹ STOP RECORDING" : "⏺ START RECORDING"}
+        </Button>
       </div>
 
+      {/* --- HEATMAP SECTION (Conditional) --- */}
+      {isMatrixDevice && (
+        <>
+          <div className="monitor-grid monitor-flex-row">
+            <Card
+              className="monitor-column"
+              title="HEATMAP (32x32)"
+              headerAction={
+                <div className="flex-gap-10" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Button
+                    onClick={handleCalibrate}
+                    disabled={!isConnected}
+                    className="btn-calibrate"
+                    variant="primary"
+                    style={{ padding: '4px 12px', fontSize: '12px' }}
+                  >
+                    CALIBRATE
+                  </Button>
+                  <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`} style={{ color: isConnected ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                    ● {isConnected ? 'LIVE' : 'DISCONNECTED'}
+                  </span>
+                </div>
+              }
+            >
+              <div className="monitor-stats-bar">
+                Max: {matrixData.length ? Math.max(...matrixData.flat()) : 0} |
+                Min: {matrixData.length ? Math.min(...matrixData.flat()) : 0} |
+                Pkts: {packetCount} |
+                Last: {lastRxTime ? lastRxTime.toLocaleTimeString() : "Waiting..."}
+              </div>
 
+              <div className={`heatmap-container ${matrixData.length > 0 ? "heatmap-grid-dynamic" : "heatmap-grid-32"}`}
+                style={{ "--cols": matrixData.length > 0 ? matrixData[0].length : 32 }}
+              >
+                {matrixData.map((row, rIndex) => (
+                  row.map((val, cIndex) => (
+                    <div
+                      key={`${rIndex}-${cIndex}`}
+                      className="heatmap-cell"
+                      style={{
+                        backgroundColor: getCellColor(val, rIndex, cIndex),
+                      }}
+                      title={`R${rIndex} C${cIndex}: ${val}`}
+                    />
+                  ))
+                ))}
+              </div>
+            </Card>
+
+            <Card className="monitor-column" title="AI Predict Skeleton">
+              <div className="skeleton-box flex-1">
+                <div className="skeleton-message">
+                  Waiting for Camera Feed...
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <Card className="card-pose" title="CURRENT POSE" titleClassName="pose-section-header">
+            <h2 className="pose-title">
+              {matrixData.length && Math.max(...matrixData.flat()) > 300 ? "Cobra Pose" : "Tree Pose"}
+            </h2>
+            <div className="confidence-section">
+              <div className="confidence-header">
+                <span>AI Confidence</span>
+                <span>{isConnected ? "92%" : "0%"}</span>
+              </div>
+              <div className="confidence-track">
+                <div className="confidence-fill" style={{ width: isConnected ? '92%' : '0%' }}></div>
+              </div>
+            </div>
+          </Card>
+        </>
+      )}
+
+      {/* --- SENSORS SECTION (Always Visible) --- */}
       <Card
         className="card-current-pose"
         title="SENSORS"
         titleClassName="margin-bottom-0"
         headerAction={
           <div className="flex-gap-10" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Button
-              onClick={handleToggleSession}
-              disabled={!isConnected}
-              className={activeSessionId ? "btn-stop-rec" : "btn-start-rec"}
-              style={{
-                padding: '4px 12px',
-                fontSize: '12px',
-                backgroundColor: activeSessionId ? '#ef4444' : '#2563eb',
-                color: 'white',
-                border: 'none'
-              }}
-            >
-              {activeSessionId ? "⏹ STOP REC" : "⏺ START REC"}
-            </Button>
-            <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`} style={{ color: isConnected ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
-              ● {isConnected ? 'LIVE' : 'OFFLINE'}
-            </span>
+            {/* Duplicate Status for visibility when scrolling */}
+            {!isMatrixDevice && (
+                 <span className={`status-indicator ${isConnected ? 'status-live' : 'status-disconnected'}`} style={{ color: isConnected ? '#16a34a' : '#dc2626', fontWeight: 'bold' }}>
+                  ● {isConnected ? 'LIVE' : 'OFFLINE'}
+                </span>
+            )}
           </div>
         }
       >
@@ -687,8 +658,6 @@ export const LiveMonitor = () => {
           </p>
         </div>
       </Card>
-
-      {/* Current Pose Removed for Sensor Mode */}
 
       {/* Navigation Button */}
       <div className="session-nav-container" style={{ justifyContent: 'space-between' }}>
