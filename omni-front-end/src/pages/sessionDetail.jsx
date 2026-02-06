@@ -49,6 +49,9 @@ export const SessionDetail = () => {
                     try {
                         // Influx might return it as a stringified JSON
                         const parsedMatrix = typeof d.data === 'string' ? JSON.parse(d.data) : d.data;
+                        
+                        console.log(`[Replay Debug] Frame ${timeStr}:`, { raw: d.data, parsed: parsedMatrix });
+
                         if (Array.isArray(parsedMatrix) && parsedMatrix.length > 0) {
                             frames.push({
                                 time: timeStr,
@@ -106,7 +109,13 @@ export const SessionDetail = () => {
   };
 
   // Helper for Color (Reused from LiveMonitor roughly)
+  // Helper for Color (Reused from LiveMonitor roughly)
   const getCellColor = (value) => {
+    // Safety check for invalid values (null, undefined, non-numbers)
+    if (value === undefined || value === null || !Number.isFinite(value)) {
+        return 'rgb(0, 0, 0)'; // Return black explicitly (or maybe dark grey if you want to see grid)
+    }
+
     // Simple 0-600 scale visualization
     const maxVal = 600;
     const safeVal = Math.min(Math.max(value, 0), maxVal);
@@ -207,8 +216,8 @@ export const SessionDetail = () => {
                     <div 
                         className="heatmap-grid-dynamic" 
                         style={{ 
-                            "--cols": 32,
-                            width: 'fit-content',
+                            "--cols": currentFrame && currentFrame.grid && currentFrame.grid.length > 0 ? currentFrame.grid[0].length : 32,
+                            // width: 'fit-content', // REMOVED to allow full width
                             border: '1px solid #eee'
                         }}
                     >

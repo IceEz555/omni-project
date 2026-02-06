@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getSessionTelemetry } from "../services/influxService.js";
+import { publishRecordingEvent } from "../services/mqttService.js";
+
 const prisma = new PrismaClient();
 
 // Start Session (Create)
@@ -16,6 +18,8 @@ export const createSession = async (req, res) => {
              where: { id: device_id } 
         });
 
+        let deviceSN = "";
+
         if (!device) {
              // Try searching by serial_number if ID fail
              const deviceBySn = await prisma.device.findUnique({
@@ -27,8 +31,10 @@ export const createSession = async (req, res) => {
              }
              // Use the UUID
              req.body.deviceUUID = deviceBySn.id;
+             deviceSN = deviceBySn.serial_number;
         } else {
              req.body.deviceUUID = device.id;
+             deviceSN = device.serial_number;
         }
 
         const newSession = await prisma.session.create({
@@ -38,6 +44,9 @@ export const createSession = async (req, res) => {
                 start_time: new Date(),
             }
         });
+
+        // ✅ Publish MQTT Event to Start Recording
+        publishRecordingEvent(deviceSN, "start");
 
         res.status(201).json(newSession);
     } catch (error) {
@@ -55,8 +64,16 @@ export const endSession = async (req, res) => {
             where: { id: id },
             data: {
                 end_time: new Date()
+            },
+            include: {
+                device: true
             }
         });
+
+        // ✅ Publish MQTT Event to Stop Recording
+        if (updatedSession.device) {
+            publishRecordingEvent(updatedSession.device.serial_number, "end");
+        }
 
         res.json(updatedSession);
     } catch (error) {
